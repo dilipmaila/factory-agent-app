@@ -1,6 +1,9 @@
 """
 Contextual Bandit Format Router using Upper Confidence Bound (UCB).
-Dynamically selects and learns the optimal response presentation style for each operator.
+Dynamically selects and learns optimal presentation styles decoupled by Cognitive State.
+Includes:
+1. Hard Format Overrides (-10.0 penalty).
+2. The Fatigue Gate (Environmental Context Matrix): When fatigue_index >= 0.80, forces 100% exploitation (c=0.0).
 """
 
 import math
@@ -11,12 +14,11 @@ from memory.semantic_graph import OperatorKnowledgeGraph
 class ContextualBandit:
     """
     Multi-Armed Bandit router that balances Exploration vs. Exploitation
-    to discover each operator's preferred instruction format over time.
+    independently across Cognitive States and handles Environmental Context Matrix (ECM) overrides.
     """
 
     ARMS = ["Visual_StepByStep", "Terse_Technical", "Detailed_Text"]
 
-    # Formatting prompt directives associated with each bandit arm
     ARM_INSTRUCTIONS = {
         "Visual_StepByStep": (
             "PRESENTATION STYLE: VISUAL & STEP-BY-STEP GUIDANCE (VISUAL LEARNER MODE).\n"
@@ -39,22 +41,21 @@ class ContextualBandit:
     }
 
     def __init__(self, knowledge_graph: OperatorKnowledgeGraph, exploration_c: float = 1.2):
-        """
-        Args:
-            knowledge_graph: The OperatorKnowledgeGraph instance holding PREFERS edges.
-            exploration_c: UCB exploration hyperparameter (c >= 1.0 encourages exploration of untested arms).
-        """
         self.graph = knowledge_graph
         self.c = exploration_c
 
-    def calculate_ucb_scores(self, operator_id: str) -> Dict[str, Dict[str, Any]]:
+    def calculate_ucb_scores(
+        self,
+        operator_id: str,
+        cognitive_tier: str,
+        exploration_override_c: Optional[float] = None,
+    ) -> Dict[str, Dict[str, Any]]:
         """
-        Calculates the UCB (Upper Confidence Bound) score for each format arm for a given operator.
-        
-        Formula:
-            UCB_i = empirical_mean_reward + c * sqrt( ln(total_pulls + 1) / (pulls_i + 1e-4) )
+        Calculates UCB scores for each format arm for a specific operator cognitive state.
+        If exploration_override_c is provided (e.g. 0.0 for Fatigue Gate), forces 100% exploitation.
         """
-        stats = self.graph.get_format_weights(operator_id)
+        effective_c = exploration_override_c if exploration_override_c is not None else self.c
+        stats = self.graph.get_state_format_weights(operator_id, cognitive_tier)
         total_pulls = sum(data.get("pull_count", 0) for data in stats.values())
 
         ucb_metrics = {}
@@ -63,19 +64,20 @@ class ContextualBandit:
             pulls = arm_data.get("pull_count", 0)
             weight = arm_data.get("weight", 0.0)
 
-            # Calculate empirical mean reward (normalized)
             mean_reward = (weight / pulls) if pulls > 0 else 0.0
 
-            # Calculate exploration bonus
-            if pulls == 0:
-                # Untried arm gets high exploration priority
-                exploration_bonus = self.c * math.sqrt(math.log(total_pulls + 2) / 0.1)
+            if effective_c <= 0.0:
+                # 100% EXPLOITATION (Fatigue Gate)
+                exploration_bonus = 0.0
+            elif pulls == 0:
+                exploration_bonus = effective_c * math.sqrt(math.log(total_pulls + 2) / 0.1)
             else:
-                exploration_bonus = self.c * math.sqrt(math.log(total_pulls + 1) / pulls)
+                exploration_bonus = effective_c * math.sqrt(math.log(total_pulls + 1) / pulls)
 
             total_ucb = mean_reward + exploration_bonus
 
             ucb_metrics[arm] = {
+                "cognitive_tier": cognitive_tier,
                 "pull_count": pulls,
                 "weight": round(weight, 2),
                 "mean_reward": round(mean_reward, 3),
@@ -87,37 +89,86 @@ class ContextualBandit:
 
         return ucb_metrics
 
-    def select_format(self, operator_id: str) -> Tuple[str, str, Dict[str, Any]]:
+    def select_format(
+        self,
+        operator_id: str,
+        machine_id: str,
+        ecm_payload: Optional[Dict[str, Any]] = None,
+        forced_format: Optional[str] = None,
+    ) -> Tuple[str, str, Dict[str, Any], str]:
         """
-        Selects the winning format arm using the UCB policy.
+        Selects format arm using UCB policy or ECM Fatigue Gate overrides.
         
-        Returns:
-            Tuple of:
-            - selected_arm_name (e.g. 'Visual_StepByStep')
-            - prompt_instruction_string
-            - ucb_debug_stats (Dictionary of scores for all arms for UI inspection)
+        Fatigue Gate Rule:
+        If fatigue_index >= 0.80 (operator is fatigued late in shift), force exploration_c = 0.0.
+        Strictly exploit the fastest format (Terse_Technical or highest mean reward).
         """
-        ucb_scores = self.calculate_ucb_scores(operator_id)
+        derived_tier = self.graph.get_machine_tier(operator_id, machine_id)
 
-        # Pick arm with highest UCB score (break ties deterministically)
-        best_arm = max(self.ARMS, key=lambda arm: ucb_scores[arm]["ucb_score"])
+        # Check ECM Fatigue Gate
+        is_fatigued = False
+        if ecm_payload and ecm_payload.get("fatigue_index", 0.0) >= 0.80:
+            is_fatigued = True
+
+        exploration_c = 0.0 if is_fatigued else self.c
+        ucb_scores = self.calculate_ucb_scores(operator_id, derived_tier, exploration_override_c=exploration_c)
+
+        if forced_format and forced_format in self.ARMS:
+            best_arm = forced_format
+        elif is_fatigued:
+            # Under extreme fatigue, pick arm with highest empirical mean reward; if tied/empty, exploit Terse_Technical
+            best_arm = max(self.ARMS, key=lambda arm: (ucb_scores[arm]["mean_reward"], 1 if arm == "Terse_Technical" else 0))
+        else:
+            best_arm = max(self.ARMS, key=lambda arm: ucb_scores[arm]["ucb_score"])
+
         instruction = self.ARM_INSTRUCTIONS.get(best_arm, self.ARM_INSTRUCTIONS["Visual_StepByStep"])
+        return best_arm, instruction, ucb_scores, derived_tier
 
-        return best_arm, instruction, ucb_scores
-
-    def update_reward(self, operator_id: str, format_used: str, reward_value: float) -> Dict[str, Any]:
-        """
-        Updates the reward in the knowledge graph for the format arm used.
-        
-        Args:
-            operator_id: Operator ID (e.g. OP-001)
-            format_used: Arm name (e.g. 'Visual_StepByStep')
-            reward_value: +1.0 for independent success, -1.0 for escalation/failure
-            
-        Returns:
-            Updated edge state dictionary.
-        """
+    def update_reward(
+        self,
+        operator_id: str,
+        cognitive_tier: str,
+        format_used: str,
+        reward_value: float,
+    ) -> Dict[str, Any]:
+        """Updates bandit reward (+1.0 / -1.0) on the cognitive state's format edge."""
         if format_used not in self.ARMS:
             format_used = "Visual_StepByStep"
 
-        return self.graph.update_format_weight(operator_id, format_used, reward_value)
+        return self.graph.update_state_format_weight(
+            operator_id=operator_id,
+            cognitive_tier=cognitive_tier,
+            format_name=format_used,
+            reward=reward_value,
+        )
+
+    def trigger_format_override(
+        self,
+        operator_id: str,
+        machine_id: str,
+        rejected_format: str,
+        requested_format: str,
+    ) -> Tuple[str, str, Dict[str, Any]]:
+        """Applies hard format override with -10.0 penalty to rejected format."""
+        derived_tier = self.graph.get_machine_tier(operator_id, machine_id)
+
+        if rejected_format in self.ARMS:
+            self.graph.update_state_format_weight(
+                operator_id=operator_id,
+                cognitive_tier=derived_tier,
+                format_name=rejected_format,
+                reward=-10.0,
+            )
+
+        if requested_format in self.ARMS:
+            self.graph.update_state_format_weight(
+                operator_id=operator_id,
+                cognitive_tier=derived_tier,
+                format_name=requested_format,
+                reward=2.0,
+            )
+
+        updated_ucb = self.calculate_ucb_scores(operator_id, derived_tier)
+        instruction = self.ARM_INSTRUCTIONS.get(requested_format, self.ARM_INSTRUCTIONS["Visual_StepByStep"])
+
+        return requested_format, instruction, updated_ucb

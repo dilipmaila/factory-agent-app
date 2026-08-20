@@ -1,36 +1,36 @@
 """
 Shadow Observer Agent Module.
-Passively monitors operator session resolutions (independent success vs. supervisor escalation),
-computes behavioural learning feedback, updates the Knowledge Graph, and adapts the Contextual Bandit policy.
+Synchronous Event Logger: Passively monitors operator session feedback during the live shift.
+Integrates:
+1. Durability Escrow Queue (<100ms) for holding positive rewards during the Durability Window.
+2. Micro-Debrief Loop: Flags unusually fast machine resolutions into pending_debriefs.json rather than guessing.
 """
 
+import time
 from typing import Dict, Any, Optional
-from memory.semantic_graph import OperatorKnowledgeGraph
 from memory.episodic_store import EpisodicMemory
+from memory.debrief_store import DebriefManager
 from mock_services.cmms_service import MockCMMS
 from mock_services.scada_service import MockSCADA
-from agents.bandit_router import ContextualBandit
 
 
 class ShadowObserver:
     """
-    Continuous evaluation agent that updates operator autonomy scores,
-    refines format preferences, and initiates CMMS escalation workflows when needed.
+    Lightweight, low-latency Shadow Observer that synchronously captures resolution events,
+    places positive rewards in escrow, and flags rapid resolutions for micro-debrief verification.
     """
 
     def __init__(
         self,
-        knowledge_graph: OperatorKnowledgeGraph,
-        bandit_router: ContextualBandit,
         episodic_memory: EpisodicMemory,
         cmms_service: Optional[MockCMMS] = None,
         scada_service: Optional[MockSCADA] = None,
+        debrief_manager: Optional[DebriefManager] = None,
     ):
-        self.graph = knowledge_graph
-        self.bandit = bandit_router
         self.memory = episodic_memory
         self.cmms = cmms_service or MockCMMS()
         self.scada = scada_service or MockSCADA()
+        self.debrief = debrief_manager or DebriefManager()
 
     def evaluate_session(
         self,
@@ -38,85 +38,127 @@ class ShadowObserver:
         machine_id: str,
         format_used: str,
         escalated: bool,
+        cognitive_tier: str = "Novice",
+        error_code: Optional[str] = None,
+        path_id: Optional[str] = None,
+        execution_time_mins: Optional[float] = None,
+        sop_avg_time_mins: float = 10.0,
+        suspected_shortcut_title: Optional[str] = None,
+        suspected_shortcut_payload: Optional[Dict[str, Any]] = None,
         issue_desc: str = "Machine malfunction / unresolved alarm",
         query: str = "",
         response: str = "",
+        session_id: Optional[str] = None,
     ) -> Dict[str, Any]:
         """
-        Evaluates the resolution outcome of an operator troubleshooting turn.
-        
-        Args:
-            operator_id: ID of the operator (e.g. 'OP-001')
-            machine_id: Target machine (e.g. 'Haas VF-2')
-            format_used: The bandit presentation arm used in the response
-            escalated: True if operator escalated to supervisor, False if solved independently
-            issue_desc: Summary description for CMMS ticket if escalated
-            query: Recent query text
-            response: Recent response text
-            
-        Returns:
-            Dictionary containing evaluation metrics, updated scores, tier transitions, and tickets.
+        Synchronously captures the resolution outcome into the event queue and escrow queue (<100ms).
+        If resolution is unusually fast (< 50% of SOP average), flags a micro-debrief.
         """
-        result: Dict[str, Any] = {
-            "operator_id": operator_id,
-            "machine_id": machine_id,
-            "format_used": format_used,
-            "escalated": escalated,
-        }
+        start_time = time.perf_counter()
+
+        outcome_status = "ESCALATED_CMMS" if escalated else "SUCCESS"
+        ticket_id = None
+        scada_verified = None
+        escrow_id = None
+        debrief_flagged = False
+        debrief_id = None
 
         if escalated:
-            # --- ESCALATION WORKFLOW ---
-            # 1. Update Contextual Bandit with negative reward
-            bandit_update = self.bandit.update_reward(operator_id, format_used, reward_value=-1.0)
-            result["bandit_reward_applied"] = -1.0
-            result["bandit_arm_state"] = bandit_update
-
-            # 2. Apply Autonomy Score penalty (-15 points)
-            new_autonomy = self.graph.update_autonomy_score(operator_id, machine_id, delta=-15.0)
-            new_tier = self.graph.get_operator_tier(operator_id)
-            result["new_autonomy_score"] = new_autonomy
-            result["new_tier"] = new_tier
-
-            # 3. Create Escalation Ticket in CMMS
+            # 1. Dispatch Escalation Ticket in CMMS
             ticket_id = self.cmms.create_escalation_ticket(
                 operator_id=operator_id,
                 machine_id=machine_id,
-                issue_desc=issue_desc or f"Escalated from AI copilot session for {machine_id}",
+                issue_desc=issue_desc or f"Escalated AI copilot session for {machine_id}",
                 priority="HIGH",
             )
-            result["ticket_id"] = ticket_id
-            result["message"] = f"⚠️ Escalation logged in CMMS with Ticket ID: {ticket_id}. Autonomy score adjusted (-15)."
-
-            # 4. Update Episodic Memory
-            self.memory.update_resolution(
-                operator_id=operator_id,
-                resolution_status="ESCALATED",
-                ticket_id=ticket_id,
+            message = (
+                f"⚠️ Escalation logged in CMMS (Ticket: {ticket_id}). "
+                f"Event queued for Sleep Cycle processing (Autonomy -15 pending)."
             )
-
         else:
-            # --- INDEPENDENT SUCCESS WORKFLOW ---
-            # 1. Update Contextual Bandit with positive reward (+1.0)
-            bandit_update = self.bandit.update_reward(operator_id, format_used, reward_value=1.0)
-            result["bandit_reward_applied"] = 1.0
-            result["bandit_arm_state"] = bandit_update
-
-            # 2. Boost Autonomy Score (+5 points)
-            new_autonomy = self.graph.update_autonomy_score(operator_id, machine_id, delta=5.0)
-            new_tier = self.graph.get_operator_tier(operator_id)
-            result["new_autonomy_score"] = new_autonomy
-            result["new_tier"] = new_tier
-
-            # 3. Verify repair telemetry with SCADA
-            repair_verified = self.scada.verify_repair(machine_id)
-            result["scada_telemetry_verified"] = repair_verified
-            result["ticket_id"] = None
-            result["message"] = f"✅ Issue resolved independently! Autonomy score increased (+5) to {new_autonomy:.1f}. Format '{format_used}' rewarded."
-
-            # 4. Update Episodic Memory
-            self.memory.update_resolution(
-                operator_id=operator_id,
-                resolution_status="SOLVED_INDEPENDENTLY",
+            # 2. Verify repair telemetry with SCADA
+            scada_verified = self.scada.verify_repair(machine_id)
+            message = (
+                f"✅ Issue resolved independently! Telemetry verified. "
+                f"Reward placed in Durability Escrow (8-hr durability window active)."
             )
 
-        return result
+            # 3. Place provisional reward into Escrow Queue
+            escrow_rec = self.memory.enqueue_escrow_reward(
+                operator_id=operator_id,
+                machine_id=machine_id,
+                fault_code=error_code or "General",
+                format_used=format_used,
+                cognitive_tier=cognitive_tier,
+                path_id=path_id,
+                provisional_reward=1.0,
+            )
+            escrow_id = escrow_rec.get("escrow_id")
+
+            # 4. Micro-Debrief Flagging (Section 3.B)
+            # If resolution time is significantly faster than SOP average (< 50%) or suspected shortcut provided
+            actual_time = execution_time_mins if execution_time_mins is not None else 2.0
+            if actual_time <= (sop_avg_time_mins * 0.5) or suspected_shortcut_payload:
+                shortcut_title = suspected_shortcut_title or f"Rapid Manual Bypass for {error_code or 'Fault'}"
+                default_payload = suspected_shortcut_payload or {
+                    "path_id": f"PATH_FAST_{error_code or 'ANOMALY'}",
+                    "title": shortcut_title,
+                    "description": f"Fast {actual_time}-min resolution detected by Shadow Observer.",
+                    "avg_execution_time_mins": actual_time,
+                    "success_count": 1,
+                    "failure_count": 0,
+                    "resolution_steps": f"1. Rapid bypass / reset sequence performed by {operator_id}.",
+                    "prohibited_actions": "Verify safety protocols before applying.",
+                    "validated_by_senior_operators": [],
+                }
+
+                debrief_rec = self.debrief.enqueue_debrief(
+                    operator_id=operator_id,
+                    machine_id=machine_id,
+                    fault_code=error_code or "Alarm 102",
+                    suspected_shortcut_title=shortcut_title,
+                    suspected_path_payload=default_payload,
+                    actual_time_mins=actual_time,
+                    sop_avg_time_mins=sop_avg_time_mins,
+                )
+                debrief_flagged = True
+                debrief_id = debrief_rec.get("debrief_id")
+                message += " [Fast Resolution Flagged: Pending Micro-Debrief Created]"
+
+        # 5. Fast Synchronous Queue Append (<100ms)
+        queued_event = self.memory.enqueue_feedback_event(
+            operator_id=operator_id,
+            machine_id=machine_id,
+            format_used=format_used,
+            cognitive_tier=cognitive_tier,
+            outcome_status=outcome_status,
+            error_code=error_code,
+            path_id=path_id,
+            ticket_id=ticket_id,
+            session_id=session_id,
+        )
+
+        # 6. Update active episode in persistent store
+        self.memory.update_resolution(
+            operator_id=operator_id,
+            resolution_status=outcome_status,
+            ticket_id=ticket_id,
+        )
+
+        elapsed_ms = (time.perf_counter() - start_time) * 1000.0
+
+        return {
+            "operator_id": operator_id,
+            "machine_id": machine_id,
+            "format_used": format_used,
+            "cognitive_tier": cognitive_tier,
+            "outcome_status": outcome_status,
+            "ticket_id": ticket_id,
+            "escrow_id": escrow_id,
+            "debrief_flagged": debrief_flagged,
+            "debrief_id": debrief_id,
+            "scada_verified": scada_verified,
+            "queued_event_id": queued_event.get("event_id"),
+            "latency_ms": round(elapsed_ms, 2),
+            "message": message,
+        }

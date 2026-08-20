@@ -1,0 +1,46 @@
+[
+  {
+    "debrief_id": "DEBRIEF-HAAS-102-001",
+    "operator_id": "OP-001",
+    "machine_id": "Haas VF-2",
+    "fault_code": "Alarm 102",
+    "suspected_shortcut_title": "Manual High-Pressure Solenoid Bypass",
+    "suspected_path_payload": {
+      "path_id": "PATH_DEBRIEF_SOLENOID_BYPASS",
+      "title": "Manual High-Pressure Solenoid Bypass (Fast Triage)",
+      "description": "2-minute quick pin depress on rear manifold valve.",
+      "avg_execution_time_mins": 2,
+      "success_count": 1,
+      "failure_count": 0,
+      "resolution_steps": "1. Depress manual solenoid 3-A override pin.\n2. Tap valve housing.\n3. Cycle E-stop.",
+      "prohibited_actions": "Do not leave override tool inserted during auto cycle.",
+      "validated_by_senior_operators": []
+    },
+    "actual_time_mins": 2.0,
+    "sop_avg_time_mins": 10.0,
+    "timestamp": "2026-08-20 14:15:00",
+    "status": "PENDING"
+  },
+  {
+    "debrief_id": "DEBRIEF-9408D223",
+    "operator_id": "OP-001",
+    "machine_id": "Haas VF-2",
+    "fault_code": "Haas_Alarm_102",
+    "suspected_shortcut_title": "Rapid Manual Bypass for Haas_Alarm_102",
+    "suspected_path_payload": {
+      "path_id": "PATH_FAST_Haas_Alarm_102",
+      "title": "Rapid Manual Bypass for Haas_Alarm_102",
+      "description": "Fast 2.0-min resolution detected by Shadow Observer.",
+      "avg_execution_time_mins": 2.0,
+      "success_count": 1,
+      "failure_count": 0,
+      "resolution_steps": "1. Rapid bypass / reset sequence performed by OP-001.",
+      "prohibited_actions": "Verify safety protocols before applying.",
+      "validated_by_senior_operators": []
+    },
+    "actual_time_mins": 2.0,
+    "sop_avg_time_mins": 10.0,
+    "timestamp": "2026-08-20 22:30:32",
+    "status": "PENDING"
+  }
+]

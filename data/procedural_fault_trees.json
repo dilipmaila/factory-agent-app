@@ -1,0 +1,118 @@
+[
+  {
+    "error_code": "Alarm 102",
+    "machine": "Haas VF-2",
+    "title": "SERVOS OFF",
+    "hazard_level": "NOTE",
+    "required_role": "Operator",
+    "diagnostic_paths": [
+      {
+        "path_id": "PATH_102_A",
+        "title": "Pneumatic Pressure Verification & Valve Reset (Rapid Triage)",
+        "description": "Quick 5-minute pneumatic line check and E-stop reset on the rear panel.",
+        "avg_execution_time_mins": 5,
+        "success_count": 18,
+        "failure_count": 3,
+        "resolution_steps": "1. Inspect the pneumatic pressure gauge on the rear air/lube panel (must read >= 85 PSI).\n2. Check if the Emergency Stop button is physically depressed; twist clockwise to release.\n3. Verify enclosure doors are fully closed and interlocks engaged.\n4. Press the control panel RESET button twice to re-energize servo drives.",
+        "prohibited_actions": "Do not bypass or tape down door interlock switches."
+      },
+      {
+        "path_id": "PATH_102_B",
+        "title": "Low Voltage Power Supply & Relay Inspection (Deep Diagnostic)",
+        "description": "45-minute electrical cabinet diagnostic for Maincon PCB low voltage supply and axis servo relays.",
+        "avg_execution_time_mins": 45,
+        "success_count": 4,
+        "failure_count": 8,
+        "resolution_steps": "1. Perform Lock-Out / Tag-Out (LOTO) on main breaker.\n2. Open electrical cabinet and verify DC bus discharge light is OFF.\n3. Measure low-voltage power supply at Maincon PCB: Yellow/Black (+12VDC) and White/Black (-12VDC).\n4. Inspect servo amplifier fault LEDs and re-seat loose ribbon connectors.",
+        "prohibited_actions": "NEVER touch electrical contacts without verifying zero DC bus voltage."
+      }
+    ]
+  },
+  {
+    "error_code": "E-201",
+    "machine": "Engel Victory 330",
+    "title": "BARREL OVERHEAT (Zone 2)",
+    "hazard_level": "WARNING",
+    "required_role": "Operator",
+    "diagnostic_paths": [
+      {
+        "path_id": "PATH_E201_A",
+        "title": "Thermocouple Calibration & Cooling Water Purge (Quick Fix)",
+        "description": "8-minute thermocouple seating verification and cooling jacket flow check.",
+        "avg_execution_time_mins": 8,
+        "success_count": 15,
+        "failure_count": 2,
+        "resolution_steps": "1. Inspect Zone 2 thermocouple connector for loose wiring or thermal paste degradation.\n2. Verify barrel cooling water solenoid valve is opening and water manifold flow indicator is spinning.\n3. Lower Zone 2 temperature setpoint by 5°C on CC300 controller to stabilize thermal overshoot.",
+        "prohibited_actions": "Do not touch barrel heat blankets directly without thermal protective gloves."
+      },
+      {
+        "path_id": "PATH_E201_B",
+        "title": "Solid State Relay (SSR) & Heater Band Replacement (Hardware Fix)",
+        "description": "50-minute SSR contactor inspection and ceramic heater band replacement.",
+        "avg_execution_time_mins": 50,
+        "success_count": 3,
+        "failure_count": 7,
+        "resolution_steps": "1. LOTO electrical enclosure and barrel heater circuits.\n2. Test SSR 2K1 for closed-circuit short (stuck ON condition).\n3. Measure resistance across Zone 2 ceramic band heater terminals.\n4. Replace defective SSR or heater band assembly.",
+        "prohibited_actions": "Do not power on heater circuits with open thermocouple circuit."
+      }
+    ]
+  },
+  {
+    "error_code": "Alarm 103",
+    "machine": "Haas VF-2",
+    "title": "X Axis SERVO ERROR TOO LARGE",
+    "hazard_level": "WARNING",
+    "required_role": "Maintenance Level 1",
+    "diagnostic_paths": [
+      {
+        "path_id": "PATH_103_A",
+        "title": "Ballscrew Way Lube & Chip Clearance",
+        "description": "10-minute mechanical chip clearance and manual way-lube flush.",
+        "avg_execution_time_mins": 10,
+        "success_count": 12,
+        "failure_count": 4,
+        "resolution_steps": "1. Remove chips and swarf from X-axis telescoping way covers.\n2. Trigger manual lubrication cycle via M161/M162.\n3. Hand-jog X axis in .001 increments to verify free travel without binding.",
+        "prohibited_actions": "Never force the axis with a pry bar."
+      },
+      {
+        "path_id": "PATH_103_B",
+        "title": "X-Axis Servo Motor Encoder & Belt Tensioning",
+        "description": "35-minute encoder feedback test and drive belt retensioning.",
+        "avg_execution_time_mins": 35,
+        "success_count": 5,
+        "failure_count": 5,
+        "resolution_steps": "1. Inspect X-axis motor coupling and encoder belt for backlash or tooth wear.\n2. Verify encoder signal cable shielding is grounded to chassis.\n3. Adjust timing belt tension to 45 lbs deflection.",
+        "prohibited_actions": "Do not overtighten belt beyond manufacturer spec."
+      }
+    ]
+  },
+  {
+    "error_code": "E-105",
+    "machine": "Engel Victory 330",
+    "title": "LOW HYDRAULIC CLAMPING PRESSURE",
+    "hazard_level": "WARNING",
+    "required_role": "Operator",
+    "diagnostic_paths": [
+      {
+        "path_id": "PATH_E105_A",
+        "title": "Hydraulic Reservoir Level & Filter Check",
+        "description": "5-minute fluid level verification and return filter differential check.",
+        "avg_execution_time_mins": 5,
+        "success_count": 14,
+        "failure_count": 1,
+        "resolution_steps": "1. Check hydraulic sight glass on main power unit (must be > 60% full).\n2. Inspect return line pressure filter indicator (must be in green zone).\n3. Top off with ISO VG 46 hydraulic fluid if level is low.",
+        "prohibited_actions": "Do not mix incompatible hydraulic oil grades."
+      },
+      {
+        "path_id": "PATH_E105_B",
+        "title": "Proportional Pressure Valve Recalibration",
+        "description": "40-minute proportional valve amplifier card tuning and transducer test.",
+        "avg_execution_time_mins": 40,
+        "success_count": 2,
+        "failure_count": 6,
+        "resolution_steps": "1. Connect pressure test gauge to tiebar-less clamp test port.\n2. Calibrate proportional valve amplifier offset voltage.\n3. Inspect proportional valve spool for particulate jamming.",
+        "prohibited_actions": "Do not adjust mechanical relief valve past 210 bar max rating."
+      }
+    ]
+  }
+]

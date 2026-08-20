@@ -1,0 +1,26 @@
+[
+  {
+    "error_code": "Alarm 102",
+    "machine": "Haas VF-2",
+    "title": "SERVOS OFF",
+    "hazard_level": "WARNING",
+    "required_role": "Expert",
+    "diagnostic_paths": [
+      {
+        "path_id": "PATH_102_QUARANTINE_FAST_PURGE",
+        "title": "High-Pressure Inline Bypass & Air Purge (Shopfloor Shortcut)",
+        "description": "2-minute rapid pneumatic manifold bypass discovered by shopfloor operators.",
+        "avg_execution_time_mins": 2,
+        "success_count": 5,
+        "failure_count": 0,
+        "resolution_steps": "1. Depress manual override pin on Solenoid 3-A using a 2mm Allen key.\n2. Tap pneumatic regulator valve to dislodge condensation.\n3. Cycle E-stop in rapid succession twice.",
+        "prohibited_actions": "Do not leave bypass pin engaged during machine cutting cycle.",
+        "validated_by_senior_operators": [
+          "OP-002"
+        ],
+        "quarantined_date": "2026-08-20",
+        "min_tier_required": "Expert"
+      }
+    ]
+  }
+]

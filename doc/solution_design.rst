@@ -616,10 +616,173 @@ the following experimental framework will validate its efficacy.
 
 ----------------------------------------------------------------------------------------
 
-7. Summary & Future Roadmap
-===========================
-The proposed adaptive learning assistant transforms static industrial troubleshooting into an
-intelligent, closed-loop cognitive system. By marrying **Contextual Multi-Armed Bandits**,
-**Semantic Knowledge Graphs**, **Hybrid RRF Grounding**, and **SCADA/CMMS Integrations**, the
-solution delivers personalized, safety-compliant, and self-improving operational intelligence
-tailored to the modern smart factory.
+8. Critical Architectural Evolutions & Enhancements (Version 3.0)
+==================================================================
+
+To resolve critical architectural limitations in earlier designs, the system incorporates three
+major structural upgrades:
+
+8.1 Evolution A: Procedural Memory (Bayesian Fault Trees) vs. Static Grounding Store
+-------------------------------------------------------------------------------------
+* **Limitation of Static RAG**: The initial design relied exclusively on static, read-only
+  markdown manuals in ChromaDB/BM25. This prevented the AI assistant from learning new troubleshooting
+  shortcuts, crowdsourced workarounds, or shopfloor heuristics discovered by operators.
+* **Dynamic Procedural Skill Library**: SOPs for machine alarms are structured as JSON-based
+  **Dynamic Probabilistic Fault Trees** supporting multiple branching ``diagnostic_paths`` per error code.
+* **Telemetry & Bayesian Updating**: Each diagnostic branch maintains live telemetry counts:
+  ``success_count``, ``failure_count``, and ``avg_execution_time_mins``. Branch probability is
+  dynamically computed via Beta-Binomial conjugate updating (Laplace smoothing):
+
+  .. math::
+
+     P(\text{Success}) = \frac{\text{successes} + \alpha}{\text{successes} + \text{failures} + \alpha + \beta}
+
+* **Dynamic Master Diagnostician Ranking**: When an SOP/alarm is queried, diagnostic branches are
+  automatically sorted descending by ``probability_score``. The prompt directs the LLM to guide the
+  operator through the highest-probability **Primary Recommended Fix** first while explicitly presenting
+  secondary/backup paths if the initial fix is unsuccessful.
+
+8.2 Evolution B: Decoupled Cognitive States vs. Global Preferences
+-------------------------------------------------------------------
+* **The "Paradox of Expertise"**: In earlier topologies, format preferences were linked globally to the
+  operator identity (``Operator -> PREFERS -> Format``). Under that flaw, an operator flagged as an
+  Expert on a Haas CNC would incorrectly receive dense, terse text when operating an unfamiliar Engel
+  Injection Molder, where they actually required beginner visual checklists.
+* **Decoupled Graph Topology**:
+  1. **Domain Confidence (``OPERATES``)**: Connects ``Operator`` directly to ``Machine``, tracking
+     machine-specific ``autonomy_score`` (0–100) and machine-specific ``derived_tier`` (``Novice``,
+     ``Intermediate``, ``Expert``).
+  2. **Cognitive Preference (``STATE_CONFIDENCE`` & ``PREFERS``)**: Connects ``Operator`` to specific
+     cognitive states (``STATE:<ID>:<Tier>``), which in turn connect via ``PREFERS`` to format arms.
+* **State-Bound Contextual Bandit Routing**: When an operator queries a machine:
+  1. System identifies ``Machine_ID``.
+  2. Retrieves the operator's machine-specific ``derived_tier`` from the ``OPERATES`` edge.
+  3. Queries UCB statistics specifically for that ``(Operator, derived_tier)`` cognitive state.
+  4. Delivers the optimal format (e.g., Sarah receives ``Terse_Technical`` on Haas VF-2 where she is
+     Expert with 95% autonomy, but seamlessly receives ``Visual_StepByStep`` on Engel Victory 330 where
+     she is Novice with 12% autonomy).
+  5. Bandit rewards are tracked completely independently across cognitive states.
+
+8.3 Evolution C: Synchronous Event Queue (<100ms) vs. Asynchronous Sleep Cycle Batch Evaluator
+----------------------------------------------------------------------------------------------
+* **The Shift Latency & Semantic Drift Problem**: Updating knowledge graphs and recalculating UCB
+  weights synchronously on every operator turn during active production shifts introduces unacceptable
+  UI latency and risks erratic intra-shift profile oscillation (Semantic Profile Drift).
+* **Synchronous Low-Latency Event Logger**: When an operator provides feedback (``Solved`` or
+  ``Escalated``), ``ShadowObserver`` creates a lightweight event payload (``session_id``, ``operator_id``,
+  ``machine_id``, ``format_used``, ``cognitive_tier``, ``outcome_status``) and appends it to
+  ``data/episodic_event_queue.json`` in **<5ms** (guaranteed <100ms). Zero synchronous graph mutations
+  occur during the active shift, preserving high-speed UI responsiveness and stable UX.
+* **Asynchronous Sleep Cycle Evaluator (``sleep_cycle_evaluator.py``)**: A standalone batch processing
+  script (intended for 03:00 AM cron execution or on-demand trigger) that:
+  1. Ingests all shift events from ``episodic_event_queue.json``.
+  2. Aggregates successes and escalations per operator and machine.
+  3. Executes mathematical state mutations: updates autonomy scores (+5 for solves, -15 for escalations,
+     clamped 0–100), recomputes derived tiers, updates state-bound bandit weights (+1.0 / -1.0), and updates
+     procedural fault tree branch telemetry.
+  4. Atomically persists the updated graph and procedural memory databases to disk.
+  5. Flushes and archives the processed event queue.
+
+----------------------------------------------------------------------------------------
+
+9. Safety & FMEA Guardrails: Consensus, Durability & Human Agency (Version 3.1)
+================================================================================
+
+To ensure industrial safety compliance (OSHA / ISO 13849), prevent unsafe shortcuts from entering
+the active skill library, and maintain deterministic human control, the system implements four FMEA
+guardrails:
+
+9.1 Safeguard A: The Durability Window (The Duct-Tape Problem)
+--------------------------------------------------------------
+* **The Hazard**: In high-throughput manufacturing, an operator might apply a temporary, unstable
+  "band-aid" (e.g., zip-tying an optical sensor) to clear an alarm quickly. If the system immediately
+  rewards the interaction, the AI reinforces bad troubleshooting habits that lead to repeated failures.
+* **Provisional Reward Escrow (``data/escrow_rewards.json``)**: When an issue is marked resolved,
+  positive rewards are held in escrow during an 8-hour Durability Window.
+* **Retroactive Duct-Tape Penalties**: During the overnight Sleep Cycle, the system checks SCADA alarm
+  history. If a recurring fault on the same machine and error code occurs within 8 hours, the provisional
+  reward is inverted into a heavy mathematical penalty: **$-5.0$** to the Bandit format weight and
+  **$-15.0$** to the operator's machine autonomy score. Only fixes that remain durable past 8 hours
+  release standard **$+1.0$** rewards and **$+5.0$** autonomy gains.
+
+9.2 Safeguard B: Quarantine Database & Consensus Validation
+------------------------------------------------------------
+* **The Hazard**: Unvetted shopfloor shortcuts invented by operators cannot be automatically added
+  to active SOPs, as they might violate OSHA safety standards or void machinery warranties.
+* **Dual-Store Isolation**: Active procedural SOPs are stored in ``data/procedural_fault_trees.json``,
+  while newly discovered shortcuts are quarantined in ``data/quarantine_sops.json``. Quarantined SOPs
+  are strictly excluded from general RAG retrieval for Chat Agent generation.
+* **3-Expert Consensus Auto-Promotion**: A quarantined procedure can only be promoted if validated by
+  three distinct Senior/Expert operators (``derived_tier == 'Expert'``). Upon consensus validation,
+  the branch is automatically promoted to the Active Skill Library with an immutable metadata tag
+  ``min_tier_required: 'Expert'``, ensuring novice operators cannot retrieve advanced shortcuts.
+
+9.3 Safeguard C: Status Tagging in Episodic Memory & Proactive Escalation
+-------------------------------------------------------------------------
+* **The Hazard**: Discarding failed or abandoned sessions causes conversational amnesia, forcing an
+  operator who repeatedly fails on a stubborn alarm to undergo repetitive, frustrating loops.
+* **Strict Resolution Status Enums**: All episodic turns mandate explicit status tagging:
+  ``SUCCESS``, ``ESCALATED_CMMS``, ``ABANDONED_TIMEOUT``, or ``IN_PROGRESS``.
+* **Historical Failure Injection**: When an operator queries a fault, the Working Memory Synthesizer
+  retrieves past failure episodes for that ``(Operator, Fault_Code)`` pair. If prior escalations exist,
+  it injects a high-priority directive into the prompt:
+  *"System Note: Operator <Name> has historically escalated <Fault_Code> (X prior escalations). Proactively acknowledge this difficulty and offer early Level 2 Maintenance dispatch / CMMS ticket if they express confusion."*
+
+9.4 Safeguard D: Explicit Format Overrides (Human Agency Safeguard)
+------------------------------------------------------------------
+* **The Hazard**: Pure algorithmic UCB routing can disempower operators if they urgently require a
+  specific format (e.g., an expert demanding a concise parameter list while the bandit explores visuals).
+* **Instant Format Overrides**: Operators can explicitly click format override controls in the UI.
+  Triggering an override immediately applies a massive mathematical penalty (**$-10.0$** weight, $+1$ pull,
+  $+1$ escalation) to the rejected format in the operator's active cognitive state in the knowledge graph.
+* **Instant LLM Regeneration**: Bypasses UCB routing for the immediate turn and re-synthesizes the LLM
+  response strictly adhering to the requested format in real-time.
+
+----------------------------------------------------------------------------------------
+
+10. Physical Context Matrix & The Micro-Debrief Loop (Version 3.2)
+===================================================================
+
+To integrate physical shift realities and replace probabilistic telemetry guessing with deterministic
+human validation, the system incorporates:
+
+10.1 The Environmental Context Matrix (ECM)
+-------------------------------------------
+* **The Reality**: Operators experience progressive cognitive fatigue during long shifts (e.g. Hour 11
+  vs Hour 1). Furthermore, when shift supervisors are off-site or at lunch, safety risks escalate.
+* **ECM Payload Generation**: On every interaction turn, the system generates real-time telemetry:
+  ``hours_since_clock_in``, ``total_shift_hours``, ``fatigue_index`` ($\text{hours} / \text{total}$),
+  ``supervisor_available``, ``ambient_noise_db``, and ``ambient_temp_c``.
+* **The Fatigue Gate**: If $\text{fatigue\_index} \ge 0.80$, the Bandit Router forces exploration bonus
+  parameter $c = 0.0$ (100% **Exploitation**), strictly selecting the fastest, scannable format
+  (``Terse_Technical`` or highest empirical mean) to respect exhausted operators.
+* **The Supervisor Gate**: If $\text{supervisor\_available} == \text{False}$, the Working Memory
+  Synthesizer injects an imperative safety override:
+  *"SYSTEM OVERRIDE: Shift Supervisor is OFFLINE. Provide mandatory safety checks and do not suggest escalating to Level 2. Operator must resolve independently or safely halt production."*
+
+10.2 The Micro-Debrief Loop
+----------------------------
+* **The Reality**: When a machine alarm is cleared in 2 minutes (while OEM SOP average is 10 minutes),
+  the AI cannot guess what shortcut was used. Telemetry guesswork is hazardous.
+* **Pending Debrief Queue (``data/pending_debriefs.json``)**: When Shadow Observer detects an unusually
+  fast resolution, it creates a pending micro-debrief record.
+* **Human-in-the-Loop Intercept**: On the operator's next chat session, the Copilot intercepts with a
+  simple Y/N inquiry:
+  *"Earlier you resolved <Fault_Code> in ~{actual_time} min. Did you use the '{suspected_shortcut}'? (Yes/No)"*
+* **Deterministic Routing**:
+  - **Yes**: Routes the shortcut into ``data/quarantine_sops.json`` with that operator's validation attached.
+  - **No**: Discards the telemetry assumption without mutating any procedural memory.
+
+----------------------------------------------------------------------------------------
+
+11. Summary & Future Roadmap
+============================
+The updated adaptive learning assistant transforms static industrial troubleshooting into an
+intelligent, closed-loop cognitive system. By marrying **Dynamic Procedural Bayesian Fault Trees**,
+**Decoupled State-Bound Multi-Armed Bandits**, **Low-Latency Shift Event Queues**, **Reward Escrow
+Durability Windows**, **Quarantine Consensus Validation**, **Human Agency Hard Overrides**,
+**The Environmental Context Matrix (ECM)**, and **The Micro-Debrief Loop**, the solution delivers
+personalized, safety-compliant, and self-improving operational intelligence tailored to the modern smart factory.
+
+
+
