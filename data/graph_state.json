@@ -1,0 +1,184 @@
+{
+  "directed": true,
+  "multigraph": false,
+  "graph": {},
+  "nodes": [
+    {
+      "node_type": "Format",
+      "arm_name": "Visual_StepByStep",
+      "id": "FORMAT:Visual_StepByStep"
+    },
+    {
+      "node_type": "Format",
+      "arm_name": "Terse_Technical",
+      "id": "FORMAT:Terse_Technical"
+    },
+    {
+      "node_type": "Format",
+      "arm_name": "Detailed_Text",
+      "id": "FORMAT:Detailed_Text"
+    },
+    {
+      "node_type": "Machine",
+      "machine_id": "Haas VF-2",
+      "id": "MACHINE:Haas VF-2"
+    },
+    {
+      "node_type": "Machine",
+      "machine_id": "Engel Victory 330",
+      "id": "MACHINE:Engel Victory 330"
+    },
+    {
+      "node_type": "Operator",
+      "operator_id": "OP-001",
+      "name": "John Doe",
+      "tier": "Novice",
+      "id": "OPERATOR:OP-001"
+    },
+    {
+      "node_type": "Operator",
+      "operator_id": "OP-002",
+      "name": "Sarah Jenkins",
+      "tier": "Expert",
+      "id": "OPERATOR:OP-002"
+    },
+    {
+      "node_type": "Operator",
+      "operator_id": "OP-003",
+      "name": "Mike Chen",
+      "tier": "Intermediate",
+      "id": "OPERATOR:OP-003"
+    }
+  ],
+  "edges": [
+    {
+      "relation": "OPERATES",
+      "autonomy_score": 35.0,
+      "success_count": 3,
+      "escalation_count": 0,
+      "source": "OPERATOR:OP-001",
+      "target": "MACHINE:Haas VF-2"
+    },
+    {
+      "relation": "OPERATES",
+      "autonomy_score": 30.0,
+      "success_count": 3,
+      "escalation_count": 0,
+      "source": "OPERATOR:OP-001",
+      "target": "MACHINE:Engel Victory 330"
+    },
+    {
+      "relation": "PREFERS",
+      "weight": 1.0,
+      "pull_count": 1,
+      "success_count": 1,
+      "escalation_count": 0,
+      "source": "OPERATOR:OP-001",
+      "target": "FORMAT:Visual_StepByStep"
+    },
+    {
+      "relation": "PREFERS",
+      "weight": 0.0,
+      "pull_count": 0,
+      "success_count": 0,
+      "escalation_count": 0,
+      "source": "OPERATOR:OP-001",
+      "target": "FORMAT:Terse_Technical"
+    },
+    {
+      "relation": "PREFERS",
+      "weight": 0.5,
+      "pull_count": 1,
+      "success_count": 0,
+      "escalation_count": 0,
+      "source": "OPERATOR:OP-001",
+      "target": "FORMAT:Detailed_Text"
+    },
+    {
+      "relation": "OPERATES",
+      "autonomy_score": 88.0,
+      "success_count": 8,
+      "escalation_count": 0,
+      "source": "OPERATOR:OP-002",
+      "target": "MACHINE:Haas VF-2"
+    },
+    {
+      "relation": "OPERATES",
+      "autonomy_score": 82.0,
+      "success_count": 8,
+      "escalation_count": 0,
+      "source": "OPERATOR:OP-002",
+      "target": "MACHINE:Engel Victory 330"
+    },
+    {
+      "relation": "PREFERS",
+      "weight": 0.2,
+      "pull_count": 1,
+      "success_count": 0,
+      "escalation_count": 0,
+      "source": "OPERATOR:OP-002",
+      "target": "FORMAT:Visual_StepByStep"
+    },
+    {
+      "relation": "PREFERS",
+      "weight": 1.5,
+      "pull_count": 2,
+      "success_count": 2,
+      "escalation_count": 0,
+      "source": "OPERATOR:OP-002",
+      "target": "FORMAT:Terse_Technical"
+    },
+    {
+      "relation": "PREFERS",
+      "weight": 0.1,
+      "pull_count": 0,
+      "success_count": 0,
+      "escalation_count": 0,
+      "source": "OPERATOR:OP-002",
+      "target": "FORMAT:Detailed_Text"
+    },
+    {
+      "relation": "OPERATES",
+      "autonomy_score": 58.0,
+      "success_count": 5,
+      "escalation_count": 0,
+      "source": "OPERATOR:OP-003",
+      "target": "MACHINE:Haas VF-2"
+    },
+    {
+      "relation": "OPERATES",
+      "autonomy_score": 62.0,
+      "success_count": 6,
+      "escalation_count": 0,
+      "source": "OPERATOR:OP-003",
+      "target": "MACHINE:Engel Victory 330"
+    },
+    {
+      "relation": "PREFERS",
+      "weight": 0.8,
+      "pull_count": 1,
+      "success_count": 1,
+      "escalation_count": 0,
+      "source": "OPERATOR:OP-003",
+      "target": "FORMAT:Visual_StepByStep"
+    },
+    {
+      "relation": "PREFERS",
+      "weight": 0.7,
+      "pull_count": 1,
+      "success_count": 1,
+      "escalation_count": 0,
+      "source": "OPERATOR:OP-003",
+      "target": "FORMAT:Terse_Technical"
+    },
+    {
+      "relation": "PREFERS",
+      "weight": 0.4,
+      "pull_count": 1,
+      "success_count": 0,
+      "escalation_count": 0,
+      "source": "OPERATOR:OP-003",
+      "target": "FORMAT:Detailed_Text"
+    }
+  ]
+}

@@ -1,0 +1,82 @@
+[
+  {
+    "episode_id": "EP-0001",
+    "timestamp": "2026-08-19 23:28:42",
+    "operator_id": "OP-003",
+    "machine_id": "Haas VF-2",
+    "query": "How do I clear Alarm 102 (Servos Off)?",
+    "response": "[{'type': 'text', 'text': \"Hello Mike. I am your Factory Operator Intelligent Assistant. Let's get your Haas VF-2 back up and running safely. \\n\\nHere is your step-by-step guidance to clear **Alarm 102: SERVOS OFF**, based strictly on standard operating procedures.\\n\\n---\\n\\n### **TROUBLESHOOTING SEQUENCE: ALARM 102 (SERVOS OFF)**\\n\\n```\\n[ Alarm 102 ] --> [ Check E-Stop ] --> [ Check Doors ] --> [ Reset System ]\\n```\\n\\n- **[SAFETY]** Ensure your immediate work area is clear before performing the reset sequence. Do not attempt to defeat door interlock switches under any circumstances.\\n\\n- **[INSPECT]** Step 1: Check if the Emergency Stop button is currently depressed.\\n  - *Status Check:* Look at the operator control panel.\\n\\n- **[ACTION]** Step 2: Verify that all enclosure doors are fully closed and latched.\\n\\n- **[ACTION]** Step 3: Twist the physical Emergency Stop button clockwise to release it.\\n\\n- **[ACTION]** Step 4: Press the **[RESET]** button on the control panel **twice**.\\n\\n---\\n\\n- **[VERIFY]** [ ] Alarm 102 cleared and servo amplifiers successfully enabled? \\n\\n*If this procedure does not clear the alarm, please notify maintenance or supervisor for further electrical diagnostics.*\", 'extras': {'signature': 'El4KXAERTTIPH5LNqzG0/ZbAGpcAIkxXcCxY+Nnix6m5ft2vSS1OfVYhvQakskP+3FIOIPzbWaWgKDWqcjyibN+/JmFprtBml5Qf4gu1kpZ/VGHSm/7U+IfiCCuO8nTf'}}]",
+    "format_used": "Visual_StepByStep",
+    "resolution_status": "IN_PROGRESS",
+    "ticket_id": null,
+    "retrieved_sop_ids": [
+      "VF2-SOP-01",
+      "VF2-SOP-03",
+      "VF2-SOP-07"
+    ]
+  },
+  {
+    "episode_id": "EP-0002",
+    "timestamp": "2026-08-19 23:32:11",
+    "operator_id": "OP-001",
+    "machine_id": "Haas VF-2",
+    "query": "How do I clear Alarm 102 (Servos Off)?",
+    "response": "[{'type': 'text', 'text': '- **Active Alarm**: 102 (SERVOS OFF) - Servo amplifiers disabled.\\n- **Resolution Sequence**:\\n  1. Verify E-stop status (Confirm if depressed).\\n  2. Verify enclosure door status (Must be fully closed).\\n  3. Twist E-stop to release.\\n  4. Press **RESET** twice.\\n- **Prohibited Actions**: Do not defeat door interlock switches.', 'extras': {'signature': 'El4KXAERTTIPmCpbrtR7l2smHSBsvEa8EGpoDuDgwkA7IeD3JXxz+YdUtPDcoC5iPkl/BFHSYOG47kHyalfRBTcIGE0AO0BjdRr2tGyMBLMMwhzmiSeW6MGz1UrIJ4Ku'}}]",
+    "format_used": "Terse_Technical",
+    "resolution_status": "IN_PROGRESS",
+    "ticket_id": null,
+    "retrieved_sop_ids": [
+      "VF2-SOP-01",
+      "VF2-SOP-03",
+      "VF2-SOP-07"
+    ]
+  },
+  {
+    "episode_id": "EP-0003",
+    "timestamp": "2026-08-19 23:32:45",
+    "operator_id": "OP-001",
+    "machine_id": "Haas VF-2",
+    "query": "How do I clear Alarm 102 (Servos Off)?",
+    "response": "- **Alarm:** 102 - SERVOS OFF (Servo amplifiers disabled)\n- **Resolution Sequence:**\n  1. Inspect Emergency Stop button status.\n  2. Verify all enclosure doors are fully closed.\n  3. Twist E-stop to release.\n  4. Press [RESET] twice.\n- **Prohibited Action:** \n  - \u26a0\ufe0f Do NOT defeat door interlock switches.",
+    "format_used": "Terse_Technical",
+    "resolution_status": "IN_PROGRESS",
+    "ticket_id": null,
+    "retrieved_sop_ids": [
+      "VF2-SOP-01",
+      "VF2-SOP-03",
+      "VF2-SOP-07"
+    ]
+  },
+  {
+    "episode_id": "EP-0004",
+    "timestamp": "2026-08-19 23:36:35",
+    "operator_id": "OP-001",
+    "machine_id": "Haas VF-2",
+    "query": "How do I clear Alarm 102 (Servos Off)?",
+    "response": "1. Check if Emergency Stop is depressed and verify enclosure doors are closed.\n2. Twist E-stop to release and press RESET twice.\n3. Prohibited: Do not defeat door interlock switches.",
+    "format_used": "Terse_Technical",
+    "resolution_status": "IN_PROGRESS",
+    "ticket_id": null,
+    "retrieved_sop_ids": [
+      "VF2-SOP-01",
+      "VF2-SOP-03",
+      "VF2-SOP-07"
+    ]
+  },
+  {
+    "episode_id": "EP-0005",
+    "timestamp": "2026-08-19 23:41:53",
+    "operator_id": "OP-001",
+    "machine_id": "Haas VF-2",
+    "query": "How do I clear Alarm 102 (Servos Off)?",
+    "response": "- Check if Emergency Stop is depressed and verify enclosure doors are closed.\n- Twist E-stop to release, then press RESET twice.\n- Do not defeat door interlock switches.",
+    "format_used": "Terse_Technical",
+    "resolution_status": "ESCALATED",
+    "ticket_id": "TICK-2026-B9836D",
+    "retrieved_sop_ids": [
+      "VF2-SOP-01",
+      "VF2-SOP-03",
+      "VF2-SOP-07"
+    ]
+  }
+]

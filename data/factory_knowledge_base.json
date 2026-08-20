@@ -1,0 +1,899 @@
+[
+    {
+        "id": "VF2-MAN-01",
+        "machine": "Haas VF-2",
+        "doc_type": "Manual",
+        "topic": "M-Codes Overview",
+        "content": "M00 stops a program completely. M01 is an Optional Program Stop activated by the control panel. M02 signifies Program End."
+    },
+    {
+        "id": "VF2-MAN-02",
+        "machine": "Haas VF-2",
+        "doc_type": "Manual",
+        "topic": "Spindle Rotation",
+        "content": "M03 engages the Spindle Forward Command (clockwise). M04 engages the Spindle Reverse Command. M05 issues the Spindle Stop Command."
+    },
+    {
+        "id": "VF2-MAN-03",
+        "machine": "Haas VF-2",
+        "doc_type": "Manual",
+        "topic": "Tool Change Operations",
+        "content": "Command M06 initiates a tool change. M82 forces tool unclamp, while M86 commands tool clamp. Ensure spindle is oriented via M19 before manual unclamping."
+    },
+    {
+        "id": "VF2-MAN-04",
+        "machine": "Haas VF-2",
+        "doc_type": "Manual",
+        "topic": "Coolant Control",
+        "content": "M08 turns standard flood coolant ON. M09 turns coolant OFF. M88 turns Through-Spindle Coolant (TSC) ON, and M89 turns TSC OFF."
+    },
+    {
+        "id": "VF2-MAN-05",
+        "machine": "Haas VF-2",
+        "doc_type": "Manual",
+        "topic": "Linear & Circular Interpolation",
+        "content": "G01 executes linear cutting moves at programmed feed rate. G02 executes clockwise circular interpolation. G03 executes counter-clockwise circular interpolation."
+    },
+    {
+        "id": "VF2-MAN-06",
+        "machine": "Haas VF-2",
+        "doc_type": "Manual",
+        "topic": "Work Coordinate Systems",
+        "content": "G54 through G59 represent standard work offsets 1 through 6. These define the absolute zero point of the workpiece relative to machine home."
+    },
+    {
+        "id": "VF2-MAN-07",
+        "machine": "Haas VF-2",
+        "doc_type": "Manual",
+        "topic": "Canned Drilling Cycles",
+        "content": "G81 is the standard hole drilling cycle. G83 is the peck drilling cycle used for deep holes to clear chips and prevent drill breakage."
+    },
+    {
+        "id": "VF2-MAN-08",
+        "machine": "Haas VF-2",
+        "doc_type": "Manual",
+        "topic": "Tool Length Compensation",
+        "content": "G43 applies positive tool length offset from the tool table. G49 cancels the active tool length compensation. G43 is required immediately following an M06."
+    },
+    {
+        "id": "VF2-MAN-09",
+        "machine": "Haas VF-2",
+        "doc_type": "Manual",
+        "topic": "Low Voltage Power Supply",
+        "content": "The system requires +12/-12VDC. Measuring across Maincon PCB: Yellow/Black must be +11.85 to +12.50 VDC. White/Black must be -11.85 to -12.50 VDC."
+    },
+    {
+        "id": "VF2-MAN-10",
+        "machine": "Haas VF-2",
+        "doc_type": "Manual",
+        "topic": "Servo Amplifier Cooling",
+        "content": "The drive cooling fan requires 120 VAC. Disconnect cable from the cooling fan and measure voltage between leads to verify power delivery from the distribution board."
+    },
+    {
+        "id": "VF2-MAN-11",
+        "machine": "Haas VF-2",
+        "doc_type": "Manual",
+        "topic": "Operating Temperatures",
+        "content": "Maximum safe ambient operating temperature is 122F (50C). The amplifier over-temperature sensor will trigger a safe shutdown at 195F (90C)."
+    },
+    {
+        "id": "VF2-MAN-12",
+        "machine": "Haas VF-2",
+        "doc_type": "Manual",
+        "topic": "Pneumatic Air Requirements",
+        "content": "Requires a steady supply of clean, dry shop air at a minimum of 85 PSI. The regulator/water trap is located at the rear lube/air cabinet."
+    },
+    {
+        "id": "VF2-MAN-13",
+        "machine": "Haas VF-2",
+        "doc_type": "Manual",
+        "topic": "Way Lube System",
+        "content": "The automatic lubrication system requires Mobil Vactra No. 2 oil. If the reservoir drops below 20%, a low lube warning is triggered. Capacity is 1 gallon."
+    },
+    {
+        "id": "VF2-MAN-14",
+        "machine": "Haas VF-2",
+        "doc_type": "Manual",
+        "topic": "Probing Systems (WIPS)",
+        "content": "G31 initiates a skip function for probing. M78 triggers an alarm if a skip signal is unexpectedly found. M79 triggers an alarm if the skip signal is NOT found."
+    },
+    {
+        "id": "VF2-MAN-15",
+        "machine": "Haas VF-2",
+        "doc_type": "Manual",
+        "topic": "Pallet Changer Commands",
+        "content": "M50 initiates the Pallet Change Sequence. M199 is used to signal Pallet/Part Load complete or Program End for automated pallet pool setups."
+    },
+    {
+        "id": "VF2-MAN-16",
+        "machine": "Haas VF-2",
+        "doc_type": "Manual",
+        "topic": "Cutter Radius Compensation",
+        "content": "G41 offsets the cutter to the left of the programmed path. G42 offsets the cutter to the right. G40 cancels compensation."
+    },
+    {
+        "id": "VF2-MAN-17",
+        "machine": "Haas VF-2",
+        "doc_type": "Manual",
+        "topic": "Reference Point Return",
+        "content": "G28 commands a return to machine zero (home position). Required upon system power-up to establish encoder zero positions."
+    },
+    {
+        "id": "VF2-MAN-18",
+        "machine": "Haas VF-2",
+        "doc_type": "Manual",
+        "topic": "Programmable Coolant (PCOOL)",
+        "content": "M34 increments the coolant nozzle position up. M35 decrements the coolant nozzle position down to target shorter tools dynamically during the cycle."
+    },
+    {
+        "id": "VF2-MAN-19",
+        "machine": "Haas VF-2",
+        "doc_type": "Manual",
+        "topic": "Chip Conveyor Controls",
+        "content": "M31 runs the chip conveyor forward to evacuate chips. M33 stops the chip conveyor. Run only when enclosure doors are closed and locked."
+    },
+    {
+        "id": "VF2-MAN-20",
+        "machine": "Haas VF-2",
+        "doc_type": "Manual",
+        "topic": "Spindle Gearbox Override",
+        "content": "M41 overrides the spindle to low gear (high torque, max 2000 RPM). M42 overrides the spindle to high gear (high RPM). For 2-speed gearbox machines only."
+    },
+    {
+        "id": "VF2-MAN-21",
+        "machine": "Haas VF-2",
+        "doc_type": "Manual",
+        "topic": "Auto Doors and Windows",
+        "content": "M80 opens the automatic enclosure door. M81 closes it. M180 opens the auto window, and M181 closes it. Requires pneumatic pressure >= 85 PSI."
+    },
+    {
+        "id": "VF2-MAN-22",
+        "machine": "Haas VF-2",
+        "doc_type": "Manual",
+        "topic": "Sub-Programming",
+        "content": "M97 calls a local sub-program within the same file. M98 calls an external sub-program from memory. M99 commands a sub-program return."
+    },
+    {
+        "id": "VF2-MAN-23",
+        "machine": "Haas VF-2",
+        "doc_type": "Manual",
+        "topic": "Tool Air Blast (TAB)",
+        "content": "M73 turns Tool Air Blast ON to clear chips from dry-cutting tools. M74 turns Tool Air Blast OFF. Shares pneumatic lines with the auto-door solenoid."
+    },
+    {
+        "id": "VF2-MAN-24",
+        "machine": "Haas VF-2",
+        "doc_type": "Manual",
+        "topic": "Fixture Clamping",
+        "content": "M90 turns Fixture Clamp Input ON for hydraulic/pneumatic workholding. M91 turns the input OFF. Regulated by the external M-code relay board."
+    },
+    {
+        "id": "VF2-MAN-25",
+        "machine": "Haas VF-2",
+        "doc_type": "Manual",
+        "topic": "PulseJet System",
+        "content": "M161 activates PulseJet continuous lubrication mode. M162 fires a single PulseJet event. Used exclusively for Minimum Quantity Lubrication (MQL) setups."
+    },
+    {
+        "id": "VF2-SOP-01",
+        "machine": "Haas VF-2",
+        "doc_type": "SOP",
+        "error_code": "Alarm 102",
+        "hazard_level": "NOTE",
+        "required_role": "Operator",
+        "description": "SERVOS OFF. Indicates servo amplifiers disabled.",
+        "resolution_steps": "1. Check if Emergency Stop is depressed. 2. Verify enclosure doors are closed. 3. Twist E-stop to release. 4. Press RESET twice.",
+        "prohibited_actions": "Do not attempt to defeat door interlock switches."
+    },
+    {
+        "id": "VF2-SOP-02",
+        "machine": "Haas VF-2",
+        "doc_type": "SOP",
+        "error_code": "Alarm 103",
+        "hazard_level": "WARNING",
+        "required_role": "Maintenance Level 1",
+        "description": "X Axis SERVO ERROR TOO LARGE. Axis following error exceeded limit.",
+        "resolution_steps": "1. Check X-axis ballscrew for physical chip buildup. 2. Verify way-lube is reaching the linear guides. 3. Hand-jog axis with power off to feel for mechanical binding.",
+        "prohibited_actions": "NEVER force the axis with a pry bar or apply excessive force to the handwheel."
+    },
+    {
+        "id": "VF2-SOP-03",
+        "machine": "Haas VF-2",
+        "doc_type": "SOP",
+        "error_code": "Alarm 104",
+        "hazard_level": "WARNING",
+        "required_role": "Maintenance Level 1",
+        "description": "Y Axis SERVO ERROR TOO LARGE.",
+        "resolution_steps": "1. Remove front Y-axis way covers. 2. Inspect ballscrew and nut for damage or lack of lubrication. 3. Check encoder belt tension.",
+        "prohibited_actions": "Do not remove way covers while machine is powered on."
+    },
+    {
+        "id": "VF2-SOP-04",
+        "machine": "Haas VF-2",
+        "doc_type": "SOP",
+        "error_code": "Alarm 105",
+        "hazard_level": "DANGER",
+        "required_role": "Maintenance Level 2 (Electrical)",
+        "description": "Z Axis SERVO ERROR TOO LARGE. Often caused by motor brake failure.",
+        "resolution_steps": "1. Block the spindle head with a wooden block to prevent dropping. 2. Test Z-axis motor brake relay. 3. Measure brake coil resistance.",
+        "prohibited_actions": "Do not power off the machine if the Z-axis brake is suspected to be faulty without mechanically blocking the spindle head."
+    },
+    {
+        "id": "VF2-SOP-05",
+        "machine": "Haas VF-2",
+        "doc_type": "SOP",
+        "error_code": "Alarm 161",
+        "hazard_level": "DANGER",
+        "required_role": "Maintenance Level 2 (Electrical)",
+        "description": "X AXIS DRIVE FAULT. Drive amplifier detected over-current.",
+        "resolution_steps": "1. Perform LOTO (Lockout/Tagout). 2. Wait 10 minutes for DC bus discharge. 3. Megger test the X-axis motor leads for shorts to ground.",
+        "prohibited_actions": "NEVER open the electrical cabinet without confirming high voltage DC bus is discharged (red indicator light must be OFF)."
+    },
+    {
+        "id": "VF2-SOP-06",
+        "machine": "Haas VF-2",
+        "doc_type": "SOP",
+        "error_code": "Alarm 111",
+        "hazard_level": "NOTE",
+        "required_role": "Operator",
+        "description": "LOW AIR PRESSURE. Shop air dropped below 85 psi.",
+        "resolution_steps": "1. Check main shop compressor. 2. Verify air line to machine is not kinked. 3. Check the pressure gauge on the rear air/lube panel.",
+        "prohibited_actions": "Do not adjust the factory pneumatic regulator setting above 95 PSI."
+    },
+    {
+        "id": "VF2-SOP-07",
+        "machine": "Haas VF-2",
+        "doc_type": "SOP",
+        "error_code": "Alarm 112",
+        "hazard_level": "NOTE",
+        "required_role": "Operator",
+        "description": "NO REFERENCE POINT / Z HOME.",
+        "resolution_steps": "1. Ensure machine area is clear. 2. Press Power-Up/Restart to initiate zero return sequence. 3. If Z-axis fails to home, clean chips off the Z-axis limit switch.",
+        "prohibited_actions": "None."
+    },
+    {
+        "id": "VF2-SOP-08",
+        "machine": "Haas VF-2",
+        "doc_type": "SOP",
+        "error_code": "CAUTION",
+        "required_role": "Maintenance Level 1",
+        "description": "SPINDLE GEAR CHANGE FAULT. Gearbox failed to shift.",
+        "resolution_steps": "1. Verify 85 PSI air pressure. 2. Check the shift solenoid on the gearbox. 3. Check transmission oil level.",
+        "prohibited_actions": "NEVER strike the spindle head or gearbox housing with a hammer to force a gear shift."
+    },
+    {
+        "id": "VF2-SOP-09",
+        "machine": "Haas VF-2",
+        "doc_type": "SOP",
+        "error_code": "Alarm 119",
+        "hazard_level": "WARNING",
+        "required_role": "Maintenance Level 2 (Electrical)",
+        "description": "REGEN / OVERHEAT. Regenerative load or cabinet overheat.",
+        "resolution_steps": "1. Check the regen resistor housing on top of the electrical cabinet. 2. Verify cabinet cooling fans are operational. 3. Clean cabinet door filters.",
+        "prohibited_actions": "Do not operate machine with electrical cabinet doors open to provide cooling."
+    },
+    {
+        "id": "VF2-SOP-10",
+        "machine": "Haas VF-2",
+        "doc_type": "SOP",
+        "error_code": "Alarm 120",
+        "hazard_level": "DANGER",
+        "required_role": "Maintenance Level 2 (Electrical)",
+        "description": "LOW VOLTAGE. Incoming 3-phase line voltage is too low.",
+        "resolution_steps": "1. Perform LOTO. 2. Measure incoming AC voltage at the main breaker. 3. Adjust the main transformer tap settings to match facility voltage.",
+        "prohibited_actions": "Only certified electricians may measure or adjust incoming 3-phase power."
+    },
+    {
+        "id": "VF2-SOP-11",
+        "machine": "Haas VF-2",
+        "doc_type": "SOP",
+        "error_code": "NOTE",
+        "required_role": "Operator",
+        "description": "LOW LUBRICATION. Way/axis lube low or no pressure.",
+        "resolution_steps": "1. Locate the clear lube jug at the rear left of the machine. 2. Refill with Mobil Vactra No. 2 oil. 3. Cycle the pump manually to prime.",
+        "prohibited_actions": "Do not substitute standard motor oil or hydraulic fluid for Vactra No. 2."
+    },
+    {
+        "id": "VF2-SOP-12",
+        "machine": "Haas VF-2",
+        "doc_type": "SOP",
+        "error_code": "Alarm 162",
+        "hazard_level": "DANGER",
+        "required_role": "Maintenance Level 2 (Electrical)",
+        "description": "Y AXIS DRIVE FAULT. Y-axis amplifier over-current.",
+        "resolution_steps": "1. Perform LOTO. 2. Swap Y and X amplifier control cables to isolate whether the fault is in the drive or the motor.",
+        "prohibited_actions": "NEVER swap amplifier cables while the machine is powered on."
+    },
+    {
+        "id": "VF2-SOP-13",
+        "machine": "Haas VF-2",
+        "doc_type": "SOP",
+        "error_code": "Alarm 163",
+        "hazard_level": "DANGER",
+        "required_role": "Maintenance Level 2 (Electrical)",
+        "description": "Z AXIS DRIVE FAULT.",
+        "resolution_steps": "1. Perform LOTO. 2. Inspect Z-axis motor power cable track for chafing or shorts to ground. 3. Verify Z-axis motor brake is receiving 115VAC.",
+        "prohibited_actions": "Do not replace the amplifier without first megger-testing the motor; a shorted motor will instantly destroy a new amplifier."
+    },
+    {
+        "id": "VF2-SOP-14",
+        "machine": "Haas VF-2",
+        "doc_type": "SOP",
+        "error_code": "Alarm 20000 Series",
+        "hazard_level": "NOTE",
+        "required_role": "Operator",
+        "description": "Informational messages (e.g., memory low, PM required).",
+        "resolution_steps": "1. Read the specific message text. 2. Press RESET to clear. 3. Notify supervisor if preventive maintenance is due.",
+        "prohibited_actions": "None."
+    },
+    {
+        "id": "VF2-SOP-15",
+        "machine": "Haas VF-2",
+        "doc_type": "SOP",
+        "error_code": "Alarm 20017",
+        "hazard_level": "CAUTION",
+        "required_role": "Operator",
+        "description": "Cabinet Thermostat Warning. Cabinet interior is nearing 50C.",
+        "resolution_steps": "1. Power off machine. 2. Remove foam filters from the electrical cabinet door fans. 3. Wash filters with mild soap, dry completely, and reinstall.",
+        "prohibited_actions": "Do not use compressed air to blow dust INTO the electrical cabinet."
+    },
+    {
+        "id": "VF2-SOP-16",
+        "machine": "Haas VF-2",
+        "doc_type": "SOP",
+        "error_code": "Alarm M79",
+        "hazard_level": "NOTE",
+        "required_role": "Setup Technician",
+        "description": "Skip Signal Not Found. WIPS probe traveled its maximum distance.",
+        "resolution_steps": "1. Verify the workpiece is loaded correctly in the vise. 2. Check the G54 offset Z-height. 3. Ensure the probe stylus is not broken.",
+        "prohibited_actions": "Do not attempt to bypass probe macros; this will result in a hard crash."
+    },
+    {
+        "id": "VF2-SOP-17",
+        "machine": "Haas VF-2",
+        "doc_type": "SOP",
+        "error_code": "Alarm 204",
+        "hazard_level": "DANGER",
+        "required_role": "Maintenance Level 2 (Electrical)",
+        "description": "Spindle Drive Fault. Vector drive internal short.",
+        "resolution_steps": "1. Perform LOTO. 2. Wait for HIGH VOLTAGE light to turn off. 3. Check DC bus voltage with a multimeter. 4. Inspect REGEN resistor wiring.",
+        "prohibited_actions": "NEVER touch vector drive terminals until DC bus measures < 5 VDC."
+    },
+    {
+        "id": "VF2-SOP-18",
+        "machine": "Haas VF-2",
+        "doc_type": "SOP",
+        "error_code": "Alarm 320",
+        "hazard_level": "WARNING",
+        "required_role": "Maintenance Level 1",
+        "description": "Way Lube Motor Overload.",
+        "resolution_steps": "1. Remove rear way covers. 2. Inspect copper lubrication lines for crushing or crimping. 3. Verify the lube pump motor is not seized.",
+        "prohibited_actions": "Do not increase the overload breaker amperage setting to bypass this alarm."
+    },
+    {
+        "id": "VF2-SOP-19",
+        "machine": "Haas VF-2",
+        "doc_type": "SOP",
+        "error_code": "Alarm S900",
+        "hazard_level": "WARNING",
+        "required_role": "Maintenance Level 1",
+        "description": "Spindle Bearing Fault. Vibration sensor tripped.",
+        "resolution_steps": "1. Stop machining immediately. 2. Perform a runout check on the spindle taper with a dial indicator. 3. Escalate to Spindle Rebuild team.",
+        "prohibited_actions": "DO NOT run the spindle at high RPM to 'diagnose the sound'; this will weld the bearings to the spindle shaft."
+    },
+    {
+        "id": "VF2-SOP-20",
+        "machine": "Haas VF-2",
+        "doc_type": "SOP",
+        "error_code": "Alarm 134",
+        "hazard_level": "CAUTION",
+        "required_role": "Setup Technician",
+        "description": "Tool Clamp Fault. Drawbar failed to clamp or unclamp.",
+        "resolution_steps": "1. Check shop air pressure (85 PSI min). 2. Clean the spindle taper and the tool holder pull stud. 3. Inspect drawbar Belleville springs for breakage.",
+        "prohibited_actions": "Never place hands inside the spindle taper while air is connected to the machine."
+    },
+    {
+        "id": "VF2-SOP-21",
+        "machine": "Haas VF-2",
+        "doc_type": "SOP",
+        "error_code": "Alarm 175",
+        "hazard_level": "DANGER",
+        "required_role": "Maintenance Level 2 (Electrical)",
+        "description": "Ground Fault Detected. 115VAC short to ground.",
+        "resolution_steps": "1. Unplug the coolant pump. 2. Unplug the chip conveyor. 3. Plug devices in one at a time to isolate which accessory has shorted winding insulation.",
+        "prohibited_actions": "Do not defeat the GFCI breaker to force the machine to run."
+    },
+    {
+        "id": "VF2-SOP-22",
+        "machine": "Haas VF-2",
+        "doc_type": "SOP",
+        "error_code": "Alarm 420",
+        "hazard_level": "CAUTION",
+        "required_role": "Setup Technician",
+        "description": "Spindle Overheat. Motor thermistor reading > 150F.",
+        "resolution_steps": "1. Ensure spindle cooling fan is running. 2. Review CAM program; if roughing steel continuously, reduce spindle RPM or increase feed rate to reduce heat buildup.",
+        "prohibited_actions": "Do not direct external air hoses at the spindle motor to artificially cool it."
+    },
+    {
+        "id": "VF2-SOP-23",
+        "machine": "Haas VF-2",
+        "doc_type": "SOP",
+        "error_code": "Alarm 9100",
+        "hazard_level": "WARNING",
+        "required_role": "Maintenance Level 2 (Electrical)",
+        "description": "Mocon Communication Failure. Maincon cannot communicate with Mocon PCB.",
+        "resolution_steps": "1. Perform LOTO. 2. Open electrical cabinet and reseat the wide ribbon cables connecting the Maincon and Mocon boards. 3. Power on and test.",
+        "prohibited_actions": "Do not reseat PCB connectors while the machine is powered on."
+    },
+    {
+        "id": "VF2-SOP-24",
+        "machine": "Haas VF-2",
+        "doc_type": "SOP",
+        "error_code": "Alarm 250",
+        "hazard_level": "WARNING",
+        "required_role": "Maintenance Level 1",
+        "description": "Spindle Speed Variation. Encoder RPM does not match commanded RPM.",
+        "resolution_steps": "1. Remove spindle head covers. 2. Inspect the drive belts for severe wear, missing teeth, or oil contamination. 3. Verify encoder belt tension.",
+        "prohibited_actions": "Do not adjust drive belt tension without a proper sonic tension meter."
+    },
+    {
+        "id": "VF2-SOP-25",
+        "machine": "Haas VF-2",
+        "doc_type": "SOP",
+        "error_code": "Crash",
+        "hazard_level": "WARNING",
+        "required_role": "Maintenance Level 1",
+        "description": "M06 Tool Change Crash. Changer arm stuck mid-cycle.",
+        "resolution_steps": "1. Press RECOVERY button on control. 2. Follow on-screen prompts to manually step the tool changer arm back to the home position. 3. Remove stuck tools manually.",
+        "prohibited_actions": "NEVER use a pry bar to force the double-arm back to home position; this destroys the cam box."
+    },
+    {
+        "id": "ENG-MAN-01",
+        "machine": "Engel Victory 330",
+        "doc_type": "Manual",
+        "topic": "Hydraulic System",
+        "content": "The oil pump and proportional valve control system pressure. Use ISO VG 46 anti-wear hydraulic oil. Total reservoir capacity is 400 liters. Maintain fluid halfway in sight glass."
+    },
+    {
+        "id": "ENG-MAN-02",
+        "machine": "Engel Victory 330",
+        "doc_type": "Manual",
+        "topic": "Proportional Pressure Valve",
+        "content": "Located on the main oil pump. Converts electrical signals (0-10V) into hydraulic pressure. If wiring is loose or coil is burned, the system will output zero pressure."
+    },
+    {
+        "id": "ENG-MAN-03",
+        "machine": "Engel Victory 330",
+        "doc_type": "Manual",
+        "topic": "Oil Filtration",
+        "content": "Impurities in the pressure oil accumulate on the filter surface. A clogged filter opens the bypass valve, allowing dirty oil into the system. Replace the 10-micron return filter every 2,000 hours."
+    },
+    {
+        "id": "ENG-MAN-04",
+        "machine": "Engel Victory 330",
+        "doc_type": "Manual",
+        "topic": "Melt Cylinder (Barrel)",
+        "content": "The barrel uses ceramic electric heating bands regulated by Type J thermocouples. Solid-state relays in the electric cabinet control voltage to the heating zones."
+    },
+    {
+        "id": "ENG-MAN-05",
+        "machine": "Engel Victory 330",
+        "doc_type": "Manual",
+        "topic": "Safety Gate Interlocks",
+        "content": "The front operator gate utilizes two physical limit switches and an RFID electronic interlock. High-pressure mold clamping is disabled if the gate is not fully closed and verified."
+    },
+    {
+        "id": "ENG-MAN-06",
+        "machine": "Engel Victory 330",
+        "doc_type": "Manual",
+        "topic": "Injection Screw Operation",
+        "content": "Friction from screw rotation (shear heat) contributes to 70% of plastic melting. High RPM causes material degradation. Adjust screw RPM based on polymer thermal stability data."
+    },
+    {
+        "id": "ENG-MAN-07",
+        "machine": "Engel Victory 330",
+        "doc_type": "Manual",
+        "topic": "Cooling Systems",
+        "content": "Mold cooling and hydraulic heat exchangers require industrial chilled water (approx 15C / 60F). Supply pressure should be 3-5 Bar. Scale buildup will reduce cooling efficiency."
+    },
+    {
+        "id": "ENG-MAN-08",
+        "machine": "Engel Victory 330",
+        "doc_type": "Manual",
+        "topic": "CC300 Control Screen",
+        "content": "Alarm messages display in the status bar in the lower left part of the touch screen. In case of multiple alarms, the highest priority is displayed. Press F6 for the alarm log."
+    },
+    {
+        "id": "ENG-MAN-09",
+        "machine": "Engel Victory 330",
+        "doc_type": "Manual",
+        "topic": "Semi-Auto Mode",
+        "content": "Requires operator intervention between cycles. The prompt 'Please Close Door' indicates the machine is ready. 'Please Open Door' prompts at cycle end for part extraction."
+    },
+    {
+        "id": "ENG-MAN-10",
+        "machine": "Engel Victory 330",
+        "doc_type": "Manual",
+        "topic": "Emergency Stop Loop",
+        "content": "Pressing any red E-Stop button instantly dumps hydraulic pressure to tank and severs electrical movement power. Error 4 'Off Man./Emerg. Key' displays on the CC300."
+    },
+    {
+        "id": "ENG-MAN-11",
+        "machine": "Engel Victory 330",
+        "doc_type": "Manual",
+        "topic": "Tie-bar-less Clamping",
+        "content": "The Victory series features a tie-bar-less clamping unit for oversized molds. Platen parallelism is maintained by a patented flex-link system. Calibration is required annually."
+    },
+    {
+        "id": "ENG-MAN-12",
+        "machine": "Engel Victory 330",
+        "doc_type": "Manual",
+        "topic": "Material Loading",
+        "content": "Ensure the feed throat hopper is adequately filled. Material starvation causes low injection pressure errors and incomplete parts (short shots)."
+    },
+    {
+        "id": "ENG-MAN-13",
+        "machine": "Engel Victory 330",
+        "doc_type": "Manual",
+        "topic": "Hydraulic Ejector",
+        "content": "The hydraulic ejector pushes the finished part out of the mold core. The ejector rod requires high-temperature lithium grease monthly. Binding causes 'Ejector Timeout' faults."
+    },
+    {
+        "id": "ENG-MAN-14",
+        "machine": "Engel Victory 330",
+        "doc_type": "Manual",
+        "topic": "Injection Pressure Sensors",
+        "content": "Strain gauge sensors monitor the hydraulic force during the injection phase. Routine calibration is required. Zero-point drift will cause flashing or short shots."
+    },
+    {
+        "id": "ENG-MAN-15",
+        "machine": "Engel Victory 330",
+        "doc_type": "Manual",
+        "topic": "Thermal Insulation",
+        "content": "Insulation blankets wrap around the barrel heater bands. Missing blankets cause excessive ambient heat loss, resulting in 'Barrel Temperature Low' errors and wasted electricity."
+    },
+    {
+        "id": "ENG-MAN-16",
+        "machine": "Engel Victory 330",
+        "doc_type": "Manual",
+        "topic": "Euromap 67 Interface",
+        "content": "The standardized 50-pin Euromap 67 plug connects the extraction robot to the injection machine. A severed connection halts all mold closing operations instantly."
+    },
+    {
+        "id": "ENG-MAN-17",
+        "machine": "Engel Victory 330",
+        "doc_type": "Manual",
+        "topic": "Leak Containers",
+        "content": "Drip trays catch stray hydraulic oil from the pump manifold. If the tray is full, a float switch triggers Error 23. The tray must be drained manually into a waste oil drum."
+    },
+    {
+        "id": "ENG-MAN-18",
+        "machine": "Engel Victory 330",
+        "doc_type": "Manual",
+        "topic": "Mold Clamping Force",
+        "content": "Tonnage is electronically set via the CC300 screen. Setting tonnage too high crushes mold parting lines; too low causes flash. Target 2.5 to 3 tons per square inch of projected part area."
+    },
+    {
+        "id": "ENG-MAN-19",
+        "machine": "Engel Victory 330",
+        "doc_type": "Manual",
+        "topic": "Plasticizing (Dosing)",
+        "content": "The phase where the screw rotates to melt and transport plastic to the front of the barrel. High back-pressure improves mixing but increases wear on the screw check-ring."
+    },
+    {
+        "id": "ENG-MAN-20",
+        "machine": "Engel Victory 330",
+        "doc_type": "Manual",
+        "topic": "Hydraulic Oil Temperature",
+        "content": "Ideal operating temperature is 45C to 50C (113F to 122F). High temperature degrades oil viscosity; low temperature causes sluggish, inaccurate machine movements."
+    },
+    {
+        "id": "ENG-MAN-21",
+        "machine": "Engel Victory 330",
+        "doc_type": "Manual",
+        "topic": "Linear Potentiometers",
+        "content": "Linear transducers track mold and ejector positions. Scratched or dirty transducer rods cause erratic positional data, preventing clamping sequences. Clean with a dry, lint-free cloth."
+    },
+    {
+        "id": "ENG-MAN-22",
+        "machine": "Engel Victory 330",
+        "doc_type": "Manual",
+        "topic": "Over-Temperature Protection",
+        "content": "If a barrel zone exceeds setpoint by 20C, the control drops the main heater contactor. This is usually caused by a solid-state relay failing in the 'closed' position."
+    },
+    {
+        "id": "ENG-MAN-23",
+        "machine": "Engel Victory 330",
+        "doc_type": "Manual",
+        "topic": "Nozzle Alignment",
+        "content": "The machine nozzle must perfectly align with the mold sprue bushing. A specialized alignment ring is used. Misalignment causes high-pressure plastic leaks (drool)."
+    },
+    {
+        "id": "ENG-MAN-24",
+        "machine": "Engel Victory 330",
+        "doc_type": "Manual",
+        "topic": "Screw Drive Motor",
+        "content": "The hydraulic radial piston motor rotates the injection screw. Overloaded pump motors (usually from cold plastic) generate Error 18 (Drive Fault)."
+    },
+    {
+        "id": "ENG-MAN-25",
+        "machine": "Engel Victory 330",
+        "doc_type": "Manual",
+        "topic": "Core Pull Interface",
+        "content": "Hydraulic core pulls allow complex molds with side-actions. Core in/out sequences are programmed in the CC300 core menu. Improper sequencing will crush the mold cores."
+    },
+    {
+        "id": "ENG-SOP-01",
+        "machine": "Engel Victory 330",
+        "doc_type": "SOP",
+        "error_code": "Error 01",
+        "hazard_level": "WARNING",
+        "required_role": "Maintenance Level 2 (Electrical)",
+        "description": "Temperature Error. Barrel heating zone out of tolerance.",
+        "resolution_steps": "1. Check CC300 screen to identify the specific zone. 2. Perform LOTO. 3. Check if thermocouple wiring is loose. 4. Ohm test the ceramic heater band.",
+        "prohibited_actions": "Do not attempt to tighten heater band terminals while the machine has power."
+    },
+    {
+        "id": "ENG-SOP-02",
+        "machine": "Engel Victory 330",
+        "doc_type": "SOP",
+        "error_code": "Error 02",
+        "hazard_level": "NOTE",
+        "required_role": "Operator",
+        "description": "Please Close Door. Machine waiting for operator in Semi-auto mode.",
+        "resolution_steps": "1. Ensure part is fully removed from mold. 2. Slide the front safety gate closed until it clicks. 3. If error persists, wipe debris from the gate limit switch.",
+        "prohibited_actions": "None."
+    },
+    {
+        "id": "ENG-SOP-03",
+        "machine": "Engel Victory 330",
+        "doc_type": "SOP",
+        "error_code": "Error 03",
+        "hazard_level": "NOTE",
+        "required_role": "Operator",
+        "description": "Please Open Door. Cycle complete.",
+        "resolution_steps": "1. Slide the front safety gate open. 2. Safely extract the molded part. 3. Inspect mold for left-over plastic.",
+        "prohibited_actions": "Do not reach into the mold area while the machine is still in motion."
+    },
+    {
+        "id": "ENG-SOP-04",
+        "machine": "Engel Victory 330",
+        "doc_type": "SOP",
+        "error_code": "NOTE",
+        "required_role": "Operator",
+        "description": "Off Man./Emerg. Key. Machine stopped via E-stop.",
+        "resolution_steps": "1. Verify the hazard that caused the E-stop is cleared. 2. Twist the red Emergency button clockwise to release. 3. Press the 'Motors On' button on the CC300.",
+        "prohibited_actions": "Do not restart the machine without verifying why the E-stop was pressed."
+    },
+    {
+        "id": "ENG-SOP-05",
+        "machine": "Engel Victory 330",
+        "doc_type": "SOP",
+        "error_code": "Error 05",
+        "hazard_level": "WARNING",
+        "required_role": "Maintenance Level 1",
+        "description": "Oil Temp. Over. Hydraulic oil temperature exceeded 60C.",
+        "resolution_steps": "1. Stop production. 2. Verify cooling tower water supply valve is OPEN. 3. Check the hydraulic heat exchanger for mineral scaling blockages.",
+        "prohibited_actions": "Do not bypass the temperature alarm parameter to continue running; this destroys pump seals."
+    },
+    {
+        "id": "ENG-SOP-06",
+        "machine": "Engel Victory 330",
+        "doc_type": "SOP",
+        "error_code": "Error 15",
+        "hazard_level": "DANGER",
+        "required_role": "Maintenance Level 1",
+        "description": "No Pressure (Pump Running). Main pump is turning but generating 0 PSI.",
+        "resolution_steps": "1. Shut off pump immediately to prevent cavitation damage. 2. Check proportional valve wiring. 3. Check oil tank level.",
+        "prohibited_actions": "NEVER run a dry or cavitating hydraulic pump for more than 10 seconds."
+    },
+    {
+        "id": "ENG-SOP-07",
+        "machine": "Engel Victory 330",
+        "doc_type": "SOP",
+        "error_code": "Error 07",
+        "hazard_level": "CAUTION",
+        "required_role": "Setup Technician",
+        "description": "Injection Pressure High. Reached max pressure limit before filling part.",
+        "resolution_steps": "1. Inspect the nozzle tip for frozen plastic (cold slug). 2. Verify barrel temperatures have not dropped. 3. Clean the mold sprue bushing.",
+        "prohibited_actions": "Do not increase the max pressure limit beyond mold specifications to 'force' the plastic through."
+    },
+    {
+        "id": "ENG-SOP-08",
+        "machine": "Engel Victory 330",
+        "doc_type": "SOP",
+        "error_code": "Error 08",
+        "hazard_level": "NOTE",
+        "required_role": "Operator",
+        "description": "Injection Pressure Low. Usually caused by material starvation.",
+        "resolution_steps": "1. Check the material hopper and vacuum loader. 2. Refill resin if empty. 3. Purge the barrel once to ensure material is feeding.",
+        "prohibited_actions": "None."
+    },
+    {
+        "id": "ENG-SOP-09",
+        "machine": "Engel Victory 330",
+        "doc_type": "SOP",
+        "error_code": "Error 09",
+        "hazard_level": "CAUTION",
+        "required_role": "Setup Technician",
+        "description": "Barrel Temperature High. Risk of material degradation/gas release.",
+        "resolution_steps": "1. Reduce screw RPM (shear heat is likely causing the over-temp). 2. Increase back-pressure slightly. 3. Purge degraded material immediately.",
+        "prohibited_actions": "Do not look directly into the purge guard area while purging degraded, gassing material."
+    },
+    {
+        "id": "ENG-SOP-10",
+        "machine": "Engel Victory 330",
+        "doc_type": "SOP",
+        "error_code": "Error 10",
+        "hazard_level": "WARNING",
+        "required_role": "Maintenance Level 2 (Electrical)",
+        "description": "Barrel Temperature Low. Zone dropped below operating threshold.",
+        "resolution_steps": "1. Ensure thermal insulation blankets are secured. 2. Check for drafts from factory doors. 3. Ohm test the heater band for failure.",
+        "prohibited_actions": "NEVER attempt to inject plastic or rotate the screw when Error 10 is active; the screw will snap."
+    },
+    {
+        "id": "ENG-SOP-11",
+        "machine": "Engel Victory 330",
+        "doc_type": "SOP",
+        "error_code": "Error 11",
+        "hazard_level": "CAUTION",
+        "required_role": "Setup Technician",
+        "description": "Mold Open Timeout. Mold did not open within allotted time.",
+        "resolution_steps": "1. Check for severe flashing that has locked the mold halves together. 2. Spray mold release on the parting line. 3. Gradually increase mold opening force.",
+        "prohibited_actions": "Do not use a crowbar or hammer on the mold plates to pry them apart."
+    },
+    {
+        "id": "ENG-SOP-12",
+        "machine": "Engel Victory 330",
+        "doc_type": "SOP",
+        "error_code": "Error 12",
+        "hazard_level": "DANGER",
+        "required_role": "Operator",
+        "description": "Mold Close Timeout. Mold failed to close.",
+        "resolution_steps": "1. Open the safety gate. 2. Look for a stuck plastic part obstructing the mold face. 3. Remove the obstruction with brass tools.",
+        "prohibited_actions": "NEVER bypass mold-protection parameters to crush an obstruction; this destroys the mold tool."
+    },
+    {
+        "id": "ENG-SOP-13",
+        "machine": "Engel Victory 330",
+        "doc_type": "SOP",
+        "error_code": "Error 13",
+        "hazard_level": "CAUTION",
+        "required_role": "Setup Technician",
+        "description": "Ejector Forward Timeout. Ejector plate did not reach target stroke.",
+        "resolution_steps": "1. Open gate and inspect ejector pins for binding. 2. Apply lithium grease to ejector guide pins. 3. Retract ejectors manually in setup mode.",
+        "prohibited_actions": "Do not increase ejector hydraulic pressure to overcome mechanical binding."
+    },
+    {
+        "id": "ENG-SOP-14",
+        "machine": "Engel Victory 330",
+        "doc_type": "SOP",
+        "error_code": "Error 25",
+        "hazard_level": "DANGER",
+        "required_role": "Maintenance Level 2 (Electrical)",
+        "description": "Heater Contactor Stuck. A zone is heating uncontrollably.",
+        "resolution_steps": "1. Immediately power down the main machine breaker. 2. Perform LOTO. 3. Locate the stuck solid-state relay in the electrical cabinet and replace it.",
+        "prohibited_actions": "Do not leave the machine powered on; runaway barrel temps can cause plastic auto-ignition."
+    },
+    {
+        "id": "ENG-SOP-15",
+        "machine": "Engel Victory 330",
+        "doc_type": "SOP",
+        "error_code": "Error 06",
+        "hazard_level": "NOTE",
+        "required_role": "Operator",
+        "description": "Oil Temp Low. Hydraulic oil is below 35C.",
+        "resolution_steps": "1. Turn on the pump motors. 2. Allow the machine to sit in idle state for 15 minutes. 3. The internal friction of the pump will warm the oil.",
+        "prohibited_actions": "Do not run high-speed clamping movements while oil is cold; seals may rupture."
+    },
+    {
+        "id": "ENG-SOP-16",
+        "machine": "Engel Victory 330",
+        "doc_type": "SOP",
+        "error_code": "Error 16",
+        "hazard_level": "DANGER",
+        "required_role": "Maintenance Level 1",
+        "description": "No Mode Locking. Machine refuses to build clamp tonnage.",
+        "resolution_steps": "1. Verify safety gate is closed. 2. Check the mechanical safety drop-bar (if equipped) to ensure it has retracted. 3. Inspect hydraulic directional valve.",
+        "prohibited_actions": "NEVER tie-wrap or tape safety limit switches down to simulate a closed door."
+    },
+    {
+        "id": "ENG-SOP-17",
+        "machine": "Engel Victory 330",
+        "doc_type": "SOP",
+        "error_code": "Error 17",
+        "hazard_level": "WARNING",
+        "required_role": "Maintenance Level 1",
+        "description": "Proportional Valve Blockage. Valve spool is stuck.",
+        "resolution_steps": "1. Perform LOTO. 2. Relieve hydraulic pressure. 3. Remove proportional pressure valve. 4. Clean spool with brake cleaner to remove particulate.",
+        "prohibited_actions": "Do not disassemble hydraulic valves without ensuring all accumulators are fully discharged."
+    },
+    {
+        "id": "ENG-SOP-18",
+        "machine": "Engel Victory 330",
+        "doc_type": "SOP",
+        "error_code": "Error 26",
+        "hazard_level": "WARNING",
+        "required_role": "Maintenance Level 1",
+        "description": "Oil Pump Internal Leak. Cannot maintain high pressure.",
+        "resolution_steps": "1. Perform flow test on main pump. 2. Check case-drain line for excessive flow (indicates internal wear). 3. Schedule pump replacement.",
+        "prohibited_actions": "Do not increase relief valve settings to compensate for a worn pump."
+    },
+    {
+        "id": "ENG-SOP-19",
+        "machine": "Engel Victory 330",
+        "doc_type": "SOP",
+        "error_code": "Error 23",
+        "hazard_level": "NOTE",
+        "required_role": "Operator",
+        "description": "Leak Container Full. Drip tray float sensor triggered.",
+        "resolution_steps": "1. Locate the drip tray under the clamp unit. 2. Safely drain into a certified waste oil container. 3. Wipe down tray and reset float switch.",
+        "prohibited_actions": "Do not dump hydraulic waste oil down facility drains."
+    },
+    {
+        "id": "ENG-SOP-20",
+        "machine": "Engel Victory 330",
+        "doc_type": "SOP",
+        "error_code": "Error 22",
+        "hazard_level": "DANGER",
+        "required_role": "Setup Technician",
+        "description": "Robot Interlock Tripped. Robot is not in safe 'Home' position.",
+        "resolution_steps": "1. Take robot teach pendant. 2. Manually jog the robot arm completely out of the molding area. 3. Verify Euromap 67 plug is secure.",
+        "prohibited_actions": "NEVER install a bypass dummy-plug into the Euromap 67 port while a robot is physically mounted to the machine."
+    },
+    {
+        "id": "ENG-SOP-21",
+        "machine": "Engel Victory 330",
+        "doc_type": "SOP",
+        "error_code": "Error 27",
+        "hazard_level": "WARNING",
+        "required_role": "Maintenance Level 1",
+        "description": "System Spool Stuck. Directional valve failure.",
+        "resolution_steps": "1. Perform LOTO. 2. Locate the specific directional valve on the hydraulic manifold. 3. Attempt to push the manual override pin with an Allen key to unstick it.",
+        "prohibited_actions": "Do not strike the valve body with a hammer."
+    },
+    {
+        "id": "ENG-SOP-22",
+        "machine": "Engel Victory 330",
+        "doc_type": "SOP",
+        "error_code": "Error 28",
+        "hazard_level": "WARNING",
+        "required_role": "Maintenance Level 2 (Electrical)",
+        "description": "Thermocouple Damaged. Reading shows 999C or 0C.",
+        "resolution_steps": "1. Perform LOTO. 2. Check the thermocouple wires at the barrel connection for breaks. 3. Verify polarity (Red to negative, Iron to positive for Type J).",
+        "prohibited_actions": "Do not swap thermocouple wires from adjacent zones to trick the controller."
+    },
+    {
+        "id": "ENG-SOP-23",
+        "machine": "Engel Victory 330",
+        "doc_type": "SOP",
+        "error_code": "Error 29",
+        "hazard_level": "CAUTION",
+        "required_role": "Setup Technician",
+        "description": "Dosing Time Exceeded. Screw taking too long to recover plastic.",
+        "resolution_steps": "1. Check hopper for material bridging (clogged plastic). 2. Ensure feed throat cooling water is running (prevents premature melting).",
+        "prohibited_actions": "Do not reach into the feed throat area while the machine is powered on."
+    },
+    {
+        "id": "ENG-SOP-24",
+        "machine": "Engel Victory 330",
+        "doc_type": "SOP",
+        "error_code": "Error 30",
+        "hazard_level": "WARNING",
+        "required_role": "Maintenance Level 1",
+        "description": "Screw Worn/Low Pressure. Cannot maintain cushion during injection.",
+        "resolution_steps": "1. Purge barrel. 2. Perform a dynamic check-ring leakage test. 3. If leakage is severe, schedule downtime to pull the screw and replace the non-return valve.",
+        "prohibited_actions": "Do not run production with a leaking check ring; part weights will be wildly inconsistent."
+    },
+    {
+        "id": "ENG-SOP-25",
+        "machine": "Engel Victory 330",
+        "doc_type": "SOP",
+        "error_code": "Error 31",
+        "hazard_level": "CAUTION",
+        "required_role": "Operator",
+        "description": "Improper Mold Position. Linear transducer discrepancy.",
+        "resolution_steps": "1. Wipe down the clamp linear potentiometer rod to remove grease and dust. 2. Recalibrate mold zero position in the setup screen.",
+        "prohibited_actions": "Do not spray harsh solvents directly onto the electronic transducer housing."
+    }
+]
