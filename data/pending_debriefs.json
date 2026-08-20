@@ -42,5 +42,49 @@
     "sop_avg_time_mins": 10.0,
     "timestamp": "2026-08-20 22:30:32",
     "status": "PENDING"
+  },
+  {
+    "debrief_id": "DEBRIEF-676DB5AB",
+    "operator_id": "OP-001",
+    "machine_id": "Haas VF-2",
+    "fault_code": "Haas_Alarm_102",
+    "suspected_shortcut_title": "Rapid Manual Bypass for Haas_Alarm_102",
+    "suspected_path_payload": {
+      "path_id": "PATH_FAST_Haas_Alarm_102",
+      "title": "Rapid Manual Bypass for Haas_Alarm_102",
+      "description": "Fast 2.0-min resolution detected by Shadow Observer.",
+      "avg_execution_time_mins": 2.0,
+      "success_count": 1,
+      "failure_count": 0,
+      "resolution_steps": "1. Rapid bypass / reset sequence performed by OP-001.",
+      "prohibited_actions": "Verify safety protocols before applying.",
+      "validated_by_senior_operators": []
+    },
+    "actual_time_mins": 2.0,
+    "sop_avg_time_mins": 10.0,
+    "timestamp": "2026-08-20 22:39:17",
+    "status": "PENDING"
+  },
+  {
+    "debrief_id": "DEBRIEF-8F57FE43",
+    "operator_id": "OP-001",
+    "machine_id": "Haas VF-2",
+    "fault_code": "Haas_Alarm_102",
+    "suspected_shortcut_title": "Rapid Manual Bypass for Haas_Alarm_102",
+    "suspected_path_payload": {
+      "path_id": "PATH_FAST_Haas_Alarm_102",
+      "title": "Rapid Manual Bypass for Haas_Alarm_102",
+      "description": "Fast 2.0-min resolution detected by Shadow Observer.",
+      "avg_execution_time_mins": 2.0,
+      "success_count": 1,
+      "failure_count": 0,
+      "resolution_steps": "1. Rapid bypass / reset sequence performed by OP-001.",
+      "prohibited_actions": "Verify safety protocols before applying.",
+      "validated_by_senior_operators": []
+    },
+    "actual_time_mins": 2.0,
+    "sop_avg_time_mins": 10.0,
+    "timestamp": "2026-08-20 22:44:34",
+    "status": "PENDING"
   }
 ]
