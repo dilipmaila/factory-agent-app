@@ -78,6 +78,14 @@ This repository implements a production-grade **Adaptive Cognitive AI Assistant*
    an 8-hour durability window, 3-Expert quarantine consensus for new procedures, historical failure
    warnings, and human-in-the-loop micro-debriefing.
 
+1.4 Core Architectural Assumptions
+----------------------------------
+To ground this solution in physical reality, the architecture relies on the following prerequisites:
+1. **Unique Operator Identity:** Operators use individual logins (RFID/SSO); shared "Workstation" logins invalidate cognitive profiling.
+2. **IT/OT Convergence:** The factory SCADA network can securely transmit real-time telemetry to the AI's IT infrastructure.
+3. **Read-Only Sandboxing:** The AI is strictly advisory and has zero write-access to execute PLC commands, enforcing human-in-the-loop physical actuation.
+4. **Outcome as a Proxy for Preference:** A durable, fast machine recovery is the objective ground-truth reward signal for format preference optimization.
+
 ----------------------------------------------------------------------------------------
 
 2. High-Level Solution Architecture & Conceptual Flow
