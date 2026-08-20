@@ -68,6 +68,7 @@ For step-by-step runtime execution and JSON schema configurations, refer to: `ru
 * **Role**: Primary user interface and shopfloor HMI built using Streamlit. Simulates the operator's
   tablet or machine-mounted terminal.
 * **Core Responsibilities**:
+
   1. **Session & Profile State Management**: Maintains operator identity, selected machine, active
      telemetry, dialogue history, and active cognitive state in ``st.session_state``.
   2. **Environmental Context Control**: Integrates ``MockECM`` to simulate shift progression (Hour 1 to 12),
