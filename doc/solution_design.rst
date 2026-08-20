@@ -283,6 +283,7 @@ autonomy score:
    | 40.0 <= Machine Autonomy Score (A) < 75 --> Derived Tier = "Intermediate" |
    | Machine Autonomy Score (A) < 40.0       --> Derived Tier = "Novice"       |
    +-------------------------------------------------------------------+
+**Continuous LMS Certification Overrides**: During the overnight Sleep Cycle, the system queries the factory Learning Management System (LMS). If an operator receives a new offline certification for a machine, their Autonomy Score for that `OPERATES` edge is deterministically overridden to 85.0 (Expert), bypassing the need for slow, empirical telemetry learning.
 
 3.1.3 Dynamic Procedural Memory & Bayesian Fault Trees
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -350,6 +351,8 @@ Where:
 * $N(u, T) = \sum_{j} N_j(u, T)$ is the **Total Interaction Pulls** across all arms in state $(u, T)$.
 * $c = 1.2$ is the **Exploration Hyperparameter** governing the uncertainty bonus.
 * $\epsilon = 10^{-4}$ prevents division by zero for unpulled arms.
+
+**Forced Epsilon Injection (Time-Decay Rule)**: To prevent permanent algorithmic pigeonholing, if an operator has not been presented with an alternative (e.g., higher-tier) format in the last 90 days, the router forcefully overrides UCB exploitation and injects an exploration turn. This continuously tests for human upskilling and shifts in cognitive preference.
 
 3.2.2 Bandit Presentation Arms & Cognitive Objectives
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
