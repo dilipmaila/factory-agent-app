@@ -319,7 +319,7 @@ class ProceduralMemory:
         }
 
     def format_procedural_context(self, fault_trees: List[Dict[str, Any]]) -> str:
-        """Formats active procedural fault trees into structured grounding text for LLM prompts."""
+        """Formats active procedural fault trees and unified anti-patterns into structured grounding text."""
         if not fault_trees:
             return ""
 
@@ -347,7 +347,23 @@ class ProceduralMemory:
                 )
                 paths_text.append(path_block)
 
+            # Append Unified Anti-Patterns ("What Not To Do")
+            anti_patterns = tree.get("anti_patterns", [])
+            anti_text = ""
+            if anti_patterns:
+                anti_lines = ["\n#### ⚠️ UNIFIED ANTI-PATTERNS (WHAT NOT TO DO):"]
+                for ap in anti_patterns:
+                    anti_lines.append(
+                        f"- ❌ **Prohibited Action**: {ap.get('action')}\n"
+                        f"  • *Consequence*: {ap.get('consequence')}\n"
+                        f"  • *Escalation/Incident Risk*: {ap.get('escalation_risk', 'High')}"
+                    )
+                anti_text = "\n".join(anti_lines)
+
             if paths_text:
-                sections.append(f"{tree_header}\n\n" + "\n\n".join(paths_text))
+                combined_tree = f"{tree_header}\n\n" + "\n\n".join(paths_text)
+                if anti_text:
+                    combined_tree += "\n" + anti_text
+                sections.append(combined_tree)
 
         return "\n\n".join(sections)

@@ -32,28 +32,83 @@
       "node_type": "Operator",
       "operator_id": "OP-001",
       "name": "John Doe",
-      "tier": "Novice",
+      "baseline_tier": "Novice",
       "id": "OPERATOR:OP-001"
+    },
+    {
+      "node_type": "CognitiveState",
+      "operator_id": "OP-001",
+      "tier": "Novice",
+      "id": "STATE:OP-001:Novice"
+    },
+    {
+      "node_type": "CognitiveState",
+      "operator_id": "OP-001",
+      "tier": "Intermediate",
+      "id": "STATE:OP-001:Intermediate"
+    },
+    {
+      "node_type": "CognitiveState",
+      "operator_id": "OP-001",
+      "tier": "Expert",
+      "id": "STATE:OP-001:Expert"
     },
     {
       "node_type": "Operator",
       "operator_id": "OP-002",
       "name": "Sarah Jenkins",
-      "tier": "Expert",
+      "baseline_tier": "Expert",
       "id": "OPERATOR:OP-002"
+    },
+    {
+      "node_type": "CognitiveState",
+      "operator_id": "OP-002",
+      "tier": "Novice",
+      "id": "STATE:OP-002:Novice"
+    },
+    {
+      "node_type": "CognitiveState",
+      "operator_id": "OP-002",
+      "tier": "Intermediate",
+      "id": "STATE:OP-002:Intermediate"
+    },
+    {
+      "node_type": "CognitiveState",
+      "operator_id": "OP-002",
+      "tier": "Expert",
+      "id": "STATE:OP-002:Expert"
     },
     {
       "node_type": "Operator",
       "operator_id": "OP-003",
       "name": "Mike Chen",
-      "tier": "Intermediate",
+      "baseline_tier": "Intermediate",
       "id": "OPERATOR:OP-003"
+    },
+    {
+      "node_type": "CognitiveState",
+      "operator_id": "OP-003",
+      "tier": "Novice",
+      "id": "STATE:OP-003:Novice"
+    },
+    {
+      "node_type": "CognitiveState",
+      "operator_id": "OP-003",
+      "tier": "Intermediate",
+      "id": "STATE:OP-003:Intermediate"
+    },
+    {
+      "node_type": "CognitiveState",
+      "operator_id": "OP-003",
+      "tier": "Expert",
+      "id": "STATE:OP-003:Expert"
     }
   ],
   "edges": [
     {
       "relation": "OPERATES",
       "autonomy_score": 35.0,
+      "derived_tier": "Novice",
       "success_count": 3,
       "escalation_count": 0,
       "source": "OPERATOR:OP-001",
@@ -62,53 +117,47 @@
     {
       "relation": "OPERATES",
       "autonomy_score": 30.0,
-      "success_count": 3,
+      "derived_tier": "Novice",
+      "success_count": 2,
       "escalation_count": 0,
       "source": "OPERATOR:OP-001",
       "target": "MACHINE:Engel Victory 330"
     },
     {
-      "relation": "PREFERS",
-      "weight": 1.0,
-      "pull_count": 1,
-      "success_count": 1,
-      "escalation_count": 0,
+      "relation": "STATE_CONFIDENCE",
+      "tier": "Novice",
       "source": "OPERATOR:OP-001",
+      "target": "STATE:OP-001:Novice"
+    },
+    {
+      "relation": "STATE_CONFIDENCE",
+      "tier": "Intermediate",
+      "source": "OPERATOR:OP-001",
+      "target": "STATE:OP-001:Intermediate"
+    },
+    {
+      "relation": "STATE_CONFIDENCE",
+      "tier": "Expert",
+      "source": "OPERATOR:OP-001",
+      "target": "STATE:OP-001:Expert"
+    },
+    {
+      "relation": "PREFERS",
+      "weight": 3.0,
+      "pull_count": 3,
+      "success_count": 3,
+      "escalation_count": 0,
+      "source": "STATE:OP-001:Novice",
       "target": "FORMAT:Visual_StepByStep"
     },
     {
       "relation": "PREFERS",
-      "weight": 0.0,
-      "pull_count": 0,
-      "success_count": 0,
-      "escalation_count": 0,
-      "source": "OPERATOR:OP-001",
-      "target": "FORMAT:Terse_Technical"
-    },
-    {
-      "relation": "PREFERS",
-      "weight": 0.5,
+      "weight": -1.0,
       "pull_count": 1,
       "success_count": 0,
-      "escalation_count": 0,
-      "source": "OPERATOR:OP-001",
-      "target": "FORMAT:Detailed_Text"
-    },
-    {
-      "relation": "OPERATES",
-      "autonomy_score": 88.0,
-      "success_count": 8,
-      "escalation_count": 0,
-      "source": "OPERATOR:OP-002",
-      "target": "MACHINE:Haas VF-2"
-    },
-    {
-      "relation": "OPERATES",
-      "autonomy_score": 82.0,
-      "success_count": 8,
-      "escalation_count": 0,
-      "source": "OPERATOR:OP-002",
-      "target": "MACHINE:Engel Victory 330"
+      "escalation_count": 1,
+      "source": "STATE:OP-001:Novice",
+      "target": "FORMAT:Terse_Technical"
     },
     {
       "relation": "PREFERS",
@@ -116,30 +165,184 @@
       "pull_count": 1,
       "success_count": 0,
       "escalation_count": 0,
-      "source": "OPERATOR:OP-002",
+      "source": "STATE:OP-001:Novice",
+      "target": "FORMAT:Detailed_Text"
+    },
+    {
+      "relation": "PREFERS",
+      "weight": 1.0,
+      "pull_count": 1,
+      "success_count": 1,
+      "escalation_count": 0,
+      "source": "STATE:OP-001:Intermediate",
       "target": "FORMAT:Visual_StepByStep"
     },
     {
       "relation": "PREFERS",
-      "weight": 1.5,
-      "pull_count": 2,
-      "success_count": 2,
+      "weight": 1.0,
+      "pull_count": 1,
+      "success_count": 1,
       "escalation_count": 0,
-      "source": "OPERATOR:OP-002",
+      "source": "STATE:OP-001:Intermediate",
       "target": "FORMAT:Terse_Technical"
     },
     {
       "relation": "PREFERS",
-      "weight": 0.1,
-      "pull_count": 0,
+      "weight": 0.3,
+      "pull_count": 1,
       "success_count": 0,
       "escalation_count": 0,
+      "source": "STATE:OP-001:Intermediate",
+      "target": "FORMAT:Detailed_Text"
+    },
+    {
+      "relation": "PREFERS",
+      "weight": 0.0,
+      "pull_count": 1,
+      "success_count": 0,
+      "escalation_count": 0,
+      "source": "STATE:OP-001:Expert",
+      "target": "FORMAT:Visual_StepByStep"
+    },
+    {
+      "relation": "PREFERS",
+      "weight": 3.0,
+      "pull_count": 3,
+      "success_count": 3,
+      "escalation_count": 0,
+      "source": "STATE:OP-001:Expert",
+      "target": "FORMAT:Terse_Technical"
+    },
+    {
+      "relation": "PREFERS",
+      "weight": 0.0,
+      "pull_count": 1,
+      "success_count": 0,
+      "escalation_count": 0,
+      "source": "STATE:OP-001:Expert",
+      "target": "FORMAT:Detailed_Text"
+    },
+    {
+      "relation": "OPERATES",
+      "autonomy_score": 95.0,
+      "derived_tier": "Expert",
+      "success_count": 19,
+      "escalation_count": 0,
       "source": "OPERATOR:OP-002",
+      "target": "MACHINE:Haas VF-2"
+    },
+    {
+      "relation": "OPERATES",
+      "autonomy_score": 12.0,
+      "derived_tier": "Novice",
+      "success_count": 1,
+      "escalation_count": 2,
+      "source": "OPERATOR:OP-002",
+      "target": "MACHINE:Engel Victory 330"
+    },
+    {
+      "relation": "STATE_CONFIDENCE",
+      "tier": "Novice",
+      "source": "OPERATOR:OP-002",
+      "target": "STATE:OP-002:Novice"
+    },
+    {
+      "relation": "STATE_CONFIDENCE",
+      "tier": "Intermediate",
+      "source": "OPERATOR:OP-002",
+      "target": "STATE:OP-002:Intermediate"
+    },
+    {
+      "relation": "STATE_CONFIDENCE",
+      "tier": "Expert",
+      "source": "OPERATOR:OP-002",
+      "target": "STATE:OP-002:Expert"
+    },
+    {
+      "relation": "PREFERS",
+      "weight": 3.0,
+      "pull_count": 3,
+      "success_count": 3,
+      "escalation_count": 0,
+      "source": "STATE:OP-002:Novice",
+      "target": "FORMAT:Visual_StepByStep"
+    },
+    {
+      "relation": "PREFERS",
+      "weight": -1.0,
+      "pull_count": 1,
+      "success_count": 0,
+      "escalation_count": 1,
+      "source": "STATE:OP-002:Novice",
+      "target": "FORMAT:Terse_Technical"
+    },
+    {
+      "relation": "PREFERS",
+      "weight": 0.2,
+      "pull_count": 1,
+      "success_count": 0,
+      "escalation_count": 0,
+      "source": "STATE:OP-002:Novice",
+      "target": "FORMAT:Detailed_Text"
+    },
+    {
+      "relation": "PREFERS",
+      "weight": 1.0,
+      "pull_count": 1,
+      "success_count": 1,
+      "escalation_count": 0,
+      "source": "STATE:OP-002:Intermediate",
+      "target": "FORMAT:Visual_StepByStep"
+    },
+    {
+      "relation": "PREFERS",
+      "weight": 1.0,
+      "pull_count": 1,
+      "success_count": 1,
+      "escalation_count": 0,
+      "source": "STATE:OP-002:Intermediate",
+      "target": "FORMAT:Terse_Technical"
+    },
+    {
+      "relation": "PREFERS",
+      "weight": 0.3,
+      "pull_count": 1,
+      "success_count": 0,
+      "escalation_count": 0,
+      "source": "STATE:OP-002:Intermediate",
+      "target": "FORMAT:Detailed_Text"
+    },
+    {
+      "relation": "PREFERS",
+      "weight": 0.0,
+      "pull_count": 1,
+      "success_count": 0,
+      "escalation_count": 0,
+      "source": "STATE:OP-002:Expert",
+      "target": "FORMAT:Visual_StepByStep"
+    },
+    {
+      "relation": "PREFERS",
+      "weight": 4.0,
+      "pull_count": 4,
+      "success_count": 4,
+      "escalation_count": 0,
+      "source": "STATE:OP-002:Expert",
+      "target": "FORMAT:Terse_Technical"
+    },
+    {
+      "relation": "PREFERS",
+      "weight": 0.0,
+      "pull_count": 1,
+      "success_count": 0,
+      "escalation_count": 0,
+      "source": "STATE:OP-002:Expert",
       "target": "FORMAT:Detailed_Text"
     },
     {
       "relation": "OPERATES",
       "autonomy_score": 58.0,
+      "derived_tier": "Intermediate",
       "success_count": 5,
       "escalation_count": 0,
       "source": "OPERATOR:OP-003",
@@ -148,27 +351,46 @@
     {
       "relation": "OPERATES",
       "autonomy_score": 62.0,
+      "derived_tier": "Intermediate",
       "success_count": 6,
       "escalation_count": 0,
       "source": "OPERATOR:OP-003",
       "target": "MACHINE:Engel Victory 330"
     },
     {
-      "relation": "PREFERS",
-      "weight": 0.8,
-      "pull_count": 1,
-      "success_count": 1,
-      "escalation_count": 0,
+      "relation": "STATE_CONFIDENCE",
+      "tier": "Novice",
       "source": "OPERATOR:OP-003",
+      "target": "STATE:OP-003:Novice"
+    },
+    {
+      "relation": "STATE_CONFIDENCE",
+      "tier": "Intermediate",
+      "source": "OPERATOR:OP-003",
+      "target": "STATE:OP-003:Intermediate"
+    },
+    {
+      "relation": "STATE_CONFIDENCE",
+      "tier": "Expert",
+      "source": "OPERATOR:OP-003",
+      "target": "STATE:OP-003:Expert"
+    },
+    {
+      "relation": "PREFERS",
+      "weight": 2.0,
+      "pull_count": 2,
+      "success_count": 2,
+      "escalation_count": 0,
+      "source": "STATE:OP-003:Novice",
       "target": "FORMAT:Visual_StepByStep"
     },
     {
       "relation": "PREFERS",
-      "weight": 0.7,
+      "weight": 0.0,
       "pull_count": 1,
-      "success_count": 1,
+      "success_count": 0,
       "escalation_count": 0,
-      "source": "OPERATOR:OP-003",
+      "source": "STATE:OP-003:Novice",
       "target": "FORMAT:Terse_Technical"
     },
     {
@@ -177,7 +399,61 @@
       "pull_count": 1,
       "success_count": 0,
       "escalation_count": 0,
-      "source": "OPERATOR:OP-003",
+      "source": "STATE:OP-003:Novice",
+      "target": "FORMAT:Detailed_Text"
+    },
+    {
+      "relation": "PREFERS",
+      "weight": 2.0,
+      "pull_count": 2,
+      "success_count": 2,
+      "escalation_count": 0,
+      "source": "STATE:OP-003:Intermediate",
+      "target": "FORMAT:Visual_StepByStep"
+    },
+    {
+      "relation": "PREFERS",
+      "weight": 2.0,
+      "pull_count": 2,
+      "success_count": 2,
+      "escalation_count": 0,
+      "source": "STATE:OP-003:Intermediate",
+      "target": "FORMAT:Terse_Technical"
+    },
+    {
+      "relation": "PREFERS",
+      "weight": 0.5,
+      "pull_count": 1,
+      "success_count": 0,
+      "escalation_count": 0,
+      "source": "STATE:OP-003:Intermediate",
+      "target": "FORMAT:Detailed_Text"
+    },
+    {
+      "relation": "PREFERS",
+      "weight": 0.0,
+      "pull_count": 1,
+      "success_count": 0,
+      "escalation_count": 0,
+      "source": "STATE:OP-003:Expert",
+      "target": "FORMAT:Visual_StepByStep"
+    },
+    {
+      "relation": "PREFERS",
+      "weight": 2.0,
+      "pull_count": 2,
+      "success_count": 2,
+      "escalation_count": 0,
+      "source": "STATE:OP-003:Expert",
+      "target": "FORMAT:Terse_Technical"
+    },
+    {
+      "relation": "PREFERS",
+      "weight": 0.0,
+      "pull_count": 1,
+      "success_count": 0,
+      "escalation_count": 0,
+      "source": "STATE:OP-003:Expert",
       "target": "FORMAT:Detailed_Text"
     }
   ]

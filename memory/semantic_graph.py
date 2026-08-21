@@ -228,6 +228,27 @@ class OperatorKnowledgeGraph:
                         escalation_count=int(arm_stats.get("escalations", 0)),
                     )
 
+    def _ensure_cognitive_states_for_all_operators(self) -> None:
+        """
+        Validates graph integrity and ensures all operators have decoupled cognitive states and format edges.
+        """
+        for arm in self.FORMAT_ARMS:
+            f_node = f"FORMAT:{arm}"
+            if not self.graph.has_node(f_node):
+                self.graph.add_node(f_node, node_type="Format", arm_name=arm)
+
+        for m in ["Haas VF-2", "Engel Victory 330"]:
+            m_node = f"MACHINE:{m}"
+            if not self.graph.has_node(m_node):
+                self.graph.add_node(m_node, node_type="Machine", machine_id=m)
+
+        op_nodes = [n for n in list(self.graph.nodes) if str(n).startswith("OPERATOR:")]
+        for op_node in op_nodes:
+            op_data = self.graph.nodes[op_node]
+            op_id = op_data.get("operator_id") or str(op_node).replace("OPERATOR:", "")
+            base_tier = op_data.get("baseline_tier", "Novice")
+            self.get_or_create_operator(op_id, name=op_data.get("name", ""), default_tier=base_tier)
+
     def get_or_create_operator(
         self, operator_id: str, name: str = "", default_tier: str = "Novice"
     ) -> str:
@@ -244,14 +265,15 @@ class OperatorKnowledgeGraph:
                 baseline_tier=default_tier,
             )
 
-            baseline_score = 30.0 if default_tier == "Novice" else (55.0 if default_tier == "Intermediate" else 85.0)
-            baseline_derived = self.calculate_tier_from_score(baseline_score)
+        baseline_score = 30.0 if default_tier == "Novice" else (55.0 if default_tier == "Intermediate" else 85.0)
+        baseline_derived = self.calculate_tier_from_score(baseline_score)
 
-            for m in ["Haas VF-2", "Engel Victory 330"]:
-                m_node = f"MACHINE:{m}"
-                if not self.graph.has_node(m_node):
-                    self.graph.add_node(m_node, node_type="Machine", machine_id=m)
+        for m in ["Haas VF-2", "Engel Victory 330"]:
+            m_node = f"MACHINE:{m}"
+            if not self.graph.has_node(m_node):
+                self.graph.add_node(m_node, node_type="Machine", machine_id=m)
 
+            if not self.graph.has_edge(op_node, m_node):
                 self.graph.add_edge(
                     op_node,
                     m_node,
@@ -262,15 +284,16 @@ class OperatorKnowledgeGraph:
                     escalation_count=0,
                 )
 
-            for tier in self.COGNITIVE_TIERS:
-                state_node = f"STATE:{operator_id}:{tier}"
-                if not self.graph.has_node(state_node):
-                    self.graph.add_node(
-                        state_node,
-                        node_type="CognitiveState",
-                        operator_id=operator_id,
-                        tier=tier,
-                    )
+        for tier in self.COGNITIVE_TIERS:
+            state_node = f"STATE:{operator_id}:{tier}"
+            if not self.graph.has_node(state_node):
+                self.graph.add_node(
+                    state_node,
+                    node_type="CognitiveState",
+                    operator_id=operator_id,
+                    tier=tier,
+                )
+            if not self.graph.has_edge(op_node, state_node):
                 self.graph.add_edge(
                     op_node,
                     state_node,
@@ -278,10 +301,11 @@ class OperatorKnowledgeGraph:
                     tier=tier,
                 )
 
-                for arm in self.FORMAT_ARMS:
-                    f_node = f"FORMAT:{arm}"
-                    if not self.graph.has_node(f_node):
-                        self.graph.add_node(f_node, node_type="Format", arm_name=arm)
+            for arm in self.FORMAT_ARMS:
+                f_node = f"FORMAT:{arm}"
+                if not self.graph.has_node(f_node):
+                    self.graph.add_node(f_node, node_type="Format", arm_name=arm)
+                if not self.graph.has_edge(state_node, f_node):
                     self.graph.add_edge(
                         state_node,
                         f_node,
@@ -292,7 +316,7 @@ class OperatorKnowledgeGraph:
                         escalation_count=0,
                     )
 
-            self.save_to_file()
+        self.save_to_file()
         return op_node
 
     def get_machine_competence(self, operator_id: str, machine_id: str) -> Dict[str, Any]:
@@ -358,8 +382,21 @@ class OperatorKnowledgeGraph:
         op_node = f"OPERATOR:{operator_id}"
         m_node = f"MACHINE:{machine_id}"
 
+        self.get_or_create_operator(operator_id)
+
+        if not self.graph.has_node(m_node):
+            self.graph.add_node(m_node, node_type="Machine", machine_id=machine_id)
+
         if not self.graph.has_edge(op_node, m_node):
-            self.get_or_create_operator(operator_id)
+            self.graph.add_edge(
+                op_node,
+                m_node,
+                relation="OPERATES",
+                autonomy_score=40.0,
+                derived_tier="Novice",
+                success_count=0,
+                escalation_count=0,
+            )
 
         edge_data = self.graph[op_node][m_node]
         current_score = edge_data.get("autonomy_score", 40.0)
@@ -415,8 +452,35 @@ class OperatorKnowledgeGraph:
         state_node = f"STATE:{operator_id}:{cognitive_tier}"
         f_node = f"FORMAT:{format_name}"
 
+        self.get_or_create_operator(operator_id)
+
+        if not self.graph.has_node(state_node):
+            self.graph.add_node(
+                state_node,
+                node_type="CognitiveState",
+                operator_id=operator_id,
+                tier=cognitive_tier,
+            )
+            self.graph.add_edge(
+                f"OPERATOR:{operator_id}",
+                state_node,
+                relation="STATE_CONFIDENCE",
+                tier=cognitive_tier,
+            )
+
+        if not self.graph.has_node(f_node):
+            self.graph.add_node(f_node, node_type="Format", arm_name=format_name)
+
         if not self.graph.has_edge(state_node, f_node):
-            self.get_or_create_operator(operator_id)
+            self.graph.add_edge(
+                state_node,
+                f_node,
+                relation="PREFERS",
+                weight=0.0,
+                pull_count=0,
+                success_count=0,
+                escalation_count=0,
+            )
 
         edge_data = self.graph[state_node][f_node]
         edge_data["pull_count"] = edge_data.get("pull_count", 0) + 1
@@ -438,12 +502,14 @@ class OperatorKnowledgeGraph:
             json.dump(data, f, indent=2)
 
     def load_from_file(self, filepath: Optional[str] = None) -> None:
-        """Loads the graph state from a JSON file."""
+        """Loads the graph state from a JSON file and ensures decoupled state topology."""
         target_path = Path(filepath) if filepath else self.state_file
         if target_path.exists():
             with open(target_path, "r", encoding="utf-8") as f:
                 data = json.load(f)
             self.graph = nx.node_link_graph(data, directed=True)
+            self._ensure_cognitive_states_for_all_operators()
+            self.save_to_file()
 
     def to_summary_dict(self, operator_id: str, machine_id: str) -> Dict[str, Any]:
         """Helper method returning decoupled metrics for UI Cognitive Inspector."""
@@ -472,3 +538,86 @@ class OperatorKnowledgeGraph:
             "active_state_format_preferences": formats,
             "all_cognitive_states_format_preferences": all_state_preferences,
         }
+
+    def get_machine_similarity(self, machine_a: str, machine_b: str) -> float:
+        """
+        Calculates domain/mechanical similarity score between two machines (0.0 to 1.0).
+        High similarity exists within the same equipment family (e.g., CNC milling).
+        Low similarity exists across distinct disciplines (e.g., CNC vs Injection Molding).
+        """
+        if machine_a.lower() == machine_b.lower():
+            return 1.0
+
+        cnc_family = ["haas", "vf-2", "vf-4", "cnc", "milling", "lathe", "mazak"]
+        molding_family = ["engel", "victory", "injection", "molder", "arburg", "hydraulic press"]
+
+        a_is_cnc = any(w in machine_a.lower() for w in cnc_family)
+        b_is_cnc = any(w in machine_b.lower() for w in cnc_family)
+
+        a_is_molding = any(w in machine_a.lower() for w in molding_family)
+        b_is_molding = any(w in machine_b.lower() for w in molding_family)
+
+        if (a_is_cnc and b_is_cnc) or (a_is_molding and b_is_molding):
+            return 0.85  # Same equipment discipline
+        return 0.15  # Cross-disciplinary (mechanical CNC vs thermo-hydraulic molding)
+
+    def infer_confidence_from_similar_machines(
+        self, operator_id: str, target_machine: str
+    ) -> Tuple[float, str]:
+        """
+        Uses graph traversal to infer confidence on an unfamiliar machine based on
+        mechanical similarity to machines the operator already operates.
+        """
+        op_node = f"OPERATOR:{operator_id}"
+        if not self.graph.has_node(op_node):
+            self.get_or_create_operator(operator_id)
+
+        weighted_scores = []
+        total_weights = []
+
+        for _, target, data in self.graph.out_edges(op_node, data=True):
+            if data.get("relation") == "OPERATES":
+                src_machine = target.replace("MACHINE:", "")
+                sim = self.get_machine_similarity(src_machine, target_machine)
+                score = float(data.get("autonomy_score", 35.0))
+                weighted_scores.append(score * sim)
+                total_weights.append(sim)
+
+        if total_weights and sum(total_weights) > 0:
+            inferred_score = sum(weighted_scores) / sum(total_weights)
+        else:
+            inferred_score = 30.0
+
+        inferred_tier = self.calculate_tier_from_score(inferred_score)
+        return round(inferred_score, 1), inferred_tier
+
+    def check_domain_fencing(
+        self, operator_id: str, machine_id: str, target_subsystem: str
+    ) -> Dict[str, Any]:
+        """
+        Safety Feature (Domain Fencing):
+        Enforces hard boundaries preventing the graph from assuming a mechanical expert
+        is automatically a high-voltage electrical or safety-critical expert.
+        """
+        high_risk_subsystems = ["electrical_high_voltage", "maincon_pcb", "hydraulic_relief_valve", "radiation"]
+        competence = self.get_machine_competence(operator_id, machine_id)
+        current_tier = competence["derived_tier"]
+        autonomy = competence["autonomy_score"]
+
+        subsystem_clean = target_subsystem.strip().lower().replace(" ", "_")
+        if any(hr in subsystem_clean for hr in high_risk_subsystems):
+            if current_tier != "Expert" or autonomy < 80.0:
+                return {
+                    "allowed": False,
+                    "fenced": True,
+                    "target_subsystem": target_subsystem,
+                    "reason": f"Domain Fencing Violation: Operator {operator_id} (Autonomy: {autonomy}%, Tier: {current_tier}) lacks authorized clearance for high-risk {target_subsystem}. Action restricted to Certified Senior Technicians with LOTO certification.",
+                }
+
+        return {
+            "allowed": True,
+            "fenced": False,
+            "target_subsystem": target_subsystem,
+            "reason": "Subsystem clearance verified within operator domain.",
+        }
+

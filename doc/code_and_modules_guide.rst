@@ -13,16 +13,12 @@ Code and Modules Technical Reference Guide: Factory Operator AI Assistant
 
 ----------------------------------------------------------------------------------------
 
-1. Document Overview & System Blueprint
-=======================================
+1. Document Overview
+====================
 
-This document provides a comprehensive, module-by-module technical breakdown of the **Factory
-Operator Adaptive AI Assistant** codebase. It outlines the architectural role, internal mechanics,
-key classes, functions, and inter-module dependencies across every file in the repository.
-
-For high-level conceptual architecture and mathematical formulations, refer to the companion
-document: `solution_design.rst <solution_design.rst>`_.
-For step-by-step runtime execution and JSON schema configurations, refer to: `run_and_configuration_guide.rst <run_and_configuration_guide.rst>`_.
+Module-by-module technical reference for the Factory Operator Adaptive AI Assistant.
+For architecture and math, see `solution_design.rst <solution_design.rst>`_.
+For runtime setup and JSON schemas, see `run_and_configuration_guide.rst <run_and_configuration_guide.rst>`_.
 
 1.1 High-Level Module Dependency Diagram
 ----------------------------------------
@@ -68,22 +64,11 @@ For step-by-step runtime execution and JSON schema configurations, refer to: `ru
 * **Role**: Primary user interface and shopfloor HMI built using Streamlit. Simulates the operator's
   tablet or machine-mounted terminal.
 * **Core Responsibilities**:
-
-  1. **Session & Profile State Management**: Maintains operator identity, selected machine, active
-     telemetry, dialogue history, and active cognitive state in ``st.session_state``.
-  2. **Environmental Context Control**: Integrates ``MockECM`` to simulate shift progression (Hour 1 to 12),
-     ambient noise/temperature, and supervisor availability.
-  3. **Interactive Dialogue & Grounded Chat Loop**: Captures operator queries, coordinates working memory
-     synthesis, calls ``ChatAgent`` with state-bound formatting directives, and displays responses.
-  4. **Human Agency Format Overrides**: Provides instant UI override buttons (Visual, Terse, Detailed),
-     allowing operators to bypass algorithmic routing and trigger real-time LLM re-synthesis with mathematical
-     knowledge graph penalties applied to rejected formats.
-  5. **Human-in-the-Loop Micro-Debrief Intercepts**: Renders pending debrief prompts on fast fixes
-     and routes deterministic Y/N feedback to the quarantine store.
-  6. **Closed-Loop Resolution Actions**: Renders *"Solved Independently"* and *"Escalate to Supervisor"*
-     action triggers, routing low-latency events to ``ShadowObserver``.
-  7. **Diagnostics & Multi-Tier Memory Visualizer**: Renders interactive tabs displaying live Knowledge Graph
-     topologies, Bayesian fault-tree branch rankings, episodic audit logs, and escrow queues.
+  1. **Session & Profile State Management**: Operator identity, machine, telemetry, chat history, and cognitive state in ``st.session_state``.
+  2. **ECM Integration**: Shift progression, fatigue index, and supervisor availability controls.
+  3. **Chat Loop**: Coordinates working memory synthesis, bandit format selection, and grounded LLM response display.
+  4. **Human Agency Overrides & Debrief Intercepts**: UI override buttons, micro-debrief Y/N prompts, and resolution feedback routing.
+  5. **Diagnostics Visualizer**: Tabs for live knowledge graph, Bayesian fault trees, escrow queues, and episodic logs.
 
 2.2 `sleep_cycle_evaluator.py` - Asynchronous Sleep Cycle Batch Evaluator
 ------------------------------------------------------------------------
@@ -91,19 +76,12 @@ For step-by-step runtime execution and JSON schema configurations, refer to: `ru
 * **Role**: Standalone background batch evaluator simulating overnight (03:00 AM) cron execution or
   end-of-shift maintenance.
 * **Core Responsibilities**:
-  1. **Shift Event Ingestion**: Reads and aggregates all raw operational events from ``data/episodic_event_queue.json``.
-  2. **Escrow Durability Auditing**: Evaluates provisional rewards in ``data/escrow_rewards.json`` against
-     SCADA recurrence logs over the 8-hour Durability Window:
-     * *Durable Fix*: Releases **$+1.0$** bandit reward and **$+5.0$** machine autonomy points.
-     * *Duct-Tape Workaround*: Inverts reward into a **$-5.0$** bandit penalty and **$-15.0$** autonomy penalty.
-  3. **Knowledge Graph Mutation**: Applies aggregated mathematical updates to machine autonomy scores,
-     recomputes operator derived tiers, and updates state-bound UCB format weights in ``data/graph_state.json``.
-  4. **Bayesian Procedural Tree Updates**: Updates branch success/failure counts and recomputes Laplace-smoothed
-     probabilities in ``data/procedural_fault_trees.json``.
-  5. **Quarantine Consensus Auto-Promotion**: Inspects ``data/quarantine_sops.json``; promotes procedures
-     validated by 3 distinct Expert operators to the active library with ``min_tier_required: 'Expert'``.
-  6. **Atomic Queue Flushing**: Archives processed events into ``data/episodic_logs.json`` and flushes the
-     event queue atomically.
+  1. **Shift Event Ingestion**: Reads ``data/episodic_event_queue.json``.
+  2. **Escrow Durability Audit**: Durable fix (>8h clean): releases **+1.0** bandit reward & **+5.0** autonomy. Duct-tape (<8h recurrence): **-5.0** bandit penalty & **-15.0** autonomy.
+  3. **Knowledge Graph Mutation**: Applies autonomy score updates, recomputes tiers, updates UCB weights in ``data/graph_state.json``.
+  4. **Bayesian Tree Updates**: Recomputes Laplace-smoothed branch probabilities in ``data/procedural_fault_trees.json``.
+  5. **Quarantine Consensus Auto-Promotion**: Promotes 3-Expert validated procedures to active library.
+  6. **Atomic Queue Flushing**: Archives events to ``data/episodic_logs.json`` and clears the queue.
 
 ----------------------------------------------------------------------------------------
 

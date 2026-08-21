@@ -5,6 +5,18 @@
     "title": "SERVOS OFF",
     "hazard_level": "NOTE",
     "required_role": "Operator",
+    "anti_patterns": [
+      {
+        "action": "Bypassing rear pneumatic pressure switch with an electrical jumper wire",
+        "consequence": "Causes servo amplifier burnout, uncontrolled axis drop, and voids machine warranty.",
+        "escalation_risk": "100% (High Incident Rate)"
+      },
+      {
+        "action": "Taping or mechanically wedging door interlock switches in closed state",
+        "consequence": "Severe OSHA safety violation; allows spindle operation with enclosure open.",
+        "escalation_risk": "Critical Safety Hazard"
+      }
+    ],
     "diagnostic_paths": [
       {
         "path_id": "PATH_102_A",
@@ -12,9 +24,10 @@
         "description": "Quick 5-minute pneumatic line check and E-stop reset on the rear panel.",
         "avg_execution_time_mins": 5,
         "success_count": 18,
-        "failure_count": 3,
+        "failure_count": 5,
         "resolution_steps": "1. Inspect the pneumatic pressure gauge on the rear air/lube panel (must read >= 85 PSI).\n2. Check if the Emergency Stop button is physically depressed; twist clockwise to release.\n3. Verify enclosure doors are fully closed and interlocks engaged.\n4. Press the control panel RESET button twice to re-energize servo drives.",
-        "prohibited_actions": "Do not bypass or tape down door interlock switches."
+        "prohibited_actions": "Do not bypass or tape down door interlock switches.",
+        "probability_score": 0.76
       },
       {
         "path_id": "PATH_102_B",
@@ -34,6 +47,18 @@
     "title": "BARREL OVERHEAT (Zone 2)",
     "hazard_level": "WARNING",
     "required_role": "Operator",
+    "anti_patterns": [
+      {
+        "action": "Pouring external cold water or ice directly onto ceramic heater bands",
+        "consequence": "Causes thermal shock cracking of the barrel cylinder and explosive steam.",
+        "escalation_risk": "Severe Equipment Damage"
+      },
+      {
+        "action": "Increasing Zone 1 temperature to compensate for Zone 2 overheat",
+        "consequence": "Causes polymer melt degradation, nozzle drool, and catastrophic thermal runaway.",
+        "escalation_risk": "90% Work Order Escalation"
+      }
+    ],
     "diagnostic_paths": [
       {
         "path_id": "PATH_E201_A",
@@ -42,7 +67,7 @@
         "avg_execution_time_mins": 8,
         "success_count": 15,
         "failure_count": 2,
-        "resolution_steps": "1. Inspect Zone 2 thermocouple connector for loose wiring or thermal paste degradation.\n2. Verify barrel cooling water solenoid valve is opening and water manifold flow indicator is spinning.\n3. Lower Zone 2 temperature setpoint by 5°C on CC300 controller to stabilize thermal overshoot.",
+        "resolution_steps": "1. Inspect Zone 2 thermocouple connector for loose wiring or thermal paste degradation.\n2. Verify barrel cooling water solenoid valve is opening and water manifold flow indicator is spinning.\n3. Lower Zone 2 temperature setpoint by 5\u00b0C on CC300 controller to stabilize thermal overshoot.",
         "prohibited_actions": "Do not touch barrel heat blankets directly without thermal protective gloves."
       },
       {
@@ -63,6 +88,13 @@
     "title": "X Axis SERVO ERROR TOO LARGE",
     "hazard_level": "WARNING",
     "required_role": "Maintenance Level 1",
+    "anti_patterns": [
+      {
+        "action": "Forcing the stuck X-axis leadscrew with a pry bar or sledgehammer",
+        "consequence": "Permanent brinelling damage to precision ballscrew bearings.",
+        "escalation_risk": "Catastrophic Tooling Damage"
+      }
+    ],
     "diagnostic_paths": [
       {
         "path_id": "PATH_103_A",
@@ -92,6 +124,13 @@
     "title": "LOW HYDRAULIC CLAMPING PRESSURE",
     "hazard_level": "WARNING",
     "required_role": "Operator",
+    "anti_patterns": [
+      {
+        "action": "Adjusting mechanical high-pressure relief valve beyond 210 bar max rating",
+        "consequence": "Ruptures hydraulic manifold seals and creates high-pressure oil injection hazard.",
+        "escalation_risk": "Severe Safety Hazard"
+      }
+    ],
     "diagnostic_paths": [
       {
         "path_id": "PATH_E105_A",

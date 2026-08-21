@@ -16,17 +16,9 @@ Operations, Execution & Configuration Guide: Factory Operator AI Assistant
 1. Overview & Setup Prerequisites
 =================================
 
-This operational guide provides complete step-by-step instructions for:
-
-1. **Configuring the Development & Production Environment**: Installing system prerequisites,
-   package managers (``uv`` / ``pip``), and environment variables.
-2. **Running the Applications**: Launching the Streamlit interactive shopfloor HMI, executing the
-   offline Sleep Cycle batch evaluator, running verification suites, and re-indexing knowledge stores.
-3. **Configuring & Modifying JSON Data Stores**: Comprehensive schema definitions, required fields,
-   and guidelines for safely editing or extending every JSON database in the repository.
-
-For architectural design and mathematical models, refer to: `solution_design.rst <solution_design.rst>`_.
-For an in-depth module-by-module code reference, refer to: `code_and_modules_guide.rst <code_and_modules_guide.rst>`_.
+This guide covers environment setup, run commands, and JSON data store schemas.
+For architecture and math, see `solution_design.rst <solution_design.rst>`_.
+For module-level code reference, see `code_and_modules_guide.rst <code_and_modules_guide.rst>`_.
 
 ----------------------------------------------------------------------------------------
 
@@ -129,14 +121,12 @@ The Streamlit application provides the real-time tablet interface for operators 
    streamlit run app.py
 
 * **Default Local URL**: ``http://localhost:8501``
-* **Key Features to Interact With**:
-  1. **Operator Profile Selector**: Switch between John Doe (Novice on Haas), Sarah Jenkins (Expert on Haas / Novice on Engel), and Mike Chang (Intermediate).
-  2. **Machine Selector**: Select Haas VF-2 CNC Milling Center or Engel Victory 330 Injection Molder.
-  3. **Environmental Context Matrix (ECM)**: Adjust the shift slider (Hour 1 to 12) to test fatigue gating, toggle supervisor availability, and observe prompt adaptation.
-  4. **Chat & Troubleshooting**: Type queries such as *"Alarm 102"* or *"Barrel overheating"* to view grounded responses in state-bound formats.
-  5. **Human Agency Overrides**: Click *"Force Visual"*, *"Force Terse"*, or *"Force Detailed"* buttons to instantly regenerate responses and apply learning penalties.
-  6. **Feedback Buttons**: Click *"Solved Independently"* or *"Escalate to Supervisor"*.
-  7. **Memory Diagnostics Dashboard**: Expand tabs at the bottom to inspect live Knowledge Graph topologies, Bayesian fault trees, episodic logs, and reward escrow queues.
+* **Key Interactions**:
+
+  1. **Operator & Machine selectors** (sidebar) — switch between John Doe (Novice), Sarah Jenkins (Expert/Novice on Engel), Mike Chang (Intermediate).
+  2. **ECM sliders** — adjust shift hour and supervisor toggle to test fatigue gating.
+  3. **Chat input / quick-prompt buttons** — type queries like ``"Alarm 102"`` or ``"Barrel overheat"``.
+  4. **Format Override buttons & Feedback buttons** — trigger instant LLM re-synthesis or log resolution outcomes.
 
 3.2 Running the Offline Sleep Cycle Batch Evaluator
 ---------------------------------------------------
@@ -179,9 +169,12 @@ fault trees, and promotes consensus-approved quarantine SOPs.
 
 3.3 Running Automated Test & Verification Suites
 ------------------------------------------------
-Execute all three verification test suites to validate architectural integrity:
+Execute all four verification test suites to validate architectural integrity:
 
 .. code-block:: bash
+
+   # Suite 0: Omni-Cognitive Features (Anti-Patterns, SOS Mode, Domain Fencing, Forced Epsilon)
+   uv run python verify_omni_concepts.py
 
    # Suite 1: Procedural Bayesian Trees, Decoupled Graph & Shift Queue
    uv run python verify_refactor.py

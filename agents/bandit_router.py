@@ -38,6 +38,15 @@ class ContextualBandit:
             "- Provide a thorough, pedagogical explanation covering the underlying electro-mechanical root cause, physics/sensor principles, step-by-step corrective actions, and preventive maintenance.\n"
             "- Explain both the 'HOW' and the 'WHY' to build operator domain mastery."
         ),
+        "SOS_SHUTDOWN": (
+            "PRESENTATION STYLE: EMERGENCY SOS SHUTDOWN PROTOCOL (CRITICAL SEVERITY-1 HAZARD).\n"
+            "- 🚨 CRITICAL SAFETY OVERRIDE: All standard exploration and format personalization are SUSPENDED.\n"
+            "- Output ONLY deterministic emergency halt, safety isolation, and evacuation commands:\n"
+            "  1. IMMEDIATELY depress the physical Emergency Stop (E-Stop) pushbutton on the operator station.\n"
+            "  2. Disconnect main power breaker and apply physical Lock-Out / Tag-Out (LOTO) padlock.\n"
+            "  3. Evacuate active machine cell and immediately initiate Level 2 Maintenance emergency dispatch.\n"
+            "- Do NOT attempt troubleshooting or diagnostics while active hazard persists."
+        ),
     }
 
     def __init__(self, knowledge_graph: OperatorKnowledgeGraph, exploration_c: float = 1.2):
@@ -95,26 +104,42 @@ class ContextualBandit:
         machine_id: str,
         ecm_payload: Optional[Dict[str, Any]] = None,
         forced_format: Optional[str] = None,
+        is_severity_1: bool = False,
+        forced_epsilon_challenge: bool = False,
     ) -> Tuple[str, str, Dict[str, Any], str]:
         """
         Selects format arm using UCB policy or ECM Fatigue Gate overrides.
         
+        Emergency Override (Severity-1):
+        If is_severity_1 is True, suspends all exploration and personalization, defaulting to deterministic SOS_SHUTDOWN.
+        
         Fatigue Gate Rule:
         If fatigue_index >= 0.80 (operator is fatigued late in shift), force exploration_c = 0.0.
         Strictly exploit the fastest format (Terse_Technical or highest mean reward).
+        
+        Forced Epsilon Challenge:
+        Periodically forces testing an alternative/advanced arm to challenge dormant traits.
         """
         derived_tier = self.graph.get_machine_tier(operator_id, machine_id)
 
-        # Check ECM Fatigue Gate
+        # 1. Check Emergency Override (Severity-1 SOS Shutdown Mode)
+        if is_severity_1:
+            ucb_scores = self.calculate_ucb_scores(operator_id, derived_tier, exploration_override_c=0.0)
+            return "SOS_SHUTDOWN", self.ARM_INSTRUCTIONS["SOS_SHUTDOWN"], ucb_scores, derived_tier
+
+        # 2. Check ECM Fatigue Gate
         is_fatigued = False
         if ecm_payload and ecm_payload.get("fatigue_index", 0.0) >= 0.80:
             is_fatigued = True
 
-        exploration_c = 0.0 if is_fatigued else self.c
+        exploration_c = 0.0 if is_fatigued else (2.5 if forced_epsilon_challenge else self.c)
         ucb_scores = self.calculate_ucb_scores(operator_id, derived_tier, exploration_override_c=exploration_c)
 
         if forced_format and forced_format in self.ARMS:
             best_arm = forced_format
+        elif forced_epsilon_challenge and not is_fatigued:
+            # Pick least-pulled arm to force exploration
+            best_arm = min(self.ARMS, key=lambda arm: ucb_scores[arm]["pull_count"])
         elif is_fatigued:
             # Under extreme fatigue, pick arm with highest empirical mean reward; if tied/empty, exploit Terse_Technical
             best_arm = max(self.ARMS, key=lambda arm: (ucb_scores[arm]["mean_reward"], 1 if arm == "Terse_Technical" else 0))

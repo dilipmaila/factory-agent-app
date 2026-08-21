@@ -78,5 +78,53 @@
       "VF2-SOP-03",
       "VF2-SOP-07"
     ]
+  },
+  {
+    "episode_id": "EP-0006",
+    "timestamp": "2026-08-20 23:10:41",
+    "operator_id": "OP-001",
+    "machine_id": "Haas VF-2",
+    "error_code": "Alarm 102",
+    "query": "How do I clear Alarm 102 (Servos Off)?",
+    "response": "### \u26a0\ufe0f SAFETY METADATA & MANDATORY WARNINGS\n- **[SAFETY]** Lock-Out / Tag-Out (LOTO) mandatory before opening electrical enclosures.\n- **[SAFETY]** Verify zero pneumatic line pressure before disconnecting air fittings.\n\n---\n\n### \ud83d\udea8 ACTIVE SCADA ALARM: Alarm 102: SERVOS OFF (Haas VF-2)\n**Learned Operator Tier:** Novice (35.0/100)  \n**Recommended Primary Fix:** Pneumatic Pressure Verification & Valve Reset (Rapid Triage)  \n**Historical Success Probability:** 82.6% (18 Solves / 3 Failures)  \n**Estimated Triage Time:** ~5 minutes  \n\n---\n\n### VISUAL & STEP-BY-STEP GUIDANCE (VISUAL LEARNER MODE)\n\n#### [ACTION] Step 1: Check Pneumatic Pressure\n- **[INSPECT]** Locate the pneumatic pressure gauge on the rear air/lube panel.\n- `[ ]` Confirm gauge reads **$\\ge$ 85 PSI**.\n- --> *If pressure is below 85 PSI, adjust regulator or check plant air supply before proceeding.*\n\n#### [ACTION] Step 2: Release Emergency Stop\n- **[INSPECT]** Look at the physical control panel Emergency Stop button.\n- `[ ]` Check if the E-stop button is physically depressed.\n- **[ACTION]** Twist the E-stop button **clockwise** to release it.\n\n#### [ACTION] Step 3: Verify Enclosure Doors\n- **[INSPECT]** Check all machining enclosure doors.\n- `[ ]` Ensure doors are fully closed and safety interlocks are securely engaged.\n\n#### [VERIFY] Step 4: Reset Servo Drives\n- **[ACTION]** Press the control panel **RESET** button **twice** to re-energize the servo drives.\n- `[ ]` Confirm Alarm 102 clears from the screen and servos power on.\n\n---\n\n### \u26a0\ufe0f UNIFIED ANTI-PATTERNS (WHAT NOT TO DO)\n- \u274c **Prohibited Action**: Bypassing rear pneumatic pressure switch with an electrical jumper wire.\n  - *Consequence*: Causes servo amplifier burnout, uncontrolled axis drop, and voids machine warranty.\n  - *Escalation/Incident Risk*: 100% (High Incident Rate)\n- \u274c **Prohibited Action**: Taping or mechanically wedging door interlock switches in closed state.\n  - *Consequence*: Severe OSHA safety violation; allows spindle operation with enclosure open.\n  - *Escalation/Incident Risk*: Critical Safety Hazard",
+    "format_used": "Visual_StepByStep",
+    "resolution_status": "ESCALATED_CMMS",
+    "ticket_id": "TICK-2026-F24A64",
+    "retrieved_sop_ids": [
+      "VF2-SOP-01",
+      "VF2-SOP-03"
+    ]
+  },
+  {
+    "episode_id": "EP-0007",
+    "timestamp": "2026-08-20 23:19:28",
+    "operator_id": "OP-001",
+    "machine_id": "Haas VF-2",
+    "error_code": "Alarm 102",
+    "query": "X Axis SERVO ERROR TOO LARGE (Alarm 103)",
+    "response": "- **Action 1**: Clear chips from X-axis way covers and trigger manual lube (M161/M162). Hand-jog axis in .001 increments.\n- **Prohibited**: Never use a pry bar on the leadscrew (causes bearing brinelling).\n- Note: John, this fault recurred historically; dispatching L2 maintenance if this fails.",
+    "format_used": "Terse_Technical",
+    "resolution_status": "ESCALATED_CMMS",
+    "ticket_id": "TICK-2026-DF582F",
+    "retrieved_sop_ids": [
+      "VF2-SOP-02",
+      "VF2-SOP-04"
+    ]
+  },
+  {
+    "episode_id": "EP-0008",
+    "timestamp": "2026-08-21 13:20:08",
+    "operator_id": "OP-002",
+    "machine_id": "Haas VF-2",
+    "error_code": "Alarm 102",
+    "query": "How do I clear SERVOS OFF (Alarm 102)?",
+    "response": "- Verify pneumatic pressure (\u2265 85 PSI), release E-stop, close doors, and press RESET twice.\n- \u26a0\ufe0f LOTO required before opening electrical cabinet for LV supply checks. Do not bypass door interlocks.",
+    "format_used": "Terse_Technical",
+    "resolution_status": "IN_PROGRESS",
+    "ticket_id": null,
+    "retrieved_sop_ids": [
+      "VF2-SOP-01",
+      "VF2-SOP-03"
+    ]
   }
 ]

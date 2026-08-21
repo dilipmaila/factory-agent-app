@@ -2,6 +2,5 @@
 .venv/
 *.pyc
 Solution Design.docx
-*.bin
 verify_*.py
 test_*/

@@ -1,0 +1,15 @@
+[theme]
+base = "dark"
+
+# Action-oriented industrial blue — safe for operators (not alarm red)
+primaryColor = "#3B82F6"
+
+# Dark slate backgrounds — reduces eye strain on the shopfloor
+backgroundColor = "#0f172a"
+secondaryBackgroundColor = "#1e293b"
+
+# High contrast text for readability
+textColor = "#f1f5f9"
+
+[browser]
+gatherUsageStats = false

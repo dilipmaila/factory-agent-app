@@ -77,10 +77,34 @@ class DebriefManager:
 
     def get_pending_debriefs(self, operator_id: Optional[str] = None) -> List[Dict[str, Any]]:
         """Retrieves active pending debriefs for an operator."""
+        self.load_from_file()
         pending = [d for d in self.debriefs if d.get("status") == "PENDING"]
         if operator_id:
             pending = [d for d in pending if d.get("operator_id") == operator_id]
         return pending
+
+    def dismiss_debrief(self, debrief_id: str) -> None:
+        """Dismisses a pending debrief inquiry without confirmation."""
+        self.load_from_file()
+        for d in self.debriefs:
+            if d.get("debrief_id") == debrief_id:
+                d["status"] = "DISMISSED"
+                d["resolved_at"] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                break
+        self.save_to_file()
+
+    def clear_all_pending(self, operator_id: Optional[str] = None) -> int:
+        """Clears all pending debrief inquiries for an operator or globally."""
+        self.load_from_file()
+        count = 0
+        for d in self.debriefs:
+            if d.get("status") == "PENDING":
+                if not operator_id or d.get("operator_id") == operator_id:
+                    d["status"] = "DISMISSED"
+                    d["resolved_at"] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    count += 1
+        self.save_to_file()
+        return count
 
     def process_debrief_response(
         self,

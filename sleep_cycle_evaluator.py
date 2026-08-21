@@ -114,6 +114,8 @@ class SleepCycleEvaluator:
         4. Clears processed queues and archives logs.
         """
         now = current_time or datetime.datetime.now()
+        self.graph.load_from_file()
+        self.graph._ensure_cognitive_states_for_all_operators()
         pending_events = self.episodic.get_pending_events()
         escrow_records = self.episodic.get_escrow_records()
 
@@ -122,8 +124,11 @@ class SleepCycleEvaluator:
                 "status": "NO_EVENTS",
                 "message": "Both event queue and escrow queue are empty. No updates required.",
                 "processed_count": 0,
-                "escrow_processed": 0,
-                "mutations": [],
+                "processed_events": 0,
+                "processed_escrow": 0,
+                "pending_escrow_remaining": 0,
+                "durability_evaluations": [],
+                "autonomy_mutations": [],
             }
 
         autonomy_mutations: Dict[Tuple[str, str], float] = {}

@@ -1,4 +1,4 @@
-"""
+﻿"""
 Manufacturing Operator AI Assistant - Streamlit Application.
 Features:
 1. Dynamic Procedural Memory (Bayesian Probabilistic Fault Trees).
@@ -52,7 +52,7 @@ st.set_page_config(
     page_title="Shopfloor AI Copilot | Adaptive Learning 3.0",
     page_icon="🏭",
     layout="wide",
-    initial_sidebar_state="expanded",
+    initial_sidebar_state="collapsed",
 )
 
 # Custom Styling
@@ -151,6 +151,37 @@ st.markdown(
         padding-right: 8px !important;
         font-size: 0.80rem !important;
         font-weight: 600 !important;
+    }
+
+    /* ---- Chat input: fixed to viewport bottom ---- */
+    /* Using fixed (not sticky) to guarantee bottom pinning in any column layout */
+    [data-testid="stChatInput"] {
+        position: fixed !important;
+        bottom: 0 !important;
+        left: var(--sidebar-width, 0px) !important;
+        right: 0 !important;
+        background: #0f172a !important;
+        padding: 10px 1.5rem 10px 1.5rem !important;
+        z-index: 999 !important;
+        border-top: 1px solid #1e293b !important;
+        box-shadow: 0 -4px 16px rgba(0,0,0,0.35) !important;
+    }
+    /* Reserve space so last chat message isn't hidden behind the fixed bar */
+    section[data-testid="stMain"] > div:first-child {
+        padding-bottom: 6rem !important;
+    }
+    /* ---- Uniform height for quick diagnostic buttons ---- */
+    .quick-btns .stButton button {
+        min-height: 3.2rem !important;
+        white-space: normal !important;
+        line-height: 1.25 !important;
+        font-size: 0.80rem !important;
+    }
+    /* ---- Utility header buttons (Clear Chat, Hide Inspector) ---- */
+    .util-btns .stButton button {
+        font-size: 0.78rem !important;
+        padding: 0.3rem 0.5rem !important;
+        white-space: nowrap !important;
     }
     </style>
     """,
@@ -307,76 +338,71 @@ with st.sidebar:
     )
 
     st.write("")
-    st.markdown("##### 📡 SCADA Telemetry State")
-    active_alarm = resources["scada"].get_active_alarm(selected_machine)
-
-    if "Normal" in active_alarm:
-        st.success(f"🟢 **{active_alarm}**")
-    else:
-        st.error(f"🚨 **{active_alarm}**")
-
-    # Alarm Simulation Controls
-    col_s1, col_s2 = st.columns(2)
-    with col_s1:
-        if st.button("Trigger Alarm", use_container_width=True):
-            if selected_machine == "Haas VF-2":
-                resources["scada"].set_active_alarm(
-                    "Haas VF-2",
-                    "Alarm 102",
-                    "SERVOS OFF",
-                    "Servo amplifiers disabled. Air pressure low or E-stop.",
-                    {"air_pressure_psi": 64.0, "estop_pressed": False, "spindle_rpm": 0},
-                )
-            else:
-                resources["scada"].set_active_alarm(
-                    "Engel Victory 330",
-                    "E-201",
-                    "BARREL OVERHEAT",
-                    "Zone 2 heater over operating threshold.",
-                    {"zone_1_temp_c": 210.0, "zone_2_temp_c": 272.0, "hydraulic_pressure_bar": 150.0},
-                )
-            st.rerun()
-
-    with col_s2:
-        if st.button("Clear SCADA", use_container_width=True):
-            resources["scada"].clear_alarm(selected_machine)
-            st.rerun()
+    # --- SCADA: grouped in a distinct container ---
+    with st.container(border=True):
+        st.markdown("##### 📡 SCADA Telemetry")
+        active_alarm = resources["scada"].get_active_alarm(selected_machine)
+        if "Normal" in active_alarm:
+            st.success(f"🟢 **{active_alarm}**")
+        else:
+            st.error(f"🚨 **{active_alarm}**")
+        col_s1, col_s2 = st.columns(2)
+        with col_s1:
+            if st.button("Trigger Alarm", width="stretch"):
+                if selected_machine == "Haas VF-2":
+                    resources["scada"].set_active_alarm(
+                        "Haas VF-2", "Alarm 102", "SERVOS OFF",
+                        "Servo amplifiers disabled. Air pressure low or E-stop.",
+                        {"air_pressure_psi": 64.0, "estop_pressed": False, "spindle_rpm": 0},
+                    )
+                else:
+                    resources["scada"].set_active_alarm(
+                        "Engel Victory 330", "E-201", "BARREL OVERHEAT",
+                        "Zone 2 heater over operating threshold.",
+                        {"zone_1_temp_c": 210.0, "zone_2_temp_c": 272.0, "hydraulic_pressure_bar": 150.0},
+                    )
+                st.rerun()
+        with col_s2:
+            if st.button("Clear SCADA", width="stretch"):
+                resources["scada"].clear_alarm(selected_machine)
+                st.rerun()
 
     st.markdown("---")
 
-    # Section 3.A: Environmental Context Matrix (ECM) Controls
-    st.markdown("##### 🌐 Physical Context Matrix (ECM)")
-    shift_hours = st.slider(
-        "Shift Hour (Fatigue Gauge)",
-        min_value=0.5,
-        max_value=12.0,
-        value=float(st.session_state.shift_hours_in),
-        step=0.5,
-        help="Simulates hours elapsed since operator clocked in. At >= 80% of shift, Fatigue Gate forces 100% exploitation.",
-    )
-    st.session_state.shift_hours_in = shift_hours
+    # --- ECM: collapsed expander (not needed for most sessions) ---
+    with st.expander("⚙️ Context Parameters", expanded=False):
+        shift_hours = st.slider(
+            "Shift Hour (Fatigue Gauge)",
+            min_value=0.5, max_value=12.0,
+            value=float(st.session_state.shift_hours_in), step=0.5,
+            help="Hours since clock-in. Fatigue Gate activates at ≥80% of shift.",
+        )
+        st.session_state.shift_hours_in = shift_hours
+        sup_on_site = st.checkbox(
+            "Supervisor On-Site",
+            value=bool(st.session_state.supervisor_on_site),
+            help="Unchecked = supervisor offline; blocks Level 2 escalation.",
+        )
+        st.session_state.supervisor_on_site = sup_on_site
+        is_emergency_active = st.checkbox(
+            "🚨 Critical Severity-1 Hazard",
+            value=bool(st.session_state.get("is_emergency_active", False)),
+            help="Severity-1 E-Stop: suspends personalization, triggers SOS Protocol.",
+        )
+        st.session_state.is_emergency_active = is_emergency_active
 
-    sup_on_site = st.checkbox(
-        "Supervisor On-Site",
-        value=bool(st.session_state.supervisor_on_site),
-        help="When unchecked (supervisor offline), AI enforces strict safety checks and blocks Level 2 escalation.",
-    )
-    st.session_state.supervisor_on_site = sup_on_site
-
-    # Compute current ECM payload
+    # Compute ECM payload (always needed regardless of expander state)
     current_ecm = generate_ecm_payload(
         operator_id=selected_op_id,
         machine_id=selected_machine,
-        hours_since_clock_in=shift_hours,
+        hours_since_clock_in=st.session_state.shift_hours_in,
         total_shift_hours=12.0 if "OP-002" in selected_op_id else 8.0,
-        supervisor_available=sup_on_site,
+        supervisor_available=st.session_state.supervisor_on_site,
     )
 
+    # Show active gate status outside the expander so it's always visible
     if current_ecm["fatigue_gate_active"]:
-        st.error(f"⚡ **Fatigue Gate ACTIVE** (`{current_ecm['fatigue_index']*100:.0f}%` - 100% Exploit)")
-    else:
-        st.info(f"🟢 Fatigue Index: `{current_ecm['fatigue_index']*100:.0f}%` (Balanced UCB)")
-
+        st.error(f"⚡ **Fatigue Gate ACTIVE** — 100% Exploit (`{current_ecm['fatigue_index']*100:.0f}%`)")
     if current_ecm["supervisor_gate_active"]:
         st.warning("🚨 **Supervisor Gate ACTIVE** (Offline Override)")
 
@@ -389,17 +415,38 @@ with st.sidebar:
     st.markdown("##### 🛡️ Safety Escrow & Batch")
     st.caption(f"Shift Events: `{pending_events_count}` | Escrow Held: `{escrow_count}`")
 
-    if st.button("🌙 Run Sleep Cycle (Batch)", use_container_width=True):
+    if st.button("🌙 Run Sleep Cycle (Batch)", width="stretch"):
+        resources["graph"].load_from_file()
         batch_res = resources["sleep_evaluator"].run_sleep_cycle(force_mature_escrow=True)
-        st.toast(f"Sleep Cycle completed: {batch_res['processed_events']} events, {batch_res['processed_escrow']} escrow.", icon="🌙")
+        resources["graph"].load_from_file()
+        num_events = batch_res.get("processed_events", batch_res.get("processed_count", 0))
+        num_escrow = batch_res.get("processed_escrow", 0)
+        if batch_res.get("status") == "NO_EVENTS":
+            st.toast("Sleep Cycle: Queues are already empty. No batch updates needed.", icon="🌙")
+        else:
+            st.toast(f"Sleep Cycle completed: {num_events} events, {num_escrow} escrow records.", icon="🌙")
         st.rerun()
 
     st.write("")
-    if st.button("♻️ Reset Defaults", use_container_width=True):
-        resources["graph"]._seed_default_graph()
-        resources["graph"].save_to_file()
-        resources["episodic"].clear_event_queue()
-        resources["episodic"].clear_escrow_records()
+    if st.button("♻️ Reset Defaults", width="stretch"):
+        st.cache_resource.clear()
+        # Clean disk states
+        graph_obj = OperatorKnowledgeGraph(state_file=str(DATA_DIR / "graph_state.json"))
+        graph_obj._seed_default_graph()
+        graph_obj.save_to_file()
+
+        episodic_obj = EpisodicMemory(
+            log_file=str(DATA_DIR / "episodic_logs.json"),
+            queue_file=str(DATA_DIR / "episodic_event_queue.json"),
+            escrow_file=str(DATA_DIR / "escrow_rewards.json"),
+        )
+        episodic_obj.clear_event_queue()
+        episodic_obj.clear_escrow_records()
+
+        debrief_obj = DebriefManager(debrief_file=str(DATA_DIR / "pending_debriefs.json"))
+        if hasattr(debrief_obj, "clear_all_pending"):
+            debrief_obj.clear_all_pending()
+
         st.session_state.chat_history = []
         st.session_state.last_context = None
         st.session_state.feedback_status = None
@@ -409,37 +456,49 @@ with st.sidebar:
         st.rerun()
 
 
-# --- 3. MAIN DASHBOARD LAYOUT (2 COLUMNS) ---
-left_col, right_col = st.columns([1.15, 0.85], gap="large")
+# --- 3. MAIN DASHBOARD LAYOUT (COLLAPSIBLE INSPECTOR) ---
+if "show_inspector" not in st.session_state:
+    st.session_state.show_inspector = False
+
+if st.session_state.show_inspector:
+    left_col, right_col = st.columns([1.7, 1.0], gap="large")
+else:
+    left_col = st.container()
+    right_col = None
 
 # =========================================================================
 # LEFT COLUMN: COPILOT CHAT, MICRO-DEBRIEF INTERCEPT, ECM OVERRIDES
 # =========================================================================
 with left_col:
-    st.markdown(f'<div class="col-header">💬 Shopfloor AI Copilot — {selected_machine}</div>', unsafe_allow_html=True)
+    # Header row: title gets the bulk of space; utility buttons get equal compact columns
+    h_col1, h_col2, h_col3 = st.columns([0.50, 0.25, 0.25])
+    with h_col1:
+        st.markdown(f'<div class="col-header">💬 Shopfloor AI Copilot — {selected_machine}</div>', unsafe_allow_html=True)
+    with h_col2:
+        if st.button("🗑️ Clear", width="stretch", help="Clear chat history"):
+            st.session_state.chat_history = []
+            st.session_state.last_context = None
+            st.session_state.feedback_status = None
+            st.toast("Chat cleared.", icon="🗑️")
+            st.rerun()
+    with h_col3:
+        btn_label = "◀️ Hide" if st.session_state.show_inspector else "▶️ Inspector"
+        if st.button(btn_label, width="stretch", help="Collapse or expand the Inspector panel"):
+            st.session_state.show_inspector = not st.session_state.show_inspector
+            st.rerun()
 
-    tier_badge_class = f"tier-{machine_tier.lower()}"
-    st.markdown(
-        f"""
-        <div class="col-subheader">
-            Operator: <strong>{op_profile.get('name', selected_op_id)}</strong> &nbsp;|&nbsp; 
-            Machine Tier: <span class="tier-tag {tier_badge_class}">{machine_tier}</span> &nbsp;|&nbsp; 
-            Autonomy: <strong>{machine_autonomy:.1f}%</strong> &nbsp;|&nbsp;
-            Fatigue: <strong>{current_ecm['fatigue_index']*100:.0f}%</strong>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
+    # Subtitle removed — operator/tier/autonomy info is already in the sidebar.
 
     # --- SECTION 3.B: THE MICRO-DEBRIEF LOOP INTERCEPT ---
     pending_debriefs = resources["debrief"].get_pending_debriefs(selected_op_id)
     if pending_debriefs:
         active_deb = pending_debriefs[0]
+        queue_count_str = f"({len(pending_debriefs)} in queue)" if len(pending_debriefs) > 1 else ""
         st.markdown(
             f"""
             <div class="debrief-box">
                 <div style="font-weight:700; color:#f59e0b; font-size:0.95rem; margin-bottom:4px;">
-                    🤖 Copilot Micro-Debrief Inquiry
+                    🤖 Copilot Micro-Debrief Inquiry <span style="font-size:0.75rem; color:#94a3b8; font-weight:normal;">{queue_count_str}</span>
                 </div>
                 <div style="font-size:0.88rem; color:#e2e8f0; margin-bottom:8px;">
                     Earlier you resolved <strong>{active_deb['fault_code']}</strong> in <strong>~{active_deb['actual_time_mins']} min</strong> 
@@ -451,9 +510,9 @@ with left_col:
             unsafe_allow_html=True,
         )
 
-        d_col1, d_col2 = st.columns(2)
+        d_col1, d_col2, d_col3 = st.columns([1, 1, 0.7])
         with d_col1:
-            if st.button("✅ Yes, I used that shortcut", key=f"deb_yes_{active_deb['debrief_id']}", use_container_width=True):
+            if st.button("✅ Yes, used shortcut", key=f"deb_yes_{active_deb['debrief_id']}", width="stretch"):
                 deb_res = resources["debrief"].process_debrief_response(
                     debrief_id=active_deb["debrief_id"],
                     confirmed=True,
@@ -463,13 +522,19 @@ with left_col:
                 st.rerun()
 
         with d_col2:
-            if st.button("❌ No, standard procedure", key=f"deb_no_{active_deb['debrief_id']}", use_container_width=True):
+            if st.button("❌ No, standard steps", key=f"deb_no_{active_deb['debrief_id']}", width="stretch"):
                 deb_res = resources["debrief"].process_debrief_response(
                     debrief_id=active_deb["debrief_id"],
                     confirmed=False,
                     procedural_memory=resources["procedural"],
                 )
                 st.toast(deb_res["message"], icon="🗑️")
+                st.rerun()
+
+        with d_col3:
+            if st.button("⏭️ Dismiss", key=f"deb_skip_{active_deb['debrief_id']}", width="stretch", help="Dismiss this inquiry"):
+                resources["debrief"].dismiss_debrief(active_deb["debrief_id"])
+                st.toast("Inquiry dismissed.", icon="⏭️")
                 st.rerun()
 
         st.markdown("---")
@@ -496,6 +561,9 @@ with left_col:
                 with st.expander("📚 Grounding References"):
                     for doc_ref in msg["doc_citations"]:
                         st.caption(f"• **{doc_ref['id']}** ({doc_ref['machine']}) — RRF: `{doc_ref['score']:.4f}`")
+            if msg.get("working_memory_prompt"):
+                with st.expander("🧠 View Assembled Working Memory Prompt"):
+                    st.code(msg["working_memory_prompt"], language="text")
 
     # --- EXPLICIT FORMAT OVERRIDE BAR ---
     if st.session_state.chat_history and st.session_state.last_context:
@@ -506,7 +574,7 @@ with left_col:
         )
         ov_col1, ov_col2, ov_col3 = st.columns(3)
         with ov_col1:
-            if st.button("Terse Technical", use_container_width=True, key="ov_terse", disabled=(last_fmt == "Terse_Technical")):
+            if st.button("Terse Technical", width="stretch", key="ov_terse", disabled=(last_fmt == "Terse_Technical")):
                 req_fmt, new_instr, _ = resources["bandit"].trigger_format_override(
                     operator_id=selected_op_id,
                     machine_id=selected_machine,
@@ -527,13 +595,15 @@ with left_col:
                     "role": "assistant",
                     "content": new_resp,
                     "format_badge": f"OVERRIDE: {req_fmt} ({machine_tier})",
+                    "working_memory_prompt": prompt_regen,
                 }
                 st.session_state.last_context["format_used"] = req_fmt
-                st.toast("Hard Override applied (-10.0 penalty to rejected format).", icon="⚡")
+                st.session_state.last_context["prompt_text"] = prompt_regen
+                st.toast("Format override applied.", icon="⚡")
                 st.rerun()
 
         with ov_col2:
-            if st.button("Visual Step-by-Step", use_container_width=True, key="ov_visual", disabled=(last_fmt == "Visual_StepByStep")):
+            if st.button("Visual Step-by-Step", width="stretch", key="ov_visual", disabled=(last_fmt == "Visual_StepByStep")):
                 req_fmt, new_instr, _ = resources["bandit"].trigger_format_override(
                     operator_id=selected_op_id,
                     machine_id=selected_machine,
@@ -554,13 +624,15 @@ with left_col:
                     "role": "assistant",
                     "content": new_resp,
                     "format_badge": f"OVERRIDE: {req_fmt} ({machine_tier})",
+                    "working_memory_prompt": prompt_regen,
                 }
                 st.session_state.last_context["format_used"] = req_fmt
-                st.toast("Hard Override applied (-10.0 penalty to rejected format).", icon="⚡")
+                st.session_state.last_context["prompt_text"] = prompt_regen
+                st.toast("Format override applied.", icon="⚡")
                 st.rerun()
 
         with ov_col3:
-            if st.button("Detailed Tutorial", use_container_width=True, key="ov_detailed", disabled=(last_fmt == "Detailed_Text")):
+            if st.button("Detailed Tutorial", width="stretch", key="ov_detailed", disabled=(last_fmt == "Detailed_Text")):
                 req_fmt, new_instr, _ = resources["bandit"].trigger_format_override(
                     operator_id=selected_op_id,
                     machine_id=selected_machine,
@@ -581,90 +653,87 @@ with left_col:
                     "role": "assistant",
                     "content": new_resp,
                     "format_badge": f"OVERRIDE: {req_fmt} ({machine_tier})",
+                    "working_memory_prompt": prompt_regen,
                 }
                 st.session_state.last_context["format_used"] = req_fmt
-                st.toast("Hard Override applied (-10.0 penalty to rejected format).", icon="⚡")
+                st.session_state.last_context["prompt_text"] = prompt_regen
+                st.toast("Format override applied.", icon="⚡")
                 st.rerun()
 
     # --- RESOLUTION FEEDBACK PROMPT ---
     if st.session_state.chat_history and st.session_state.last_context and not st.session_state.last_context.get("feedback_given"):
-        st.markdown(
-            "<p style='font-size:0.85rem; color:#94a3b8; margin-top:12px; margin-bottom:6px; font-style:italic;'>Did this guidance resolve the machine issue?</p>",
-            unsafe_allow_html=True,
-        )
+        st.caption("Did this guidance resolve the issue?")
 
-        f_col1, f_col2 = st.columns(2)
-        with f_col1:
-            if st.button("✅ Solved Independently", use_container_width=True, key="btn_solve_feedback"):
+        fb_col1, fb_col2 = st.columns(2)
+        with fb_col1:
+            if st.button("✅ Solved Independently", width="stretch", key="btn_solve_feedback"):
                 last_ctx = st.session_state.last_context
-                eval_res = resources["observer"].evaluate_session(
+                # Escrow durability record
+                escrow_rec = resources["episodic"].enqueue_escrow_record(
                     operator_id=selected_op_id,
                     machine_id=selected_machine,
+                    fault_code=last_ctx.get("matched_error_code", "General"),
                     format_used=last_ctx.get("format_used", "Visual_StepByStep"),
-                    escalated=False,
-                    cognitive_tier=machine_tier,
-                    error_code=last_ctx.get("matched_error_code"),
+                    cognitive_tier=last_ctx.get("active_tier", machine_tier),
                     path_id=last_ctx.get("primary_path_id"),
-                    execution_time_mins=2.0,  # Fast triage simulated
-                    sop_avg_time_mins=10.0,
-                    query=last_ctx.get("query", ""),
-                    response=last_ctx.get("response", ""),
                 )
                 st.session_state.last_context["feedback_given"] = True
-                st.session_state.feedback_status = f"✅ Resolved independently! Reward in Escrow. ({eval_res['latency_ms']} ms)."
-                st.toast(f"Reward Held in Escrow ({eval_res['latency_ms']}ms)", icon="🛡️")
+                st.session_state.feedback_status = "SOLVED"
+                st.toast("Resolution held in 8-hr durability escrow.", icon="⏳")
                 st.rerun()
 
-        with f_col2:
-            if st.button("⚠️ Escalate to Supervisor", use_container_width=True, key="btn_escalate_feedback"):
+        with fb_col2:
+            if st.button("⚠️ Escalate to Supervisor", width="stretch", key="btn_escalate_feedback"):
                 last_ctx = st.session_state.last_context
-                eval_res = resources["observer"].evaluate_session(
+                resources["episodic"].enqueue_event(
                     operator_id=selected_op_id,
                     machine_id=selected_machine,
-                    format_used=last_ctx.get("format_used", "Visual_StepByStep"),
-                    escalated=True,
-                    cognitive_tier=machine_tier,
-                    error_code=last_ctx.get("matched_error_code"),
-                    path_id=last_ctx.get("primary_path_id"),
-                    issue_desc=f"Escalated from turn: {last_ctx.get('query', 'N/A')}",
                     query=last_ctx.get("query", ""),
                     response=last_ctx.get("response", ""),
+                    format_used=last_ctx.get("format_used", "Visual_StepByStep"),
+                    cognitive_tier=last_ctx.get("active_tier", machine_tier),
+                    outcome_status="ESCALATED_CMMS",
+                    error_code=last_ctx.get("matched_error_code"),
+                    path_id=last_ctx.get("primary_path_id"),
                 )
                 st.session_state.last_context["feedback_given"] = True
-                st.session_state.feedback_status = f"⚠️ Escalated to maintenance ({eval_res['ticket_id']}). Logged in {eval_res['latency_ms']} ms."
-                st.toast(f"Escalation Dispatched: {eval_res['ticket_id']} ({eval_res['latency_ms']}ms)", icon="🚨")
+                st.session_state.feedback_status = "ESCALATED"
+                st.toast("Escalation logged to event queue.", icon="⚠️")
                 st.rerun()
 
-    elif st.session_state.feedback_status:
-        if "✅" in st.session_state.feedback_status:
-            st.success(st.session_state.feedback_status)
-        else:
-            st.warning(st.session_state.feedback_status)
-
-    # Quick Shopfloor Prompts
-    st.markdown("---")
-    st.caption("⚡ Quick Shopfloor Prompts:")
+    # --- QUICK DIAGNOSTIC PROMPTS: short labels → full queries, uniform height ---
+    st.write("")
+    st.caption("💡 Quick Diagnostics:")
+    # Tuples: (button_label, full_query_text)
     sample_queries = {
         "Haas VF-2": [
-            "How do I clear Alarm 102 (Servos Off)?",
-            "X Axis SERVO ERROR TOO LARGE (Alarm 103)",
-            "What G-code is used for peck drilling cycles?",
+            ("Alarm 102: Servos Off",        "How do I clear SERVOS OFF (Alarm 102)?"),
+            ("Alarm 103: Servo Error",        "X Axis SERVO ERROR TOO LARGE (Alarm 103)"),
+            ("G-code: Peck Drilling",         "What G-code is used for peck drilling cycles?"),
         ],
         "Engel Victory 330": [
-            "How do I fix barrel temperature overheat in Zone 2 (E-201)?",
-            "What are the resolution steps for low hydraulic clamping pressure (E-105)?",
-            "How do I safely purge the injection screw before mold change?",
+            ("E-201: Barrel Overheat",        "How do I fix barrel temperature overheat in Zone 2 (E-201)?"),
+            ("E-105: Low Clamp Pressure",     "What are the resolution steps for low hydraulic clamping pressure (E-105)?"),
+            ("Screw Purge Procedure",         "How do I safely purge the injection screw before mold change?"),
         ],
     }
-
-    quick_cols = st.columns(len(sample_queries.get(selected_machine, [])))
+    pairs = sample_queries.get(selected_machine, [])
+    # Wrap in a div that the .quick-btns CSS rule targets
+    st.markdown('<div class="quick-btns">', unsafe_allow_html=True)
+    quick_cols = st.columns(len(pairs))
     prompt_to_send = None
-    for idx, sample_q in enumerate(sample_queries.get(selected_machine, [])):
+    for idx, (label, query) in enumerate(pairs):
         with quick_cols[idx]:
-            if st.button(sample_q, key=f"quick_{idx}", use_container_width=True):
-                prompt_to_send = sample_q
+            if st.button(label, key=f"quick_{idx}", type="primary", width="stretch"):
+                prompt_to_send = query
+    st.markdown('</div>', unsafe_allow_html=True)
 
-    user_input = st.chat_input("Ask about machine alarms, M-codes, SOPs, or mechanical repairs...")
+# st.chat_input called at page scope so Streamlit pins it to the bottom of
+# the viewport. The left_col block continues below for processing.
+user_input = st.chat_input("Ask about machine alarms, M-codes, SOPs, or mechanical repairs...")
+
+# --- LEFT COLUMN PHASE 2: process the query (entered via quick button or chat input) ---
+with left_col:
     active_query = prompt_to_send or user_input
 
     if active_query:
@@ -709,11 +778,12 @@ with left_col:
                     except Exception:
                         retrieved_docs = resources["retriever"].search(query=active_query, top_k=2)
 
-                # D. UCB Bandit Format Selection with ECM Fatigue Gate
+                # D. UCB Bandit Format Selection with ECM Fatigue Gate & Severity-1 Override
                 best_arm, arm_instruction, ucb_stats, active_tier = resources["bandit"].select_format(
                     operator_id=selected_op_id,
                     machine_id=selected_machine,
                     ecm_payload=current_ecm,
+                    is_severity_1=bool(st.session_state.get("is_emergency_active", False)),
                 )
 
                 # E. Assemble Working Memory Prompt with ECM Directives
@@ -728,6 +798,7 @@ with left_col:
                     "machine_id": selected_machine,
                     "active_alarm": active_alarm,
                     "autonomy_score": machine_autonomy,
+                    "is_severity_1": bool(st.session_state.get("is_emergency_active", False)),
                 }
 
                 prompt_text = build_prompt(
@@ -800,138 +871,189 @@ with left_col:
                     "procedural_badge": procedural_badge,
                     "ecm_badge": ecm_badge,
                     "doc_citations": doc_citations,
+                    "working_memory_prompt": prompt_text,
                 })
 
         st.rerun()
 
 
 # =========================================================================
-# RIGHT COLUMN: COGNITIVE INSPECTOR (ECM, DEBRIEF, FMEA)
+# RIGHT COLUMN: INSPECTOR — 3 focused tabs
 # =========================================================================
-with right_col:
-    st.markdown('<div class="col-header">🧠 Cognitive & Safety Inspector</div>', unsafe_allow_html=True)
-    st.markdown('<div class="col-subheader">FMEA Guardrails, Quarantined SOPs & ECM Context</div>', unsafe_allow_html=True)
+if st.session_state.show_inspector and right_col is not None:
+    with right_col:
+        st.markdown('<div class="col-header">🔬 Inspector</div>', unsafe_allow_html=True)
 
-    tab_profile, tab_bandit, tab_ecm, tab_debrief, tab_procedural, tab_quarantine = st.tabs([
-        "👤 Profile",
-        "🎰 Bandit",
-        "🌐 ECM",
-        "📋 Debrief",
-        "🌳 Procedural",
-        "🧪 Quarantine",
-    ])
+        tab_safety, tab_model, tab_logs = st.tabs([
+            "🛡️ Active Safety",
+            "⚙️ Model State",
+            "📋 Logs",
+        ])
 
-    # --- TAB 1: OPERATOR PROFILE ---
-    with tab_profile:
-        st.markdown(f"##### Machine Confidence: {selected_machine}")
-        col_p1, col_p2 = st.columns(2)
-        with col_p1:
-            st.metric("Machine Autonomy", f"{machine_autonomy:.1f}%")
-            st.progress(int(machine_autonomy) / 100)
-        with col_p2:
-            st.metric("Derived Tier", machine_tier)
-
-        st.write("")
-        st.markdown("##### Multi-Machine Autonomy Breakdown")
-        for m in machines:
-            comp = resources["graph"].get_machine_competence(selected_op_id, m)
-            st.caption(f"**{m}:** `{comp['autonomy_score']:.1f}%` ({comp['derived_tier']})")
-            st.progress(int(comp["autonomy_score"]) / 100)
-
-    # --- TAB 2: BANDIT MATH ---
-    with tab_bandit:
-        st.markdown(f"##### UCB Math for Tier: `{machine_tier}`")
-        ucb_data = resources["bandit"].calculate_ucb_scores(
-            selected_op_id,
-            machine_tier,
-            exploration_override_c=0.0 if current_ecm["fatigue_gate_active"] else None,
-        )
-        bandit_rows = [
-            {"Arm": arm, "UCB Score": stats["ucb_score"], "Mean Reward": stats["mean_reward"], "Weight": stats["weight"], "Pulls": stats["pull_count"]}
-            for arm, stats in ucb_data.items()
-        ]
-        df_bandit = pd.DataFrame(bandit_rows)
-        winning_arm = max(ucb_data.keys(), key=lambda k: ucb_data[k]["ucb_score"])
-        st.info(f"🏆 **Active Policy**: `{winning_arm}` {'(Fatigue Exploit Mode)' if current_ecm['fatigue_gate_active'] else ''}")
-        st.dataframe(df_bandit, use_container_width=True, hide_index=True)
-
-    # --- TAB 3: SECTION 3.A ENVIRONMENTAL CONTEXT MATRIX (ECM) ---
-    with tab_ecm:
-        st.markdown("##### 🌐 Live Environmental Context Matrix (ECM)")
-        col_e1, col_e2 = st.columns(2)
-        with col_e1:
-            st.metric("Shift Progress", f"{current_ecm['hours_since_clock_in']}/{current_ecm['total_shift_hours']} h")
-            st.metric("Fatigue Index", f"{current_ecm['fatigue_index']*100:.1f}%")
-        with col_e2:
-            st.metric("Shift Phase", current_ecm["shift_phase"])
-            st.metric("Supervisor", "On-Site" if current_ecm["supervisor_available"] else "OFFLINE")
-
-        st.write("")
-        st.markdown("##### Active Logic Gates:")
-        if current_ecm["fatigue_gate_active"]:
-            st.error("🚨 **Fatigue Gate ON**: Exploration forced to 0.0 (Exploiting fastest format).")
-        else:
-            st.success("🟢 **Fatigue Gate OFF**: Standard exploration active.")
-
-        if current_ecm["supervisor_gate_active"]:
-            st.warning("🚨 **Supervisor Gate ON**: Prompt restricts Level 2 escalation suggestions.")
-        else:
-            st.success("🟢 **Supervisor Gate OFF**: Standard escalation permitted.")
-
-    # --- TAB 4: SECTION 3.B MICRO-DEBRIEF STORE ---
-    with tab_debrief:
-        st.markdown("##### 📋 Micro-Debrief Records")
-        st.caption("Turns probabilistic telemetry guesses into deterministic verified SOPs.")
-
-        all_debriefs = resources["debrief"].debriefs
-        if all_debriefs:
-            df_deb = pd.DataFrame(all_debriefs)
-            st.dataframe(
-                df_deb[["debrief_id", "operator_id", "fault_code", "suspected_shortcut_title", "status"]],
-                use_container_width=True,
-                hide_index=True,
-            )
-        else:
-            st.info("No micro-debrief records in queue.")
-
-    # --- TAB 5: ACTIVE PROCEDURAL MEMORY ---
-    with tab_procedural:
-        st.markdown("##### Active Verified Skill Library")
-        all_trees = resources["procedural"].get_all_trees(operator_tier=machine_tier)
-        for tree in all_trees:
-            with st.expander(f"🌳 {tree.get('error_code')} - {tree.get('title')} ({tree.get('machine')})"):
-                for rank, path in enumerate(tree.get("diagnostic_paths", []), 1):
-                    prob = path.get("probability_score", 0.5) * 100
-                    req_tag = f" `[Clearance: {path.get('min_tier_required')}]`" if path.get("min_tier_required") else ""
-                    st.markdown(f"**Rank {rank}: {path.get('title')}**{req_tag} (`{prob:.1f}%` Prob | ~`{path.get('avg_execution_time_mins')}` min)")
-                    st.progress(int(prob) / 100)
-
-    # --- TAB 6: QUARANTINE DATABASE ---
-    with tab_quarantine:
-        st.markdown("##### 🧪 Quarantine Candidate Shortcuts")
-        quarantine_trees = resources["procedural"].get_quarantined_trees()
-        if quarantine_trees:
-            for q_tree in quarantine_trees:
-                st.markdown(f"**Alarm:** `{q_tree.get('error_code')}` — {q_tree.get('title')} ({q_tree.get('machine')})")
-                for q_path in q_tree.get("diagnostic_paths", []):
-                    validators = q_path.get("validated_by_senior_operators", [])
-                    st.warning(
-                        f"⚠️ **Candidate Shortcut:** {q_path.get('title')}\n\n"
-                        f"• **Senior Expert Signatures:** `{len(validators)}/3` ({', '.join(validators) if validators else 'None'})\n\n"
-                        f"• **Steps:** {q_path.get('resolution_steps')}"
-                    )
-                    if machine_tier == "Expert":
-                        if st.button(f"✍️ Sign Off as Senior Operator ({op_profile.get('name', selected_op_id)})", key=f"val_{q_path.get('path_id')}", use_container_width=True):
-                            val_res = resources["procedural"].validate_quarantine_sop(
-                                error_code=q_tree.get("error_code"),
-                                path_id=q_path.get("path_id"),
-                                operator_id=selected_op_id,
-                                operator_tier=machine_tier,
-                            )
-                            if val_res.get("promoted"):
-                                st.success("🎉 Consensus reached! Promoted to Active Skill Library.")
+        # =====================================================================
+        # TAB 1: ACTIVE SAFETY — Quarantine (primary) + Procedural skill library
+        # =====================================================================
+        with tab_safety:
+            # --- Quarantine Candidates ---
+            st.markdown("##### 🧪 Quarantine Candidates")
+            st.caption("Shortcuts pending 3-Expert sign-off before promoting to active library.")
+            quarantine_trees = resources["procedural"].get_quarantined_trees()
+            if quarantine_trees:
+                for q_tree in quarantine_trees:
+                    st.caption(f"Alarm `{q_tree.get('error_code')}` — {q_tree.get('machine')}")
+                    for q_path in q_tree.get("diagnostic_paths", []):
+                        validators = q_path.get("validated_by_senior_operators", [])
+                        with st.container(border=True):
+                            st.markdown(f"**{q_path.get('title', 'Candidate Shortcut')}**")
+                            steps = q_path.get("resolution_steps", [])
+                            if isinstance(steps, list):
+                                for i, step in enumerate(steps, 1):
+                                    st.markdown(f"**Step {i}:** {step}")
                             else:
-                                st.info(f"Signature recorded ({val_res.get('count')}/3).")
-                            st.rerun()
-        else:
-            st.success("✅ Quarantine database is empty. All active SOPs are verified.")
+                                st.markdown(str(steps))
+                            st.markdown(
+                                f"**Expert Sign-offs:** `{len(validators)}/3` "
+                                f"— {', '.join(validators) if validators else 'None yet'}"
+                            )
+                            if machine_tier == "Expert":
+                                if st.button(
+                                    f"✍️ Sign Off ({op_profile.get('name', selected_op_id)})",
+                                    key=f"val_{q_path.get('path_id')}",
+                                    type="primary",
+                                    width="stretch",
+                                ):
+                                    val_res = resources["procedural"].validate_quarantine_sop(
+                                        error_code=q_tree.get("error_code"),
+                                        path_id=q_path.get("path_id"),
+                                        operator_id=selected_op_id,
+                                        operator_tier=machine_tier,
+                                    )
+                                    if val_res.get("promoted"):
+                                        st.success("🎉 Promoted to Active Skill Library!")
+                                    else:
+                                        st.info(f"Signature recorded ({val_res.get('count')}/3).")
+                                    st.rerun()
+                            else:
+                                st.caption("⚠️ Expert tier required to sign off.")
+            else:
+                st.success("✅ Quarantine is empty — all SOPs are verified.")
+
+            st.markdown("---")
+
+            # --- Active Verified Skill Library (secondary, collapsed) ---
+            with st.expander("🌳 Active Verified Skill Library", expanded=False):
+                all_trees = resources["procedural"].get_all_trees(operator_tier=machine_tier)
+                if all_trees:
+                    for tree in all_trees:
+                        st.markdown(f"**{tree.get('error_code')}** — {tree.get('title')} ({tree.get('machine')})")
+                        for rank, path in enumerate(tree.get("diagnostic_paths", []), 1):
+                            prob = path.get("probability_score", 0.5) * 100
+                            req_tag = f" `[{path.get('min_tier_required')}]`" if path.get("min_tier_required") else ""
+                            st.markdown(f"**Rank {rank}:** {path.get('title')}{req_tag} — `{prob:.1f}%` prob")
+                            st.progress(int(prob) / 100)
+                        anti_patterns = tree.get("anti_patterns", [])
+                        if anti_patterns:
+                            for ap in anti_patterns:
+                                st.error(f"❌ **{ap.get('action')}** — {ap.get('consequence')}")
+                        st.markdown("---")
+                else:
+                    st.info("No trees match your current tier.")
+
+            # --- Operator Profile (compact, inside safety tab) ---
+            with st.expander("👤 Operator Machine Profile", expanded=False):
+                col_p1, col_p2 = st.columns(2)
+                with col_p1:
+                    st.metric("Autonomy", f"{machine_autonomy:.1f}%")
+                    st.progress(int(machine_autonomy) / 100)
+                with col_p2:
+                    st.metric("Tier", machine_tier)
+                st.write("")
+                for m in machines:
+                    comp = resources["graph"].get_machine_competence(selected_op_id, m)
+                    st.caption(f"**{m}:** `{comp['autonomy_score']:.1f}%` ({comp['derived_tier']})")
+                    st.progress(int(comp["autonomy_score"]) / 100)
+                # Domain fencing
+                other_machine = "Engel Victory 330" if selected_machine == "Haas VF-2" else "Haas VF-2"
+                fence_check = resources["graph"].check_domain_fencing(selected_op_id, selected_machine, "electrical_high_voltage")
+                if fence_check["allowed"]:
+                    st.success("✅ High-Voltage: Authorized")
+                else:
+                    st.warning("⚠️ High-Voltage: LOTO Senior required")
+
+        # =====================================================================
+        # TAB 2: MODEL STATE — Working Memory + Bandit UCB scores
+        # =====================================================================
+        with tab_model:
+            # Working Memory
+            st.markdown("##### 🧠 Assembled Prompt")
+            if st.session_state.last_context and st.session_state.last_context.get("prompt_text"):
+                last_p = st.session_state.last_context.get("prompt_text")
+                p_words = len(last_p.split())
+                p_chars = len(last_p)
+                st.metric("Prompt Size", f"~{p_words} words ({p_chars} chars)")
+                with st.expander("📄 View Assembled Prompt", expanded=True):
+                    st.caption("Injection order: Safety → Bandit Directive → RAG SOPs → Operator Context")
+                    st.code(last_p, language="text")
+            else:
+                st.info("Ask a question to view the assembled prompt.")
+
+            st.markdown("---")
+
+            # Bandit UCB scores
+            st.markdown(f"##### 🎰 UCB Scores — `{machine_tier}` Tier")
+            try:
+                ucb_data = resources["bandit"].calculate_ucb_scores(
+                    selected_op_id,
+                    machine_tier,
+                    exploration_override_c=0.0 if current_ecm["fatigue_gate_active"] else None,
+                )
+                bandit_rows = [
+                    {"Arm": arm, "UCB Score": stats["ucb_score"], "Mean Reward": stats["mean_reward"],
+                     "Weight": stats["weight"], "Pulls": stats["pull_count"]}
+                    for arm, stats in ucb_data.items()
+                ]
+                df_bandit = pd.DataFrame(bandit_rows)
+                winning_arm = max(ucb_data.keys(), key=lambda k: ucb_data[k]["ucb_score"])
+                st.info(f"🏆 **Active Policy:** `{winning_arm}` {'(Fatigue Exploit Mode)' if current_ecm['fatigue_gate_active'] else ''}")
+                st.dataframe(df_bandit, width="stretch", hide_index=True)
+            except KeyError:
+                st.info(f"No bandit state for `{machine_tier}` yet. Ask a question to initialize.")
+
+        # =====================================================================
+        # TAB 3: LOGS — ECM live state + Micro-Debrief records
+        # =====================================================================
+        with tab_logs:
+            # ECM live state
+            st.markdown("##### 🌐 Environmental Context")
+            col_e1, col_e2 = st.columns(2)
+            with col_e1:
+                st.metric("Shift Progress", f"{current_ecm['hours_since_clock_in']}/{current_ecm['total_shift_hours']} h")
+                st.metric("Fatigue Index", f"{current_ecm['fatigue_index']*100:.1f}%")
+            with col_e2:
+                st.metric("Shift Phase", current_ecm["shift_phase"])
+                st.metric("Supervisor", "On-Site" if current_ecm["supervisor_available"] else "OFFLINE")
+            st.write("")
+            if current_ecm["fatigue_gate_active"]:
+                st.error("🚨 **Fatigue Gate ON** — 100% exploitation mode.")
+            else:
+                st.success("🟢 **Fatigue Gate OFF** — Standard UCB exploration.")
+            if current_ecm["supervisor_gate_active"]:
+                st.warning("🚨 **Supervisor Gate ON** — Level 2 escalation restricted.")
+            else:
+                st.success("🟢 **Supervisor Gate OFF** — Standard escalation.")
+
+            st.markdown("---")
+
+            # Micro-Debrief records
+            st.markdown("##### 📋 Micro-Debrief Records")
+            st.caption("Rapid fixes that triggered a human Y/N verification inquiry.")
+            all_debriefs = resources["debrief"].debriefs
+            if all_debriefs:
+                df_deb = pd.DataFrame(all_debriefs)
+                st.dataframe(
+                    df_deb[["debrief_id", "operator_id", "fault_code", "suspected_shortcut_title", "status"]],
+                    width="stretch",
+                    hide_index=True,
+                )
+            else:
+                st.info("No debrief records.")

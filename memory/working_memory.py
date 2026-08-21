@@ -77,7 +77,7 @@ def build_prompt(
 - **CONVERSATIONAL DIRECTIVE**: Proactively acknowledge this persistent issue in your response. Along with standard guidance, explicitly offer to dispatch Level 2 Maintenance or open a CMMS work order early if the operator expresses frustration, confusion, or if the primary fix does not immediately clear the fault.
 """
 
-    # 4. Format Dynamic Procedural Memory (Bayesian Fault Trees)
+    # 4. Format Dynamic Procedural Memory (Bayesian Fault Trees & Anti-Patterns)
     procedural_section = ""
     if procedural_context_text:
         procedural_section = f"""### DYNAMIC PROCEDURAL MEMORY (BAYESIAN FAULT TREES & RANKED SOLUTIONS)
@@ -99,6 +99,14 @@ def build_prompt(
                     f"• Steps:\n{p.get('resolution_steps')}\n"
                     f"• Prohibited: {p.get('prohibited_actions', 'None')}"
                 )
+            
+            # Anti-patterns
+            anti_patterns = tree.get("anti_patterns", [])
+            if anti_patterns:
+                p_lines.append("⚠️ **CRITICAL ANTI-PATTERNS (WHAT NOT TO DO)**:")
+                for ap in anti_patterns:
+                    p_lines.append(f"- ❌ DO NOT: {ap.get('action')} (Consequence: {ap.get('consequence')} | Risk: {ap.get('escalation_risk', 'High')})")
+
             tree_blocks.append("\n\n".join(p_lines))
         if tree_blocks:
             procedural_section = f"""### DYNAMIC PROCEDURAL MEMORY (BAYESIAN FAULT TREES & RANKED SOLUTIONS)
@@ -145,28 +153,41 @@ def build_prompt(
 - Active SCADA Alarm: {active_alarm}
 """
 
-    # 7. Assemble Master Prompt
+    # Check for Emergency Severity-1 SOS Mode
+    is_severity_1 = operator_context.get("is_severity_1", False) if operator_context else False
+    sos_header = ""
+    if is_severity_1 or "SOS_SHUTDOWN" in bandit_format_instruction:
+        sos_header = """🚨 **CRITICAL EMERGENCY OVERRIDE: SOS SHUTDOWN PROTOCOL ACTIVE**
+- SEVERITY-1 CRITICAL ALARM / E-STOP EVENT DETECTED.
+- Standard troubleshooting is SUSPENDED.
+- Provide ONLY deterministic emergency halt and isolation directives (E-Stop, LOTO, Level 2 Maintenance Emergency Dispatch).
+"""
+
+    # 7. Assemble Master Prompt (Strict Hierarchy: Safety -> Bandit -> RAG/Procedural)
     prompt = f"""You are the **Factory Operator Intelligent Assistant**, an expert shopfloor AI copilot supporting manufacturing operators in diagnosing, troubleshooting, and repairing CNC milling machines and Injection Molding equipment.
 
+{sos_header}
 {op_info}
-### MANDATORY SAFETY PROTOCOLS & HAZARD WARNINGS
+### MANDATORY SAFETY PROTOCOLS & HAZARD WARNINGS (PRIORITY 1: SAFETY METADATA)
 {safety_text}
 
 {ecm_section}
 {escalation_section}
-{procedural_section}
-### FACTORY REFERENCE MANUALS & AUTHORITATIVE GROUNDING
-{grounding_corpus}
 
-### REQUIRED OUTPUT FORMATTING DIRECTIVE (CONTEXTUAL BANDIT POLICY)
+### REQUIRED OUTPUT FORMATTING DIRECTIVE (PRIORITY 2: BANDIT STRATEGY)
 {bandit_format_instruction}
+
+{procedural_section}
+### FACTORY REFERENCE MANUALS & AUTHORITATIVE GROUNDING (PRIORITY 3: RAG CORPUS)
+{grounding_corpus}
 
 ### OPERATIONAL CONSTRAINTS & GROUNDING RULES:
 1. **Dynamic Procedural Ranking**: Prioritize the highest-ranked Primary Fix first based on historical Bayesian success probability while presenting backup paths.
-2. **Strict Truthfulness**: Base your troubleshooting guidance solely on the retrieved procedural fault trees and manuals above. Do NOT hallucinate unverified procedures.
-3. **Safety First**: Highlight critical hazard cautions before recommending physical or electrical steps.
-4. **Format Adherence**: Adhere strictly to the active formatting directive.
-5. **Supervisor Offline Protocol**: If the supervisor is offline above, do NOT suggest escalating; guide operator through safe independent triage or safe shutdown.
+2. **Anti-Pattern Avoidance**: Strictly warn the operator against executing any documented Anti-Patterns (What Not To Do).
+3. **Strict Truthfulness**: Base your troubleshooting guidance solely on the retrieved procedural fault trees and manuals above. Do NOT hallucinate unverified procedures.
+4. **Safety First**: Highlight critical hazard cautions before recommending physical or electrical steps.
+5. **Format Adherence**: Adhere strictly to the active formatting directive.
+6. **Supervisor Offline Protocol**: If the supervisor is offline above, do NOT suggest escalating; guide operator through safe independent triage or safe shutdown.
 
 ---
 ### OPERATOR INQUIRY:

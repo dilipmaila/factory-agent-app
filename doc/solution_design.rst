@@ -19,72 +19,30 @@ Adaptive Learning Mechanism for Manufacturing Operators: Architectural Solution 
 
 ----------------------------------------------------------------------------------------
 
-1. Executive Summary & Problem Motivation
-==========================================
+1. Executive Summary
+====================
 
-1.1 The Shopfloor Challenge
----------------------------
-Modern manufacturing environments (such as precision CNC machining cells and high-tonnage
-injection molding facilities) operate under stringent safety constraints, high equipment
-costs, and tight production schedules. When machine alarms or anomalies occur (e.g., Haas CNC
-servo failures or Engel barrel overheating), the shopfloor operator is the first line of defense.
+.. list-table:: Problem & Solution at a Glance
+   :widths: 35 65
+   :header-rows: 1
 
-However, shopfloor operators possess widely divergent skill profiles, experience levels,
-cognitive styles, and learning trajectories:
+   * - Challenge
+     - Architectural Response
+   * - **One-size-fits-all guidance** overwhelms novices or frustrates experts
+     - State-bound UCB1 bandit selects from Visual / Terse / Detailed formats per operator tier
+   * - **Paradox of Expertise** — CNC expert treated as expert on unfamiliar injection molder
+     - Decoupled knowledge graph: machine-specific ``OPERATES`` edges independent of cognitive ``PREFERS`` edges
+   * - **Static knowledge stagnation** — SOPs don't incorporate field-discovered shortcuts
+     - Dynamic Bayesian fault trees + 3-Expert quarantine consensus auto-promote validated shortcuts
+   * - **UI latency / intra-shift drift** from synchronous graph mutations
+     - Dual-loop: <5ms synchronous event queue; graph mutations deferred to async Sleep Cycle
+   * - **Duct-tape fixes** — AI rewards temporary workarounds that recur hours later
+     - 8-hour Provisional Reward Escrow; SCADA recurrence inverts reward to penalty
+   * - **End-of-shift cognitive fatigue** — complex formats overwhelm tired operators
+     - ECM Fatigue Gate forces 100% exploitation of concise format when Fatigue Index ≥ 0.80
 
-* **Novice Operators** require structured, step-by-step visual guidance, explicit hazard
-  warnings, and low autonomy thresholds to prevent safety incidents and equipment damage.
-* **Experienced Machinists & Technicians** require terse, high-density technical parameters
-  (e.g., hydraulic setpoints, M/G-codes, threshold tolerances) without conversational filler.
-* **Troubleshooting Habits Differ**: Some operators excel at mechanical alignment but struggle
-  with electrical diagnostics; some escalate immediately, while others attempt independent
-  triage.
-* **The "Paradox of Expertise"**: A senior technician who is an expert on a Haas CNC milling
-  center may be a complete novice when assigned to an Engel injection molding press. Expertise
-  is machine-specific, not global.
-* **Shift Fatigue & Physical Realities**: Cognitive sharpness declines across long 12-hour shifts,
-  and supervisor availability fluctuates between peak day shifts and unattended night shifts.
-
-1.2 The Core Problem with Static AI Assistants
-----------------------------------------------
-Traditional conversational assistants or static retrieval-augmented generation (RAG) systems fail
-in industrial settings because:
-
-1. **One-Size-Fits-All Failure**: They treat every operator identically, either overwhelming a novice
-   with dense technical jargon or frustrating an expert with remedial step-by-step instructions.
-2. **Static Knowledge Stagnation**: Static manuals cannot learn or incorporate crowdsourced shopfloor
-   heuristics, diagnostic shortcuts, or probabilistic failure frequencies discovered over time.
-3. **Synchronous Profile Drift & UI Latency**: Mutating complex knowledge graphs synchronously on
-   every live query introduces unacceptable UI latency and erratic intra-shift behavior oscillation.
-4. **The "Duct-Tape" Trap**: Rewarding the AI immediately when an alarm clears encourages unstable
-   temporary workarounds (e.g., zip-tying a sensor) that fail again hours later.
-5. **Lack of Grounded Feedback**: Static assistants operate in an open loop without validating SCADA
-   telemetry or coordinating with enterprise Computerized Maintenance Management Systems (CMMS).
-
-1.3 Solution Mission Statement
-------------------------------
-This repository implements a production-grade **Adaptive Cognitive AI Assistant** that:
-
-1. **Decouples Machine Competence from Cognitive Preferences**: Separates machine-specific autonomy
-   scores from cognitive presentation preferences, eliminating the paradox of expertise.
-2. **Maintains a Dynamic Procedural Skill Library**: Models machine troubleshooting as Bayesian
-   diagnostic fault trees with empirical probability updates based on real resolution outcomes.
-3. **Optimizes Personalization via Contextual Bandits**: Formulates format personalization as an
-   exploration-exploitation problem using the Upper Confidence Bound (UCB1) algorithm with environmental
-   fatigue gating.
-4. **Enforces Dual-Loop Architecture**: Operates a sub-100ms synchronous interaction loop for active
-   shifts and an asynchronous overnight "Sleep Cycle" evaluator for batch learning and graph mutations.
-5. **Implements Industrial Safety & FMEA Guardrails**: Incorporates provisional reward escrow with
-   an 8-hour durability window, 3-Expert quarantine consensus for new procedures, historical failure
-   warnings, and human-in-the-loop micro-debriefing.
-
-1.4 Core Architectural Assumptions
-----------------------------------
-To ground this solution in physical reality, the architecture relies on the following prerequisites:
-1. **Unique Operator Identity:** Operators use individual logins (RFID/SSO); shared "Workstation" logins invalidate cognitive profiling.
-2. **IT/OT Convergence:** The factory SCADA network can securely transmit real-time telemetry to the AI's IT infrastructure.
-3. **Read-Only Sandboxing:** The AI is strictly advisory and has zero write-access to execute PLC commands, enforcing human-in-the-loop physical actuation.
-4. **Outcome as a Proxy for Preference:** A durable, fast machine recovery is the objective ground-truth reward signal for format preference optimization.
+**Architectural Assumptions**: (1) Unique operator RFID/SSO logins. (2) IT/OT convergence for SCADA access.
+(3) AI is strictly read-only advisory — zero PLC write access. (4) Durable, fast machine recovery = ground-truth reward signal.
 
 ----------------------------------------------------------------------------------------
 
@@ -567,114 +525,39 @@ four modular service emulators:
 
 ----------------------------------------------------------------------------------------
 
-4. Comprehensive Answers to Core Architectural Questions
-=========================================================
+4. Architectural Q&A Quick Reference
+=====================================
 
-4.1 Question 1: What Behavioural Patterns Are Captured?
--------------------------------------------------------
-The system captures five distinct behavioral dimensions over time:
+The following table maps common design questions to their detailed treatment in Section 3.
 
-1. **Cognitive Presentation Preferences per Competence State**:
-   Tracks whether an operator responds best to visual checklists, terse parameters, or detailed
-   tutorials when in Novice vs. Expert mindsets. Captured via state-bound UCB bandit weights and pull histories.
-2. **Machine-Specific Domain Competence**:
-   Tracks proficiency on each specific machine type (e.g., Haas CNC vs. Engel Injection Molder).
-   Captured via machine-specific autonomy scores (0–100%) and independent success/escalation ratios.
-3. **Troubleshooting Habits & Shortcut Discoveries**:
-   Captures which specific diagnostic branches operators execute and tracks abnormal resolution speeds
-   via micro-debrief validation.
-4. **Escalation Propensity vs. Independent Triage**:
-   Tracks whether an operator attempts self-directed triage or escalates immediately upon alarm onset.
-5. **Fatigue Resilience & Shift Patterns**:
-   Captures performance and escalation frequency across different shift hours (Hour 1 vs. Hour 11).
-
-4.2 Question 2: What Data Sources Are Utilized?
------------------------------------------------
-The architecture unifies six heterogeneous industrial data sources:
-
-1. **Live SCADA Telemetry & PLC Alarms**: Real-time sensor readings, error codes, and equipment states.
-2. **Authoritative Engineering Knowledge Base**: Official SOPs, OEM manuals, LOTO rules, and hazard matrices.
-3. **Dynamic Procedural Skill Library**: Probabilistic Bayesian fault trees with live branch success/failure counts.
-4. **HR & LMS Systems**: Shift rosters, formal job classifications, tenure, and safety certifications.
-5. **CMMS Escalation Ledger**: Historical work orders, repair logs, and maintenance dispatch tickets.
-6. **Environmental Context Matrix (ECM)**: Shift elapsed hours, fatigue index, supervisor status, and ambient telemetry.
-
-4.3 Question 3: What Agents and Components Are Needed?
-------------------------------------------------------
-The system utilizes a coordinated multi-component architecture:
-
-* **Chat / Reasoning Agent (Google Gemini)**: Synthesizes grounded natural language guidance strictly adhering to prompt directives.
-* **Contextual Bandit Router (Policy Engine)**: Evaluates state-bound UCB1 scores and enforces ECM fatigue gates.
-* **Shadow Observer (Shift Event Logger & Micro-Debrief Generator)**: Executes sub-100ms event logging, manages provisional reward escrow, and enqueues debriefs.
-* **Working Memory Synthesizer**: Constructs multi-section grounded prompts with safety, telemetry, failure warnings, and bandit directives.
-* **Hybrid Search Retriever**: Fuses dense ChromaDB vector search and sparse BM25 keyword matching via RRF.
-* **Decoupled Semantic Knowledge Graph**: Manages domain competence edges and state-bound format preferences.
-* **Dynamic Procedural Memory Store**: Manages branching Bayesian fault trees and quarantine stores.
-* **Sleep Cycle Batch Evaluator**: Executes overnight escrow durability checks, graph mutations, Bayesian updates, and consensus promotions.
-
-4.4 Question 4: How Does the System Learn Over Time?
-----------------------------------------------------
-Learning occurs across three coupled mathematical mechanisms:
-
-1. **State-Bound UCB Bandit Optimization**:
-   Durable independent resolutions reinforce the active format arm ($+1.0$), while escalations and
-   duct-tape failures apply penalties. As pulls $N$ accumulate, exploration bonuses decay, converging
-   to the operator's optimal format for each competence state.
-2. **Knowledge Graph Autonomy Evolution**:
-   Machine autonomy scores update dynamically ($+5.0$ on durable success, $-15.0$ on escalation/duct-tape),
-   driving smooth tier transitions across Novice, Intermediate, and Expert thresholds.
-3. **Bayesian Procedural Fault Tree Updating**:
-   Diagnostic branch success probabilities update via Beta-Binomial conjugate updating, ensuring that
-   the most effective real-world troubleshooting paths rise to the top of the recommended hierarchy.
-
-4.5 Question 5: How Is Memory Stored, Updated, and Corrected?
--------------------------------------------------------------
-
-.. list-table:: Memory Management & Governance Lifecycle
-   :widths: 20 35 45
+.. list-table:: Architectural Questions & Section References
+   :widths: 30 35 35
    :header-rows: 1
 
-   * - Memory Aspect
-     - Storage Mechanism
-     - Update & Correction Protocol
-   * - **Shift Event Buffering**
-     - `data/episodic_event_queue.json`
-     - Synchronous, append-only JSON writes in <5ms. Flushed and archived during Sleep Cycle.
-   * - **Reward Escrow**
-     - `data/escrow_rewards.json`
-     - Provisional rewards held during 8-hr Durability Window; validated against SCADA recurrence logs during Sleep Cycle.
-   * - **Knowledge Graph**
-     - `data/graph_state.json` (NetworkX)
-     - Mutated during Sleep Cycle batch evaluation; atomic disk serialization prevents corruption. Admin reset button restores HR baseline if needed.
-   * - **Procedural Memory**
-     - `data/procedural_fault_trees.json`
-     - Updated via Bayesian math during Sleep Cycle; new shortcuts isolated in `quarantine_sops.json` until 3-Expert consensus auto-promotes.
-   * - **Episodic Audit Ledger**
-     - `data/episodic_logs.json`
-     - Permanent append-only JSON ledger with strict status tagging for compliance and traceability.
-
-4.6 Question 6: How Does the Assistant Avoid Wrong Assumptions?
----------------------------------------------------------------
-The architecture enforces seven complementary safeguards:
-
-1. **Decoupled Competence & Preference**: Expert status on Machine A never leaks into unfamiliar Machine B.
-2. **Cold-Start Bootstrapping**: New operators are initialized with verified HR/LMS qualification tiers.
-3. **UCB Exploration Bonus ($c=1.2$)**: Prevents format lock-in by continually testing alternative formats.
-4. **Asymmetric Penalty Function**: Escalations penalize autonomy by $-15.0$, while successes award $+5.0$,
-   requiring sustained competence before tier advancement.
-5. **Provisional Escrow & Duct-Tape Detection**: Penalizes temporary fixes that recur within 8 hours.
-6. **Closed-Loop SCADA Verification**: Verifies physical sensor recovery before granting resolution rewards.
-7. **Human-in-the-Loop Micro-Debriefs**: Validates suspected shortcuts with the operator before updating procedural databases.
-
-4.7 Question 7: How Is the Profile Used to Personalize Future Support?
-----------------------------------------------------------------------
-When an operator initiates a query, personalization occurs across five distinct layers:
-
-1. **Presentation Structure**: The state-bound Bandit Router determines whether the LLM responds in visual checklists, terse parameters, or detailed tutorials.
-2. **Diagnostic Hierarchy**: Dynamic Bayesian fault trees rank troubleshooting paths so the operator sees the highest-probability fix first.
-3. **Safety & Autonomy Framing**: Machine-specific tier and autonomy scores calibrate the depth of precautionary checks.
-4. **Historical Failure Proactivity**: Prior escalations for that specific fault trigger proactive conversational warnings and early CMMS dispatch offers.
-5. **Environmental & Fatigue Adaptation**: High fatigue indices suppress exploration; offline supervisor status injects strict safety holds.
+   * - Question
+     - Short Answer
+     - Detailed Reference
+   * - **What behavioral patterns are captured?**
+     - Cognitive format preference per tier, machine-specific competence, escalation propensity, shortcut discovery, fatigue patterns
+     - §3.1 (Graph), §3.2 (Bandit), §3.6 (Debrief)
+   * - **What data sources are used?**
+     - SCADA telemetry, Engineering SOPs, Bayesian fault trees, HR/LMS rosters, CMMS ledger, ECM context
+     - §3.3 (Retrieval), §3.4 (Working Memory), §3.7 (Mock Services)
+   * - **What agents & components are needed?**
+     - Chat agent, Bandit Router, Shadow Observer, Working Memory Synthesizer, Hybrid Retriever, Knowledge Graph, Procedural Memory, Sleep Cycle Evaluator
+     - §3 (all subsections)
+   * - **How does the system learn over time?**
+     - UCB bandit reward accumulation, autonomy score mutations (+5/-15), Beta-Binomial branch probability updates
+     - §3.2.1, §3.5.2, §3.1.3
+   * - **How is memory stored, updated, corrected?**
+     - JSON stores (graph, fault trees, escrow, debriefs, episodic queue); mutated asynchronously during Sleep Cycle
+     - §3.5 (Escrow), §3.1 (Graph), §4.5 Memory Table
+   * - **How does the system avoid wrong assumptions?**
+     - 7 complementary safeguards: decoupled competence, cold-start seeding, UCB exploration, asymmetric penalties, escrow durability, SCADA verification, micro-debriefs
+     - §3.2.4, §3.5.2, §3.6, §5 (FMEA)
+   * - **How is the profile used for personalization?**
+     - 5 layers: response format, diagnostic path ranking, safety framing depth, historical failure warnings, fatigue/supervisor adaptation
+     - §3.2, §3.1.3, §3.5.3, §3.4
 
 ----------------------------------------------------------------------------------------
 
