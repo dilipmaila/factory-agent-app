@@ -159,6 +159,57 @@ class EpisodicMemory:
         """Flushes the escrow queue."""
         self._save_escrow([])
 
+    def enqueue_escrow_record(
+        self,
+        operator_id: str,
+        machine_id: str,
+        fault_code: str,
+        format_used: str,
+        cognitive_tier: str,
+        path_id: Optional[str] = None,
+        timestamp: Optional[str] = None,
+        provisional_reward: float = 1.0,
+    ) -> Dict[str, Any]:
+        """Alias for enqueue_escrow_reward."""
+        return self.enqueue_escrow_reward(
+            operator_id=operator_id,
+            machine_id=machine_id,
+            fault_code=fault_code,
+            format_used=format_used,
+            cognitive_tier=cognitive_tier,
+            path_id=path_id,
+            timestamp=timestamp,
+            provisional_reward=provisional_reward,
+        )
+
+    def enqueue_event(
+        self,
+        operator_id: str,
+        machine_id: str,
+        format_used: str,
+        outcome_status: str,
+        cognitive_tier: Optional[str] = None,
+        error_code: Optional[str] = None,
+        path_id: Optional[str] = None,
+        ticket_id: Optional[str] = None,
+        session_id: Optional[str] = None,
+        query: Optional[str] = None,
+        response: Optional[str] = None,
+        **kwargs: Any,
+    ) -> Dict[str, Any]:
+        """Alias for enqueue_feedback_event."""
+        return self.enqueue_feedback_event(
+            operator_id=operator_id,
+            machine_id=machine_id,
+            format_used=format_used,
+            outcome_status=outcome_status,
+            cognitive_tier=cognitive_tier,
+            error_code=error_code,
+            path_id=path_id,
+            ticket_id=ticket_id,
+            session_id=session_id,
+        )
+
     # --- 3. PERSISTENT AUDIT LOGS & STATUS TRACKING ---
     def log_turn(
         self,

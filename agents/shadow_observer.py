@@ -148,11 +148,12 @@ class ShadowObserver:
         elapsed_ms = (time.perf_counter() - start_time) * 1000.0
 
         return {
+            "status": outcome_status,
+            "outcome_status": outcome_status,
             "operator_id": operator_id,
             "machine_id": machine_id,
             "format_used": format_used,
             "cognitive_tier": cognitive_tier,
-            "outcome_status": outcome_status,
             "ticket_id": ticket_id,
             "escrow_id": escrow_id,
             "debrief_flagged": debrief_flagged,

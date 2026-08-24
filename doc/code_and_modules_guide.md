@@ -34,6 +34,8 @@
 This technical guide documents every source file, class, method signature, and data structure in the **Factory Operator AI Assistant** codebase.
 
 For architectural design rationales and mathematical formulations, refer to [solution_design.md](solution_design.md).  
+For offline, online, and operational evaluation metrics, refer to [evaluation_framework_design.md](evaluation_framework_design.md).  
+For interactive demo test scenarios, refer to [demo_and_evaluation_guide.md](demo_and_evaluation_guide.md).  
 For installation, environment variables, and execution steps, refer to [run_and_configuration_guide.md](run_and_configuration_guide.md).
 
 ### 1.1 High-Level Module Architecture Diagram

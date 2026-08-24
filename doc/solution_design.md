@@ -20,6 +20,7 @@
 
 > **Companion Documents**:
 > * Architectural & Behavioral Q&A: [architecture_and_behavioral_qa.md](architecture_and_behavioral_qa.md)
+> * Evaluation Framework & Metrics: [evaluation_framework_design.md](evaluation_framework_design.md)
 > * Interactive Demo & Test Guide: [demo_and_evaluation_guide.md](demo_and_evaluation_guide.md)
 > * Module & Code Guide: [code_and_modules_guide.md](code_and_modules_guide.md)
 > * Setup & Run Guide: [run_and_configuration_guide.md](run_and_configuration_guide.md)
@@ -443,28 +444,22 @@ Quick answers to common design questions. See Section 3 for full details.
 
 ---
 
-## 6. Pilot Validation Plan
+## 6. Evaluation Framework & Validation Plan
 
-### 6.1 What We Are Testing
+For the comprehensive evaluation framework, metrics, and business impact KPIs across Offline Development, Online Production, and Operational Business phases, refer to the dedicated guide:
+
+👉 **[Evaluation Framework & Metrics Design (`doc/evaluation_framework_design.md`)](evaluation_framework_design.md)**
+
+### 6.1 Core Validation Objectives
 * **Hypothesis H1**: Operators using the AI will achieve at least a **25% reduction in Mean Time to Repair (MTTR)** compared to static paper manuals.
 * **Hypothesis H2**: The State-Bound Contextual Bandit will learn each operator's preferred format within **5-8 interactions** per skill state.
 * **Hypothesis H3**: The Bayesian Fault Trees and 3-Expert Consensus Engine will pick the correct root-cause fix at least **95% of the time**, with **0% leakage** of unvetted shortcuts to novice operators.
 
-### 6.2 Key Metrics
-
-| Category | What We Measure | How & Target |
-|---|---|---|
-| **Efficiency** | Mean Time to Repair (MTTR) | Time from alarm trigger to SCADA normalization. Target: **>= 25% reduction**. |
-| **Autonomy** | Independent Resolution Rate | Ratio of durable `SUCCESS` sessions to total sessions. Target: **>= 70%** for standard alarms. |
-| **Learning Speed** | Bandit Convergence Speed | Turns needed for the winning format UCB score to stay **>= 0.5** above competitors. Target: **<= 8 turns**. |
-| **Safety** | Hallucination Rate | Engineering audit of LLM responses vs. source SOPs. Target: **0.0%** ungrounded steps. |
-| **Fix Quality** | 8-Hour Recurrence Rate | Percentage of resolved alarms that come back within 8 hours. Target: **< 5.0%**. |
-| **Usability** | Cognitive Load | NASA-TLX score and System Usability Scale (SUS) after shift. Target: **SUS >= 80**. |
-
-### 6.3 How We Verify the Behavioral Profile
-1. **Correlation Check**: Compare the AI's learned autonomy scores to quarterly supervisor performance reviews. Do they agree?
-2. **Blind A/B Test**: Occasionally serve a non-preferred format. Measure whether task completion time goes up.
-3. **Drift Detection**: Watch autonomy score moving averages. Flag operators whose skills drop, or machines that need new training data.
+### 6.2 Evaluation Dimensions Summary
+Detailed criteria, formulas, and target thresholds are defined in [evaluation_framework_design.md](evaluation_framework_design.md):
+1. **Offline Evaluation (Pre-Deployment)**: Goal success rate, knowledge retention, context precision/recall, hallucination faithfulness, tool execution accuracy, fatigue gate persistence, format adherence, safety compliance, and quarantine leakage prevention.
+2. **Online Evaluation (Live Production)**: System latency, live groundedness audit (10% sampling), format override rate (-10.0 penalty triggers), 8-hour alarm recurrence rate (duct-tape detection), user correction rate, abandonment rate, and Time-to-First-Action (TTFA).
+3. **Operational Business KPIs**: MTTR reduction, independent resolution rate ($\ge 70\%$), escalation deflection rate, micro-debrief conversion rate, and bandit convergence speed.
 
 ---
 
@@ -480,7 +475,9 @@ factory-agent-app/
 ├── sleep_cycle_evaluator.py        # Async Sleep Cycle Evaluator & Durability Engine
 ├── doc/                            # Comprehensive Solution Documentation
 │   ├── solution_design.md          # Architecture & Mathematical Foundations
+│   ├── evaluation_framework_design.md # Offline, Online & Operational Metrics
 │   ├── demo_and_evaluation_guide.md# Interactive Demo Test Scenarios
+│   ├── architecture_and_behavioral_qa.md # Architecture & Behavioral Q&A
 │   ├── code_and_modules_guide.md   # Class & Method Technical Specifications
 │   └── run_and_configuration_guide.md # Setup & Configuration Manual
 ├── agents/

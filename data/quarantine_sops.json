@@ -16,45 +16,11 @@
         "resolution_steps": "1. Depress manual override pin on Solenoid 3-A using a 2mm Allen key.\n2. Tap pneumatic regulator valve to dislodge condensation.\n3. Cycle E-stop in rapid succession twice.",
         "prohibited_actions": "Do not leave bypass pin engaged during machine cutting cycle.",
         "validated_by_senior_operators": [
-          "OP-002"
+          "OP-004",
+          "OP-005"
         ],
         "quarantined_date": "2026-08-20",
         "min_tier_required": "Expert"
-      },
-      {
-        "path_id": "PATH_DEBRIEF_SOLENOID_BYPASS",
-        "title": "Manual High-Pressure Solenoid Bypass (Fast Triage)",
-        "description": "2-minute quick pin depress on rear manifold valve.",
-        "avg_execution_time_mins": 2,
-        "success_count": 1,
-        "failure_count": 0,
-        "resolution_steps": "1. Depress manual solenoid 3-A override pin.\n2. Tap valve housing.\n3. Cycle E-stop.",
-        "prohibited_actions": "Do not leave override tool inserted during auto cycle.",
-        "validated_by_senior_operators": [
-          "OP-001"
-        ]
-      }
-    ]
-  },
-  {
-    "error_code": "Haas_Alarm_102",
-    "machine": "Haas VF-2",
-    "title": "Haas_Alarm_102",
-    "hazard_level": "WARNING",
-    "required_role": "Expert",
-    "diagnostic_paths": [
-      {
-        "path_id": "PATH_FAST_Haas_Alarm_102",
-        "title": "Rapid Manual Bypass for Haas_Alarm_102",
-        "description": "Fast 2.0-min resolution detected by Shadow Observer.",
-        "avg_execution_time_mins": 2.0,
-        "success_count": 1,
-        "failure_count": 0,
-        "resolution_steps": "1. Rapid bypass / reset sequence performed by OP-001.",
-        "prohibited_actions": "Verify safety protocols before applying.",
-        "validated_by_senior_operators": [
-          "OP-001"
-        ]
       }
     ]
   }

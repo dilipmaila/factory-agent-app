@@ -109,7 +109,7 @@ uv run streamlit run app.py
 * **URL**: `http://localhost:8501`
 * **Interactive Evaluation**: For detailed interactive test cases and scenario walk-throughs covering all architectural features, see [demo_and_evaluation_guide.md](demo_and_evaluation_guide.md).
 
-### 3.2 Running the Nightly Update Script
+### 3.2 Running the Nightly Update Script.enqueue_escrow_record
 This script normally runs at 03:00 AM. It checks the 8-hour durability verification windows, updates the knowledge graph and fault trees, and approves new shortcuts.
 
 **Run Command**:

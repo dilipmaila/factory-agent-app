@@ -23,11 +23,11 @@
         "title": "Pneumatic Pressure Verification & Valve Reset (Rapid Triage)",
         "description": "Quick 5-minute pneumatic line check and E-stop reset on the rear panel.",
         "avg_execution_time_mins": 5,
-        "success_count": 18,
-        "failure_count": 5,
+        "success_count": 23,
+        "failure_count": 8,
         "resolution_steps": "1. Inspect the pneumatic pressure gauge on the rear air/lube panel (must read >= 85 PSI).\n2. Check if the Emergency Stop button is physically depressed; twist clockwise to release.\n3. Verify enclosure doors are fully closed and interlocks engaged.\n4. Press the control panel RESET button twice to re-energize servo drives.",
         "prohibited_actions": "Do not bypass or tape down door interlock switches.",
-        "probability_score": 0.76
+        "probability_score": 0.7273
       },
       {
         "path_id": "PATH_102_B",

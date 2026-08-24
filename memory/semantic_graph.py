@@ -103,9 +103,9 @@ class OperatorKnowledgeGraph:
                         "Detailed_Text": {"weight": 0.2, "pulls": 1, "successes": 0, "escalations": 0},
                     },
                     "Intermediate": {
-                        "Visual_StepByStep": {"weight": 1.0, "pulls": 1, "successes": 1, "escalations": 0},
-                        "Terse_Technical": {"weight": 1.0, "pulls": 1, "successes": 1, "escalations": 0},
-                        "Detailed_Text": {"weight": 0.3, "pulls": 1, "successes": 0, "escalations": 0},
+                        "Visual_StepByStep": {"weight": 0.5, "pulls": 1, "successes": 0, "escalations": 0},
+                        "Terse_Technical": {"weight": 0.5, "pulls": 1, "successes": 0, "escalations": 0},
+                        "Detailed_Text": {"weight": 3.0, "pulls": 2, "successes": 2, "escalations": 0},
                     },
                     "Expert": {
                         "Visual_StepByStep": {"weight": 0.0, "pulls": 1, "successes": 0, "escalations": 0},

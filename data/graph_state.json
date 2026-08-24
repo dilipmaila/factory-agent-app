@@ -170,27 +170,27 @@
     },
     {
       "relation": "PREFERS",
-      "weight": 1.0,
+      "weight": 0.5,
       "pull_count": 1,
-      "success_count": 1,
+      "success_count": 0,
       "escalation_count": 0,
       "source": "STATE:OP-001:Intermediate",
       "target": "FORMAT:Visual_StepByStep"
     },
     {
       "relation": "PREFERS",
-      "weight": 1.0,
+      "weight": 0.5,
       "pull_count": 1,
-      "success_count": 1,
+      "success_count": 0,
       "escalation_count": 0,
       "source": "STATE:OP-001:Intermediate",
       "target": "FORMAT:Terse_Technical"
     },
     {
       "relation": "PREFERS",
-      "weight": 0.3,
-      "pull_count": 1,
-      "success_count": 0,
+      "weight": 3.0,
+      "pull_count": 2,
+      "success_count": 2,
       "escalation_count": 0,
       "source": "STATE:OP-001:Intermediate",
       "target": "FORMAT:Detailed_Text"

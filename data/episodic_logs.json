@@ -126,5 +126,275 @@
       "VF2-SOP-01",
       "VF2-SOP-03"
     ]
+  },
+  {
+    "episode_id": "EP-0009",
+    "timestamp": "2026-08-24 19:50:48",
+    "operator_id": "OP-001",
+    "machine_id": "Haas VF-2",
+    "error_code": "Alarm 103",
+    "query": "What G-code is used for peck drilling cycles?",
+    "response": "Hello John Doe. I see you are working on the **Haas VF-2**. \n\n\u26a0\ufe0f **SYSTEM ALERT & PROACTIVE NOTICE**: \nJohn, I note from your logs that you have historically experienced repeated difficulties with alarms on this machine. Because you are navigating this setup as a Novice, please know that you are fully supported. If this guidance does not immediately clear your issue, or if you feel stuck or frustrated, just let me know and I will immediately open a CMMS work order or dispatch Level 2 Maintenance for you.\n\nRegarding your question on peck drilling cycles, here is the technical reference from your manual:\n\n### VISUAL & STEP-BY-STEP GUIDANCE\n\nStep 1 **[INSPECT]** Reference Manual: VF2-MAN-07 (Haas VF-2 Canned Drilling Cycles)\n- [ ] Locate the drilling program block in your G-code editor.\n- [ ] Verify standard hole drilling vs. deep hole operations.\n\nStep 2 **[ACTION]** Apply Correct G-Code\n- **G81** --> Standard hole drilling cycle.\n- **G83** --> **Peck drilling cycle** (used for deep holes to clear chips and prevent drill breakage).\n\nStep 3 **[VERIFY]** Program Review Checklist\n- [ ] Confirm `G83` is paired with appropriate peck depth (`Q` parameter), feed rate (`F`), and retract plane (`R`).\n- [ ] Run graphics mode to simulate tool path clearance before cutting.\n\n---\n*Need help with anything else on the VF-2, or ready to log a CMMS ticket? Just let me know!*",
+    "format_used": "Visual_StepByStep",
+    "resolution_status": "IN_PROGRESS",
+    "ticket_id": null,
+    "retrieved_sop_ids": [
+      "VF2-MAN-07",
+      "VF2-MAN-14"
+    ]
+  },
+  {
+    "episode_id": "EP-0010",
+    "timestamp": "2026-08-24 19:51:53",
+    "operator_id": "OP-001",
+    "machine_id": "Haas VF-2",
+    "error_code": "Alarm 102",
+    "query": "How do I clear SERVOS OFF (Alarm 102)?",
+    "response": "Hello John Doe. I see you are working on the **Haas VF-2**. \n\n\u26a0\ufe0f **SYSTEM ALERT**: I notice you have historically experienced repeated difficulties with this exact fault code (**Alarm 102: SERVOS OFF**), with 2 prior escalations recorded in your episodic logs. If this quick triage does not immediately clear the fault, or if you feel stuck or frustrated, let me know right away. I am ready to proactively open a CMMS work order or dispatch Level 2 Maintenance for you!\n\nHere is your visual step-by-step guidance to clear Alarm 102 safely using our highest-probability triage path (76.0% success rate):\n\n### **PATH_102_A: Pneumatic Pressure & E-Stop Reset**\n*(Estimated Time: ~5 minutes)*\n\n- [SAFETY] **[CHECK]** Verify that the Emergency Stop and main power are clear before starting.\n- Step 1: `[INSPECT]` Look at the pneumatic pressure gauge located on the rear air/lube panel. \n  --> Must read **>= 85 PSI**.\n- Step 2: `[INSPECT]` Check the physical Emergency Stop button on the control console. \n  --> If depressed, twist the button **clockwise** to release it.\n- Step 3: `[VERIFY]` Check the machine enclosure doors. \n  --> Ensure doors are **fully closed** so the safety interlocks engage.\n- Step 4: `[ACTION]` Press the control panel **RESET** button **twice** to re-energize the servo drives.\n\n---\n\n### **\u26a0\ufe0f PROHIBITED ACTIONS (WHAT NOT TO DO):**\n- \u274c **[PROHIBITED]** Do **NOT** bypass or tape down the rear pneumatic pressure switch with an electrical jumper wire.\n  \u2022 *Consequence*: Causes servo amplifier burnout, uncontrolled axis drop, and voids machine warranty.\n- \u274c **[PROHIBITED]** Do **NOT** mechanically wedge or tape door interlock switches in the closed state.\n  \u2022 *Consequence*: Severe OSHA safety violation; allows spindle operation with the enclosure open.\n\n***\n\n**Need extra help?** If completing these steps does not clear Alarm 102, just let me know. Given your history with this specific alarm, I will instantly generate a CMMS work order and request Level 2 Maintenance support.",
+    "format_used": "Visual_StepByStep",
+    "resolution_status": "IN_PROGRESS",
+    "ticket_id": null,
+    "retrieved_sop_ids": [
+      "VF2-SOP-01",
+      "VF2-SOP-03"
+    ]
+  },
+  {
+    "episode_id": "EP-0011",
+    "timestamp": "2026-08-24 19:56:25",
+    "operator_id": "OP-001",
+    "machine_id": "Haas VF-2",
+    "error_code": "Alarm 102",
+    "query": "X Axis SERVO ERROR TOO LARGE (Alarm 103)",
+    "response": "### OPERATOR ASSISTANCE: Alarm 103 - X Axis SERVO ERROR TOO LARGE (Haas VF-2)\n**Operator**: John Doe | **Autonomy Score**: 40.0 (Intermediate)  \n\u26a0\ufe0f **SYSTEM ALERT**: John Doe has historically experienced repeated difficulties and escalated this exact fault code (2 prior escalation(s) recorded). If you encounter persistent binding or confusion, let me know immediately so we can open a CMMS work order or dispatch Level 2 Maintenance.\n\n---\n\n### [RECOMMENDED PRIMARY FIX (Rank 1)] Ballscrew Way Lube & Chip Clearance\n*Historical Success Probability: 72.2% | Estimated Triage Time: ~10 minutes*\n\n- **[SAFETY]** `[ ]` Ensure machine feed hold is engaged and clear all personnel from the table travel zone before troubleshooting.\n- **[INSPECT]** `[ ]` Step 1: Remove chips and swarf from X-axis telescoping way covers and table troughs.\n- **[ACTION]** `[ ]` Step 2: Trigger a manual lubrication cycle via the control panel (`M161`/`M162`) to ensure oil is reaching the linear guides.\n- **[VERIFY]** `[ ]` Step 3: Hand-jog the X axis in `.001` increments to verify free travel without binding.\n\n---\n\n### [SECONDARY / BACKUP FIX (Rank 2)] X-Axis Servo Motor Encoder & Belt Tensioning\n*Historical Success Probability: 50.0% | Estimated Triage Time: ~35 minutes*\n\n- **[SAFETY]** `[ ]` Perform standard machine power-down and verify zero energy state before accessing the motor housing.\n- **[INSPECT]** `[ ]` Step 1: Inspect the X-axis motor coupling and encoder belt for backlash or tooth wear.\n- **[VERIFY]** `[ ]` Step 2: Verify encoder signal cable shielding is securely grounded to the chassis.\n- **[ACTION]** `[ ]` Step 3: Adjust timing belt tension to 45 lbs deflection per manufacturer spec.\n\n---\n\n### \u26a0\ufe0f UNIFIED ANTI-PATTERNS (WHAT NOT TO DO):\n- \u274c **Prohibited Action**: Forcing the stuck X-axis leadscrew with a pry bar or sledgehammer.\n  \u2022 *Consequence*: Permanent brinelling damage to precision ballscrew bearings.\n  \u2022 *Escalation/Incident Risk*: Catastrophic Tooling Damage.\n\n---\n*If this primary fix does not immediately clear Alarm 103, or if you feel stuck, notify me right away and I will open a CMMS work order for Level 2 Maintenance.*",
+    "format_used": "Visual_StepByStep",
+    "resolution_status": "IN_PROGRESS",
+    "ticket_id": null,
+    "retrieved_sop_ids": [
+      "VF2-SOP-02",
+      "VF2-SOP-04"
+    ]
+  },
+  {
+    "episode_id": "EP-0012",
+    "timestamp": "2026-08-24 20:00:40",
+    "operator_id": "OP-001",
+    "machine_id": "Haas VF-2",
+    "error_code": "Alarm 102",
+    "query": "Alarm 102",
+    "response": "Steps",
+    "format_used": "Visual_StepByStep",
+    "resolution_status": "SUCCESS",
+    "ticket_id": null,
+    "retrieved_sop_ids": [
+      "SOP-HAAS-001"
+    ]
+  },
+  {
+    "episode_id": "EP-0013",
+    "timestamp": "2026-08-24 20:01:02",
+    "operator_id": "OP-001",
+    "machine_id": "Haas VF-2",
+    "error_code": "Alarm 102",
+    "query": "Alarm 102",
+    "response": "Steps",
+    "format_used": "Visual_StepByStep",
+    "resolution_status": "SUCCESS",
+    "ticket_id": null,
+    "retrieved_sop_ids": [
+      "SOP-HAAS-001"
+    ]
+  },
+  {
+    "episode_id": "EP-0014",
+    "timestamp": "2026-08-24 20:15:09",
+    "operator_id": "OP-002",
+    "machine_id": "Haas VF-2",
+    "error_code": "Alarm 102",
+    "query": "How do I clear SERVOS OFF (Alarm 102)?",
+    "response": "- Verify pneumatic gauge >= 85 PSI.\n- Release E-stop and close enclosure doors.\n- Press RESET twice. \n- *Prohibited:* Do not bypass pneumatic pressure switches or door interlocks.",
+    "format_used": "Terse_Technical",
+    "resolution_status": "IN_PROGRESS",
+    "ticket_id": null,
+    "retrieved_sop_ids": [
+      "VF2-SOP-01",
+      "VF2-SOP-03"
+    ]
+  },
+  {
+    "episode_id": "EP-0015",
+    "timestamp": "2026-08-24 20:15:55",
+    "operator_id": "OP-002",
+    "machine_id": "Engel Victory 330",
+    "error_code": "E-201",
+    "query": "How do I fix barrel temperature overheat in Zone 2 (E-201)?",
+    "response": "### \u26a0\ufe0f MANDATORY SAFETY PROTOCOLS & HAZARD WARNINGS\n- `[SAFETY]` Wear protective heat-resistant gloves and safety glasses during high temp maintenance.\n- `[SAFETY]` **PROHIBITED ACTION:** Do not pour external cold water or ice directly onto ceramic heater bands (Causes thermal shock cracking and explosive steam).\n- `[SAFETY]` **PROHIBITED ACTION:** Do not touch barrel heat blankets directly without thermal protective gloves.\n\n---\n\n### VISUAL & STEP-BY-STEP GUIDANCE (Novice Mode)\n\n#### \ud83d\udee0\ufe0f RECOMMENDED PRIMARY FIX (Rank 1): Thermocouple Calibration & Cooling Water Purge\n* **Success Probability:** 84.2% | **Estimated Time:** ~8 minutes\n\n**Step 1: [INSPECT]**\n- [ ] Put on heat-resistant gloves and safety glasses.\n- [ ] Inspect the Zone 2 thermocouple connector for loose wiring or thermal paste degradation.\n- *Visual Flow:* `[Connector]` --> `[Check Wires]` --> `[Verify Tightness]`\n\n**Step 2: [ACTION]**\n- [ ] Verify the barrel cooling water solenoid valve is opening.\n- [ ] Check the water manifold flow indicator to ensure it is actively spinning.\n- *Visual Flow:* `[Solenoid Valve]` --> `[Open?]` --> `[Flow Indicator Spinning?]`\n\n**Step 3: [VERIFY]**\n- [ ] Go to the CC300 controller interface.\n- [ ] Lower the Zone 2 temperature setpoint by **5\u00b0C** to stabilize thermal overshoot.\n- *Visual Flow:* `[CC300 Screen]` --> `[Set Temp -5\u00b0C]` --> `[Monitor Drop]`\n\n---\n\n#### \ud83d\udd27 SECONDARY / BACKUP FIX (Rank 2): Solid State Relay (SSR) & Heater Band Replacement\n* *Use only if Primary Fix fails.* **Success Probability:** 33.3% | **Estimated Time:** ~50 minutes\n\n**Step 1: [SAFETY]**\n- [ ] Perform Lock-Out / Tag-Out (LOTO) on the electrical enclosure and barrel heater circuits.\n- *Visual Flow:* `[Main Power]` --> `[LOTO Padlock Applied]`\n\n**Step 2: [INSPECT]**\n- [ ] Test SSR 2K1 for a closed-circuit short (stuck ON condition). *(Note: Reference Manual ENG-MAN-22 notes that zones exceeding setpoint by >20\u00b0C with failed closed relays will trip contactors).*\n- *Visual Flow:* `[Multimeter]` --> `[Check SSR 2K1]` --> `[Stuck ON?]`\n\n**Step 3: [ACTION]**\n- [ ] Measure resistance across the Zone 2 ceramic band heater terminals.\n- [ ] Replace any defective SSR or heater band assembly.\n- *Visual Flow:* `[Terminal Check]` --> `[Swap Defective Part]` --> `[Retest]`",
+    "format_used": "Visual_StepByStep",
+    "resolution_status": "IN_PROGRESS",
+    "ticket_id": null,
+    "retrieved_sop_ids": [
+      "ENG-MAN-15",
+      "ENG-MAN-22"
+    ]
+  },
+  {
+    "episode_id": "EP-0016",
+    "timestamp": "2026-08-24 20:17:13",
+    "operator_id": "OP-002",
+    "machine_id": "Haas VF-2",
+    "error_code": "Alarm 102",
+    "query": "How do I clear SERVOS OFF (Alarm 102)?",
+    "response": "- Verify rear pneumatic pressure $\\ge 85$ PSI, release E-stop, close enclosure doors, and press **RESET** twice.\n- **ANTI-PATTERN WARNING:** Do not bypass pneumatic switches or door interlocks.",
+    "format_used": "Terse_Technical",
+    "resolution_status": "IN_PROGRESS",
+    "ticket_id": null,
+    "retrieved_sop_ids": [
+      "VF2-SOP-01",
+      "VF2-SOP-03"
+    ]
+  },
+  {
+    "episode_id": "EP-0017",
+    "timestamp": "2026-08-24 20:24:49",
+    "operator_id": "OP-002",
+    "machine_id": "Haas VF-2",
+    "error_code": "Alarm 102",
+    "query": "How do I clear SERVOS OFF (Alarm 102)?",
+    "response": "\u26a0\ufe0f Verify pneumatic pressure ($\\ge 85$ PSI), release E-stop, close enclosure doors, and press RESET twice. \n\u274c Prohibited: Do not bypass pneumatic pressure switch or jam door interlocks.",
+    "format_used": "Terse_Technical",
+    "resolution_status": "IN_PROGRESS",
+    "ticket_id": null,
+    "retrieved_sop_ids": [
+      "VF2-SOP-01",
+      "VF2-SOP-03"
+    ]
+  },
+  {
+    "episode_id": "EP-0018",
+    "timestamp": "2026-08-24 20:26:05",
+    "operator_id": "OP-001",
+    "machine_id": "Haas VF-2",
+    "error_code": "Alarm 102",
+    "query": "How do I clear SERVOS OFF (Alarm 102)?",
+    "response": "Hello John Doe. I see you are working on the **Haas VF-2** and dealing with **Alarm 102: SERVOS OFF**. \n\n\u26a0\ufe0f **SYSTEM ALERT**: I notice from your logs that you have historically experienced repeated difficulties and escalated this exact fault code twice before. If you run into confusion, frustration, or if the primary fix below does not immediately clear the alarm, please let me know right away. I will gladly dispatch Level 2 Maintenance or open a CMMS work order for you early.\n\nHere is your visual step-by-step guidance to clear this fault safely using the highest-ranked primary procedure (**PATH_102_A**).\n\n---\n\n### [RECOMMENDED PRIMARY FIX] Pneumatic Pressure & E-Stop Triage\n- **Historical Success Probability**: 71.0%\n- **Estimated Triage Time**: ~5 minutes\n\n#### **Step 1: Check Pneumatic Supply**\n- `[INSPECT]` Look at the pneumatic pressure gauge on the rear air/lube panel.\n- `[ ]` **Verification**: Pressure must read **>= 85 PSI**.\n\n#### **Step 2: Check Physical Emergency Stop**\n- `[INSPECT]` Check if the Emergency Stop button is physically depressed.\n- `[ACTION]` Twist the E-stop button clockwise to release it.\n\n#### **Step 3: Check Enclosure Doors**\n- `[INSPECT]` Inspect the machining enclosure doors.\n- `[ ]` **Verification**: Ensure doors are fully closed and safety interlocks are properly engaged.\n\n#### **Step 4: Reset the Control**\n- `[ACTION]` Press the control panel **RESET** button **twice** to re-energize the servo drives.\n\n---\n\n### \u26a0\ufe0f MANDATORY SAFETY & ANTI-PATTERNS (WHAT NOT TO DO)\n- `[SAFETY]` **Do not bypass or tape down door interlock switches.** \n  - *Consequence*: Severe OSHA safety violation; allows spindle operation with the enclosure open.\n- `[SAFETY]` **Do not bypass the rear pneumatic pressure switch with an electrical jumper wire.**\n  - *Consequence*: Causes servo amplifier burnout, uncontrolled axis drop, and voids machine warranty (100% High Incident Rate).\n\n---\n*If this primary triage does not clear Alarm 102, or if you feel stuck, tell me right away and I will immediately open a CMMS work order or dispatch Level 2 Maintenance.*",
+    "format_used": "Visual_StepByStep",
+    "resolution_status": "IN_PROGRESS",
+    "ticket_id": null,
+    "retrieved_sop_ids": [
+      "VF2-SOP-01",
+      "VF2-SOP-03"
+    ]
+  },
+  {
+    "episode_id": "EP-0019",
+    "timestamp": "2026-08-24 20:27:40",
+    "operator_id": "OP-001",
+    "machine_id": "Haas VF-2",
+    "error_code": "Alarm 103",
+    "query": "What G-code is used for peck drilling cycles?",
+    "response": "Hello John Doe. \n\n*(System Notice: I note from our logs that you have historically experienced recurring issues with this machine. If you feel stuck, confused, or if standard procedures do not immediately resolve your issue, please let me know right away so we can promptly open a CMMS work order or dispatch Level 2 Maintenance.)*\n\nRegarding your inquiry on G-codes for drilling cycles, here is the reference information from your Haas VF-2 manual:\n\n### REFERENCE GUIDE: Canned Drilling Cycles\n- **Source**: `VF2-MAN-07` (Haas VF-2 Manual)\n- [INSPECT] **G81**: Standard hole drilling cycle.\n- [INSPECT] **G83**: Peck drilling cycle used for deep holes to clear chips and prevent drill breakage.\n\n---\n*(Note: If you are currently troubleshooting the active SCADA **Alarm 102: SERVOS OFF** or related axis travel issues, please let me know so we can execute the necessary mechanical checks safely.)*",
+    "format_used": "Visual_StepByStep",
+    "resolution_status": "IN_PROGRESS",
+    "ticket_id": null,
+    "retrieved_sop_ids": [
+      "VF2-MAN-07",
+      "VF2-MAN-14"
+    ]
+  },
+  {
+    "episode_id": "EP-0020",
+    "timestamp": "2026-08-24 20:32:04",
+    "operator_id": "OP-002",
+    "machine_id": "Haas VF-2",
+    "error_code": "Alarm 102",
+    "query": "How do I clear SERVOS OFF (Alarm 102)?",
+    "response": "- Check rear pneumatic pressure gauge (must be \u2265 85 PSI).\n- Release E-stop and press RESET twice.\n- \u26a0\ufe0f LOTO required before electrical cabinet access. Do not jumper pressure switches or bypass door interlocks.",
+    "format_used": "Terse_Technical",
+    "resolution_status": "IN_PROGRESS",
+    "ticket_id": null,
+    "retrieved_sop_ids": [
+      "VF2-SOP-01",
+      "VF2-SOP-03"
+    ]
+  },
+  {
+    "episode_id": "EP-0021",
+    "timestamp": "2026-08-24 20:32:28",
+    "operator_id": "OP-002",
+    "machine_id": "Engel Victory 330",
+    "error_code": "E-201",
+    "query": "How do I fix barrel temperature overheat in Zone 2 (E-201)?",
+    "response": "### \u26a0\ufe0f MANDATORY SAFETY PROTOCOLS & HAZARD WARNINGS\n- `[SAFETY]` Wear protective heat-resistant gloves and safety glasses during high temp maintenance.\n- `[SAFETY]` **Prohibited Action**: Do not touch barrel heat blankets directly without thermal protective gloves.\n- `[SAFETY]` **Prohibited Action**: Do not pour external cold water or ice directly onto ceramic heater bands (Causes thermal shock cracking and explosive steam).\n\n---\n\n### VISUAL & STEP-BY-STEP GUIDANCE (Novice Mode)\n\n#### [RECOMMENDED PRIMARY FIX (Rank 1)] Thermocouple Calibration & Cooling Water Purge\n* **Success Rate**: 84.2% | **Est. Time**: ~8 minutes\n\n- `[INSPECT]` **Step 1:** Locate Zone 2 thermocouple connector on the Engel Victory 330 barrel. Check for loose wiring or thermal paste degradation.\n  * *Flow Check:* `[Thermocouple Wiring]` --> `[Check Connections]` --> `[Secure Terminal]`\n\n- `[ACTION]` **Step 2:** Verify barrel cooling water solenoid valve is opening and water manifold flow indicator is spinning.\n\n- `[VERIFY]` **Step 3:** Lower Zone 2 temperature setpoint by 5\u00b0C on the CC300 controller to stabilize thermal overshoot.\n  * `[ CC300 Controller ]` --( Lower Setpoint 5\u00b0C )--> `[ Monitor Thermal Stabilization ]`\n\n---\n\n#### [SECONDARY / BACKUP FIX (Rank 2)] Solid State Relay (SSR) & Heater Band Replacement\n* **Success Rate**: 33.3% | **Est. Time**: ~50 minutes\n\n- `[SAFETY]` **Step 1:** Perform Lock-Out / Tag-Out (LOTO) on the electrical enclosure and barrel heater circuits before opening.\n\n- `[INSPECT]` **Step 2:** Test SSR 2K1 for closed-circuit short (stuck ON condition). \n  * *Note (Engel Manual Grounding):* If a barrel zone exceeds setpoint by 20\u00b0C, the control drops the main heater contactor due to an SSR failing in the 'closed' position.\n\n- `[ACTION]` **Step 3:** Measure resistance across Zone 2 ceramic band heater terminals using a multimeter.\n\n- `[VERIFY]` **Step 4:** Replace defective SSR or heater band assembly if electrical faults are found.\n  * `[ LOTO Active ]` --> `[ Test SSR 2K1 ]` --> `[ Measure Resistance ]` --> `[ Replace Component ]`\n\n---\n\n### \u274c UNIFIED ANTI-PATTERNS (WHAT NOT TO DO):\n- **DO NOT** pour external cold water or ice directly onto ceramic heater bands.\n  * *Consequence:* Causes thermal shock cracking of the barrel cylinder and explosive steam.\n- **DO NOT** increase Zone 1 temperature to compensate for Zone 2 overheat.\n  * *Consequence:* Causes polymer melt degradation, nozzle drool, and catastrophic thermal runaway.\n- **DO NOT** power on heater circuits with an open thermocouple circuit.",
+    "format_used": "Visual_StepByStep",
+    "resolution_status": "IN_PROGRESS",
+    "ticket_id": null,
+    "retrieved_sop_ids": [
+      "ENG-MAN-15",
+      "ENG-MAN-22"
+    ]
+  },
+  {
+    "episode_id": "EP-0022",
+    "timestamp": "2026-08-24 20:33:29",
+    "operator_id": "OP-002",
+    "machine_id": "Haas VF-2",
+    "error_code": "Alarm 102",
+    "query": "How do I clear SERVOS OFF (Alarm 102)?",
+    "response": "- Verify pneumatic pressure (\u2265 85 PSI) and release E-stop.\n- Ensure enclosure doors are fully closed, then press RESET twice.\n- **Do not** bypass pneumatic pressure switches or door interlocks.",
+    "format_used": "Terse_Technical",
+    "resolution_status": "IN_PROGRESS",
+    "ticket_id": null,
+    "retrieved_sop_ids": [
+      "VF2-SOP-01",
+      "VF2-SOP-03"
+    ]
+  },
+  {
+    "episode_id": "EP-0023",
+    "timestamp": "2026-08-24 20:34:35",
+    "operator_id": "OP-001",
+    "machine_id": "Haas VF-2",
+    "error_code": "Alarm 102",
+    "query": "How do I clear SERVOS OFF (Alarm 102)?",
+    "response": "Hello John Doe. I see you are working on the **Haas VF-2**. \n\n\u26a0\ufe0f **SYSTEM ALERT NOTICE**: I note from your historical logs that you have encountered and escalated this exact Alarm 102 (SERVOS OFF) **2 prior times**. Because of this persistent issue, I want to make sure we resolve it smoothly today. If this primary fix does not clear the fault immediately, or if you feel stuck or frustrated, just let me know. I can proactively open a CMMS work order or dispatch Level 2 Maintenance right away.\n\nLet's walk through the recommended rapid triage step-by-step to clear the alarm safely.\n\n---\n\n### **PATH_102_A: Pneumatic Pressure & E-Stop Quick Triage**\n* **Historical Success Probability**: 71.9%\n* **Estimated Triage Time**: ~5 minutes\n\n#### **Step-by-Step Visual Guidance:**\n\n* **[SAFETY]** **`[1]`** Check the rear air/lube panel. \n  - [ ] Verify pneumatic pressure gauge reads **$\\ge$ 85 PSI**.\n  - [ ] **\u26a0\ufe0f LOTO / SAFETY**: If checking pneumatic lines, verify zero line pressure before touching air fittings.\n\n* **[INSPECT]** **`[2]`** Locate the Emergency Stop button on the control console.\n  - [ ] Check if it is physically depressed. \n  - [ ] **`[ACTION]`** Twist the E-stop button clockwise to release it.\n\n* **[INSPECT]** **`[3]`** Check all machine enclosure doors.\n  - [ ] Ensure doors are **fully closed** so safety interlocks engage.\n  - [ ] \u274c **PROHIBITED ACTION**: Never bypass, tape down, or mechanically wedge door interlock switches in the closed state. *(Consequence: Severe OSHA safety violation and allows spindle operation with the door open).*\n\n* **[VERIFY]** **`[4]`** Clear the control state.\n  - [ ] **`[ACTION]`** Press the control panel **RESET** button **twice** to re-energize the servo drives.\n\n---\n\n### **\u26a0\ufe0f CRITICAL ANTI-PATTERNS (DO NOT DO):**\n* \u274c **Bypassing rear pneumatic pressure switch with an electrical jumper wire**\n  * *Result:* Causes servo amplifier burnout, uncontrolled axis drop, and voids machine warranty. (100% Incident Risk).\n\n---\n\n\ud83d\udc49 **How did it go, John?** Did pressing **RESET** twice clear the fault, or is Alarm 102 still active? If the alarm persists or you want to hand this off to maintenance given the history, just let me know and I will open a CMMS work order for you immediately.",
+    "format_used": "Visual_StepByStep",
+    "resolution_status": "IN_PROGRESS",
+    "ticket_id": null,
+    "retrieved_sop_ids": [
+      "VF2-SOP-01",
+      "VF2-SOP-03"
+    ]
+  },
+  {
+    "episode_id": "EP-0024",
+    "timestamp": "2026-08-24 20:36:45",
+    "operator_id": "OP-001",
+    "machine_id": "Haas VF-2",
+    "error_code": "Alarm 103",
+    "query": "What G-code is used for peck drilling cycles?",
+    "response": "Hello John. I noticed in our logs that you\u2019ve run into recurring issues with this machine before. If you run into any roadblocks today or feel stuck, just let me know\u2014I can immediately open a CMMS work order or dispatch Level 2 Maintenance for you.\n\nRegarding your question about G-codes, here is the technical reference for your Haas VF-2:\n\n[INSPECT] **Step 1: Check Programming Manual (Source: VF2-MAN-07)**\n- **[ACTION]** Locate the correct Canned Drilling Cycle for your application:\n  - `G81` --> Standard hole drilling cycle.\n  - `G83` --> Peck drilling cycle (used for deep holes to clear chips and prevent drill breakage).\n- **[VERIFY]** Ensure your program specifies `G83` with appropriate Q-value peck increments to maintain proper chip evacuation on the VF-2.",
+    "format_used": "Visual_StepByStep",
+    "resolution_status": "IN_PROGRESS",
+    "ticket_id": null,
+    "retrieved_sop_ids": [
+      "VF2-MAN-07",
+      "VF2-MAN-14"
+    ]
+  },
+  {
+    "episode_id": "EP-0025",
+    "timestamp": "2026-08-24 20:38:46",
+    "operator_id": "OP-001",
+    "machine_id": "Haas VF-2",
+    "error_code": "Alarm 102",
+    "query": "X Axis SERVO ERROR TOO LARGE (Alarm 103)",
+    "response": "Hello John. I see you are working on the **Haas VF-2**. \n\n*\u26a0\ufe0f **SYSTEM ALERT NOTICE**:* I note in our logs that you have historically experienced repeated difficulties with alarms on this machine. If this troubleshooting flow does not immediately clear your fault, or if you encounter confusion, let me know right away\u2014I am fully prepared to proactively dispatch Level 2 Maintenance or open a CMMS work order for you early.\n\nLet's address your active issue: **Alarm 103 - X Axis SERVO ERROR TOO LARGE**.\n\nHere is your visual step-by-step diagnostic and repair guide, ranked by historical success probability.\n\n---\n\n### [RECOMMENDED PRIMARY FIX] Ballscrew Way Lube & Chip Clearance (PATH_103_A)\n- **Historical Success Rate:** 72.2% | **Estimated Time:** ~10 minutes\n- **Hazard Warning:** \u26a0\ufe0f **WARNING** - Keep hands clear of moving axes and pinch points during jogs.\n\n**Step 1:** `[INSPECT]` Check X-Axis Enclosure\n- [ ] Open the enclosure doors and inspect X-axis telescoping way covers.\n- [ ] Remove any packed metal chips, swarf, or debris clogging the bellows or way tracks.\n\n**Step 2:** `[ACTION]` Trigger Manual Lubrication\n- [ ] Input M161 or M162 into the control to trigger a manual way-lube cycle.\n- [ ] Visually verify that fresh way-lube is reaching the linear guides.\n\n**Step 3:** `[VERIFY]` Hand-Jog Axis Mobility\n- [ ] Hand-jog the X-axis in `.001` increments using the control pendant.\n- [ ] Verify free, smooth travel without any mechanical binding or resistance.\n\n\u274c **PROHIBITED ACTION:** Never force the axis with a pry bar or apply excessive force to the handwheel.\n- *Consequence:* Permanent brinelling damage to precision ballscrew bearings and catastrophic tooling damage.\n\n---\n\n### [SECONDARY / BACKUP FIX] X-Axis Servo Motor Encoder & Belt Tensioning (PATH_103_B)\n*(Use only if Primary Fix does not clear Alarm 103)*\n- **Historical Success Rate:** 50.0% | **Estimated Time:** ~35 minutes\n- **Hazard Warning:** \u26a0\ufe0f **LOTO MANDATORY** - Perform Lock-Out / Tag-Out before inspecting internal motor belts or enclosures.\n\n**Step 1:** `[SAFETY]` Execute LOTO\n- [ ] Power down the machine and apply Lock-Out / Tag-Out (LOTO) to the main breaker.\n\n**Step 2:** `[INSPECT]` Check Motor & Belt Components\n- [ ] `[ ]` Inspect X-axis motor coupling and encoder belt for backlash, loose pulleys, or tooth wear.\n- [ ] `[ ]` Verify encoder signal cable shielding is securely grounded to the machine chassis.\n\n**Step 3:** `[ACTION]` Adjust Belt Tension\n- [ ] Adjust timing belt tension to `45 lbs` deflection using a tension gauge.\n\n\u274c **PROHIBITED ACTION:** Do not overtighten the belt beyond manufacturer specifications.\n\n---\n\n### Need Further Assistance?\nJohn, if these steps do not clear **Alarm 103**, or if you are feeling stuck given your previous difficulties with this machine, just say the word and **I will immediately dispatch Level 2 Maintenance and open a CMMS work order** for you. How would you like to proceed?",
+    "format_used": "Visual_StepByStep",
+    "resolution_status": "IN_PROGRESS",
+    "ticket_id": null,
+    "retrieved_sop_ids": [
+      "VF2-SOP-02",
+      "VF2-SOP-04"
+    ]
   }
 ]
