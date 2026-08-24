@@ -243,9 +243,9 @@ Example (Alarm 102 on Haas CNC):
 
 **How the probability is calculated** (Beta-Binomial conjugate with Laplace smoothing, alpha = 1.0, beta = 1.0):
 
-```latex
+$$
    P(\text{Success}) = \frac{\text{success\_count} + \alpha}{\text{success\_count} + \text{failure\_count} + \alpha + \beta}
-```
+$$
 
 The path with the highest P(Success) is shown as the **Primary Recommended Fix**. Lower-ranked paths are shown as backups.
 
@@ -259,15 +259,15 @@ The system does not use fixed rules to pick the response format. Instead, it use
 
 For each operator (u), skill tier (T), and format arm (i = Visual_StepByStep, Terse_Technical, or Detailed_Text):
 
-```latex
+$$
    \text{UCB}_i(u, T) = \bar{X}_i(u, T) + c \cdot \sqrt{\frac{\ln(N(u, T) + 1)}{N_i(u, T) + \epsilon}}
-```
+$$
 
 What each symbol means:
-* `\bar{X}_i(u, T) = \frac{W_i(u, T)}{N_i(u, T)}` -- **Average reward** for format i in state (u, T).
-* `N(u, T)` -- **Total queries** made in state (u, T) across all formats.
-* `c = 1.2` -- **Exploration bonus** weight. Higher value = tries new formats more often.
-* `\epsilon = 10^{-4}` -- Tiny number to prevent dividing by zero for untried formats.
+* $\bar{X}_i(u, T) = \frac{W_i(u, T)}{N_i(u, T)}$ -- **Average reward** for format i in state (u, T).
+* $N(u, T)$ -- **Total queries** made in state (u, T) across all formats.
+* $c = 1.2$ -- **Exploration bonus** weight. Higher value = tries new formats more often.
+* $\epsilon = 10^{-4}$ -- Tiny number to prevent dividing by zero for untried formats.
 
 **90-Day Forced Exploration (Time-Decay Rule)**: If an operator has not seen an alternative format in the last 90 days, the system forces one exploration turn. This checks whether the operator has improved their skills and might prefer a different format now.
 
@@ -304,12 +304,12 @@ Shop floor queries mix everyday language (e.g., *"spindle vibrates during cuttin
 
 The two search results are merged using **Reciprocal Rank Fusion (RRF)**. This gives a combined score to each document:
 
-```latex
+$$
    \text{RRF\_Score}(d) = \sum_{m \in \{\text{Dense}, \text{Sparse}\}} \frac{1}{k_{\text{rrf}} + \text{rank}_m(d)}
-```
+$$
 
-* `k_{\text{rrf}} = 60` -- a smoothing constant (standard value).
-* `\text{rank}_m(d)` -- where document d ranked in search stream m (1-based).
+* $k_{\text{rrf}} = 60$ -- a smoothing constant (standard value).
+* $\text{rank}_m(d)$ -- where document d ranked in search stream m (1-based).
 
 Machine filters are always active. A query on a Haas CNC machine only returns Haas procedures. It never mixes in Engel molder procedures.
 
