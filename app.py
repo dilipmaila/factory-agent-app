@@ -669,13 +669,15 @@ with left_col:
             if st.button("✅ Solved Independently", width="stretch", key="btn_solve_feedback"):
                 last_ctx = st.session_state.last_context
                 
-                # In demo Act 6, John Doe (Intermediate) resolves Alarm 102 in 2.0 minutes (fast repair).
-                # In demo Act 3, John Doe (Novice) takes 10.0 minutes (normal repair).
-                is_fast_repair = (machine_tier == "Intermediate" and last_ctx.get("matched_error_code") == "Alarm 102")
+                # Fast repair: triggered whenever Alarm 102 is the active fault (any tier).
+                # Act 3 (Novice, normal query) → exec_time = 10.0 (no debrief).
+                # Act 6 (any tier, Alarm 102 active) → exec_time = 2.0 (triggers micro-debrief).
+                active_error = last_ctx.get("matched_error_code", "") or active_alarm or ""
+                is_fast_repair = "Alarm 102" in active_error or "102" in active_error
                 exec_time = 2.0 if is_fast_repair else 10.0
 
                 # Evaluate session synchronously via Shadow Observer
-                result = resources["shadow"].evaluate_session(
+                result = resources["observer"].evaluate_session(
                     operator_id=selected_op_id,
                     machine_id=selected_machine,
                     format_used=last_ctx.get("format_used", "Visual_StepByStep"),
@@ -690,7 +692,10 @@ with left_col:
                 
                 st.session_state.last_context["feedback_given"] = True
                 st.session_state.feedback_status = "SOLVED"
-                st.toast("Resolution held in 8-hr durability escrow.", icon="⏳")
+                if result.get("debrief_flagged"):
+                    st.toast("⚡ Fast repair detected! Micro-Debrief queued — check the banner above.", icon="🤖")
+                else:
+                    st.toast("Resolution held in 8-hr durability escrow.", icon="⏳")
                 st.rerun()
 
         with fb_col2:
@@ -698,7 +703,7 @@ with left_col:
                 last_ctx = st.session_state.last_context
                 
                 # Evaluate session synchronously via Shadow Observer (Escalation Path)
-                result = resources["shadow"].evaluate_session(
+                result = resources["observer"].evaluate_session(
                     operator_id=selected_op_id,
                     machine_id=selected_machine,
                     format_used=last_ctx.get("format_used", "Visual_StepByStep"),
