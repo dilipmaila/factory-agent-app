@@ -9,7 +9,7 @@
   - [3.2 Subsystem 2: Format Personalization -- Contextual Bandit](#32-subsystem-2-format-personalization----contextual-bandit)
   - [3.3 Subsystem 3: Finding the Right SOP -- Hybrid Retrieval (ChromaDB + BM25 + RRF)](#33-subsystem-3-finding-the-right-sop----hybrid-retrieval-chromadb--bm25--rrf)
   - [3.4 Subsystem 4: Working Memory Synthesizer & LLM (Google Gemini)](#34-subsystem-4-working-memory-synthesizer--llm-google-gemini)
-  - [3.5 Subsystem 5: Shadow Observer, Feedback Loop & 8-Hour Escrow](#35-subsystem-5-shadow-observer-feedback-loop--8-hour-escrow)
+  - [3.5 Subsystem 5: Shadow Observer, Feedback Loop & 8-Hour Durability Verification](#35-subsystem-5-shadow-observer-feedback-loop--8-hour-durability-verification)
   - [3.6 Subsystem 6: Micro-Debrief & Quarantine Store](#36-subsystem-6-micro-debrief--quarantine-store)
   - [3.7 Subsystem 7: Mock Services for Testing](#37-subsystem-7-mock-services-for-testing)
 - [4. Architecture Q&A Reference](#4-architecture-qa-reference)
@@ -35,7 +35,7 @@ What is the problem? What does this system do to fix it?
 | **Wrong skill level assumed** -- a CNC expert is treated as an expert on a machine they have never used. | The **Knowledge Graph** tracks skill per machine separately. Expertise on one machine does not carry over to another. |
 | **Outdated procedures** -- faster shortcuts found on the shop floor are never saved. | **Dynamic Bayesian Fault Trees** + a **3-Expert vote** auto-add new shortcuts after they are verified. |
 | **Slow UI** -- saving data during a shift makes the screen lag. | **Dual-Loop Design**: fast events are saved in under 5ms; heavy updates happen later during the Sleep Cycle. |
-| **Duct-tape fixes** -- the AI rewards a fix that breaks again hours later. | **8-Hour Wait Rule (Escrow)**: the AI waits 8 hours to confirm the fix is permanent before giving credit. |
+| **Duct-tape fixes** -- the AI rewards a fix that breaks again hours later. | **8-Hour Wait Rule (Durability Verification)**: the AI waits 8 hours to confirm the fix is permanent before giving credit. |
 | **Tired operators** -- complex instructions overwhelm workers near the end of a long shift. | **ECM Fatigue Gate**: when the Fatigue Index reaches 0.80 or more, the system switches to the shortest, simplest format only. |
 
 **Design Assumptions**:
@@ -120,7 +120,7 @@ Runs at night (e.g., 03:00 AM). It checks rewards, updates the knowledge graph, 
    +-------------------------------------------------------+
    |        SHADOW OBSERVER -- EVENT LOGGER                |
    |  - Saves event in under 5ms                           |
-   |  - Holds reward in escrow for 8 hours                 |
+   |  - Holds reward in durability holding window for 8 hours |
    |  - Queues Micro-Debrief if fix was unusually fast     |
    |  - Sends CMMS ticket if escalated                     |
    +-------------------------------------------------------+
@@ -133,7 +133,8 @@ Runs at night (e.g., 03:00 AM). It checks rewards, updates the knowledge graph, 
    |     SLEEP CYCLE EVALUATOR (sleep_cycle_evaluator.py)  |
    +-------------------------------------------------------+
     |               |               |               |
-    | Escrow Check  | Graph Update  | Fault Trees   | Quarantine
+    | Durability    | Graph Update  | Fault Trees   | Quarantine
+    | Audit         |               |               |
     v               v               v               v
    +----------+ +----------+ +----------+ +----------+
    |Check SCAD| |Update    | |Update    | |3 Expert  |
@@ -353,7 +354,7 @@ The Working Memory Synthesizer builds the full prompt before sending it to the L
 
 ---
 
-### 3.5 Subsystem 5: Shadow Observer, Feedback Loop & 8-Hour Escrow
+### 3.5 Subsystem 5: Shadow Observer, Feedback Loop & 8-Hour Durability Verification
 
 #### 3.5.1 Sub-100ms Event Logger
 
@@ -362,10 +363,10 @@ After each operator interaction, the `ShadowObserver` runs in **under 5ms** (alw
 2. Appends the record to `data/episodic_event_queue.json`.
 3. Does **no** graph updates during the shift. This keeps the UI fast and prevents mid-shift data drift.
 
-#### 3.5.2 8-Hour Wait Rule (Provisional Reward Escrow)
+#### 3.5.2 8-Hour Wait Rule (Provisional Reward Durability Window)
 
 This rule stops the AI from rewarding bad fixes that break again hours later (the "Duct-Tape Problem").
-* **Hold the reward**: When an operator marks an issue as resolved, the reward goes into `data/escrow_rewards.json` and waits for 8 hours.
+* **Hold the reward**: When an operator marks an issue as resolved, the reward goes into `data/escrow_rewards.json` (provisional rewards ledger) and waits for an 8-hour verification window.
 * **Overnight check (Sleep Cycle)**:
   * The system reads SCADA logs to see if the same alarm came back within 8 hours.
   * **Durable fix (no recurrence after 8 hours)**: Release the reward: **+1.0** to bandit weight, **+5.0** to machine autonomy.
@@ -375,7 +376,7 @@ This rule stops the AI from rewarding bad fixes that break again hours later (th
 
 | What Happened | Who or What Triggered It | Immediate Action (under 5ms) | Sleep Cycle Action |
 |---|---|---|---|
-| **Fixed Independently** | Operator clicks *"Solved Independently"*. | Saves `SUCCESS` event; puts reward in escrow; starts SCADA check. | If clean after 8h: give **+1.0** bandit reward and **+5.0** autonomy. Update fault tree. |
+| **Fixed Independently** | Operator clicks *"Solved Independently"*. | Saves `SUCCESS` event; puts reward on 8-hour provisional hold; starts SCADA check. | If clean after 8h: give **+1.0** bandit reward and **+5.0** autonomy. Update fault tree. |
 | **Escalated to Supervisor** | Operator clicks *"Escalate to Supervisor"*. | Saves `ESCALATED_CMMS` event; sends CMMS work order automatically. | Deduct **-1.0** bandit penalty and **-15.0** autonomy. Update fault tree failure count. Recalculate tier. |
 | **Format Override** | Operator clicks a format override button. | Bypass bandit; rewrite response instantly in the chosen format. | Apply **-10.0** penalty to the rejected format arm in the knowledge graph. |
 | **Session Abandoned** | Session times out with no resolution. | Saves `ABANDONED_TIMEOUT` event. | Log as failure. Increment fault tree failure count. Keep for audit history. |
@@ -421,8 +422,8 @@ Quick answers to common design questions. See Section 3 for full details.
 | **What data sources does it use?** | SCADA telemetry, Engineering SOPs, Bayesian fault trees, HR/LMS records, CMMS ledger, ECM context. | 3.3 (Retrieval), 3.4 (Working Memory), 3.7 (Mock Services) |
 | **What components are needed?** | Chat agent, Bandit Router, Shadow Observer, Working Memory Synthesizer, Hybrid Retriever, Knowledge Graph, Procedural Memory, Sleep Cycle Evaluator. | Section 3 (all subsections) |
 | **How does it learn over time?** | UCB bandit accumulates rewards. Autonomy scores change (+5 / -15). Beta-Binomial updates branch probabilities. | 3.2.1, 3.5.2, 3.1.3 |
-| **How is memory stored and corrected?** | JSON files (graph, fault trees, escrow, debriefs, episodic queue). All heavy updates happen in the Sleep Cycle. | 3.5 (Escrow), 3.1 (Graph) |
-| **How does it avoid wrong assumptions?** | 7 safeguards: decoupled skill graph, cold-start seeding, UCB exploration, asymmetric penalties, escrow durability, SCADA verification, micro-debriefs. | 3.2.4, 3.5.2, 3.6, Section 5 (FMEA) |
+| **How is memory stored and corrected?** | JSON files (graph, fault trees, provisional holding ledger, debriefs, episodic queue). All heavy updates happen in the Sleep Cycle. | 3.5 (Durability Verification), 3.1 (Graph) |
+| **How does it avoid wrong assumptions?** | 7 safeguards: decoupled skill graph, cold-start seeding, UCB exploration, asymmetric penalties, repair durability verification, SCADA verification, micro-debriefs. | 3.2.4, 3.5.2, 3.6, Section 5 (FMEA) |
 | **How is the operator profile used?** | 5 layers: response format, fix-path ranking, safety detail depth, historical failure warnings, fatigue and supervisor adaptation. | 3.2, 3.1.3, 3.5.3, 3.4 |
 
 ---
@@ -431,7 +432,7 @@ Quick answers to common design questions. See Section 3 for full details.
 
 | Failure Mode | Risk | How the System Prevents It |
 |---|---|---|
-| **1. Duct-Tape Fix** | Operator uses a temporary patch. Alarm clears. Machine fails again 2 hours later. AI already gave credit. | **8-Hour Escrow**: Reward is held. If SCADA shows the alarm came back, the reward flips to a **-5.0** bandit penalty and **-15.0** autonomy deduction. |
+| **1. Duct-Tape Fix** | Operator uses a temporary patch. Alarm clears. Machine fails again 2 hours later. AI already gave credit. | **8-Hour Durability Verification Window**: Reward is placed on provisional hold. If SCADA shows the alarm came back, the reward flips to a **-5.0** bandit penalty and **-15.0** autonomy deduction. |
 | **2. Unvetted Shortcut Spread** | Operator finds an unsafe shortcut. AI suggests it to novices. Someone gets hurt or warranty is voided. | **Quarantine Store + 3-Expert Vote**: New shortcuts are locked in `quarantine_sops.json`. They need 3 Expert confirmations before going live, and are permanently tagged `min_tier_required: 'Expert'`. |
 | **3. Wrong Format in Emergency** | The Bandit shows visual steps during a crisis. The expert just needs raw setpoints now. | **Instant Format Override**: Operator switches format. Response is rewritten immediately. The rejected format gets a **-10.0** penalty in the knowledge graph. |
 | **4. Novice Promoted Too Fast** | Novice gets lucky on 2 easy fixes. AI promotes to Intermediate and removes safety checks. | **Asymmetric Penalties + Tenure Floors**: Gaining skill gives only +5.0 autonomy; a failure costs -15.0. A minimum number of interactions is required before any tier change. |
@@ -477,7 +478,7 @@ Quick answers to common design questions. See Section 3 for full details.
 6. **Outcome**: John adjusts the regulator to 90 PSI. Clicks *"Solved Independently"*.
 7. **Shadow Observer**:
    * Saves `SUCCESS` event to `episodic_event_queue.json` in under 5ms.
-   * Puts +1.0 bandit reward and +5.0 autonomy into `escrow_rewards.json` (8-hour hold).
+   * Puts +1.0 bandit reward and +5.0 autonomy into provisional holding ledger (8-hour window).
    * SCADA confirms pressure normalized to 92 PSI.
 
 ### 7.2 Scenario 2: Expert on Haas, Treated as Novice on Engel (Decoupled States)
@@ -505,7 +506,7 @@ Quick answers to common design questions. See Section 3 for full details.
 
 ### 7.5 Scenario 5: Overnight Sleep Cycle
 1. **Trigger**: At 03:00 AM, `sleep_cycle_evaluator.py` runs.
-2. **Escrow Audit**:
+2. **Durability Audit**:
    * Checks John Doe's Alarm 102 fix from Scenario 1. SCADA shows 0 recurring alarms in 8 hours. Releases **+1.0** bandit reward and **+5.0** autonomy to John's profile.
    * Checks another operator's quick fix. SCADA shows the alarm came back after 2 hours. Flips the reward to a **-5.0** bandit penalty and **-15.0** autonomy deduction.
 3. **Knowledge Graph Update**: Updates all operator-machine autonomy scores, recalculates derived tiers, and updates UCB weights in `graph_state.json`.
@@ -523,11 +524,11 @@ For setup and run commands, see [run_and_configuration_guide.md](run_and_configu
 ```text
 factory-agent-app/
 ├── app.py                          # Streamlit UI & Shopfloor Dashboard
-├── sleep_cycle_evaluator.py        # Async Sleep Cycle Evaluator & Escrow Engine
+├── sleep_cycle_evaluator.py        # Async Sleep Cycle Evaluator & Durability Engine
 ├── agents/
 │   ├── bandit_router.py            # UCB1 Bandit: picks format per operator state
 │   ├── chat_agent.py               # Main chat agent orchestrator
-│   ├── shadow_observer.py          # Event logger & escrow manager
+│   ├── shadow_observer.py          # Event logger & durability manager
 │   └── working_memory.py           # Builds the full LLM prompt
 ├── memory/
 │   ├── semantic_graph.py           # Knowledge Graph: operator-machine-format edges
@@ -543,7 +544,7 @@ factory-agent-app/
     ├── factory_knowledge_base.json # Official SOPs (read-only at runtime)
     ├── procedural_fault_trees.json # Active Bayesian Fault Trees
     ├── quarantine_sops.json        # Locked shortcuts (awaiting 3-Expert vote)
-    ├── escrow_rewards.json         # Reward Escrow Ledger (8-hour hold)
+    ├── escrow_rewards.json         # Provisional Rewards Ledger (8-hour hold)
     ├── pending_debriefs.json       # Queued Micro-Debrief prompts
     ├── episodic_event_queue.json   # Shift Event Queue (written in under 5ms)
     ├── episodic_logs.json          # Permanent audit log
@@ -560,7 +561,7 @@ It combines seven core technologies:
 * **Decoupled Knowledge Graph** -- tracks skill per machine, not per person globally.
 * **State-Bound Contextual Bandits (UCB1)** -- learns the best response format for each operator in each skill state.
 * **Dynamic Bayesian Fault Trees** -- ranks fix paths by real success probability.
-* **8-Hour Provisional Reward Escrow** -- only rewards fixes that actually last.
+* **8-Hour Durability Verification Window** -- only rewards fixes that actually last.
 * **3-Expert Quarantine Consensus** -- safely adds new shortcuts after expert verification.
 * **ECM Fatigue Gating** -- protects tired operators from complex outputs.
 * **Sub-100ms Synchronous Event Logging** -- keeps the UI fast by deferring all heavy updates to the Sleep Cycle.

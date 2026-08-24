@@ -87,7 +87,7 @@ For setup instructions and JSON files, see [run_and_configuration_guide.md](run_
 * **What it does**: A background script that runs overnight (e.g., at 03:00 AM) to process the day's data.
 * **Key Jobs**:
   1. **Read Events**: Reads all events from `data/episodic_event_queue.json`.
-  2. **Check Escrow**: Checks if fixes lasted 8 hours. If yes: **+1.0** bandit reward & **+5.0** machine skill. If no (duct-tape fix): **-5.0** bandit penalty & **-15.0** machine skill.
+  2. **Verify Repair Durability**: Checks if fixes lasted 8 hours. If yes: **+1.0** bandit reward & **+5.0** machine skill. If no (duct-tape fix): **-5.0** bandit penalty & **-15.0** machine skill.
   3. **Update Graph**: Updates operator skill scores, skill tiers, and UCB format weights in `data/graph_state.json`.
   4. **Update Fault Trees**: Recalculates branch probabilities (Laplace-smoothed) in `data/procedural_fault_trees.json`.
   5. **Promote Shortcuts**: Moves a shortcut to the active library if 3 Experts have approved it.
@@ -124,7 +124,7 @@ For setup instructions and JSON files, see [run_and_configuration_guide.md](run_
   * `log_turn_feedback(session_id, operator_id, machine_id, format_used, cognitive_tier, outcome_status, duration_mins=None, suspected_shortcut=None) -> Dict`:
     Runs in **<5ms**. Saves the event to the queue file.
   * `enqueue_reward_escrow(...)`:
-    Puts positive rewards in the 8-hour waiting room (escrow) in `escrow_rewards.json`.
+    Puts positive rewards on provisional hold (8-hour durability window) in `escrow_rewards.json`.
   * `check_and_enqueue_debrief(...)`:
     Notices if a fix was unusually fast and schedules a debrief question for the operator's next session.
 
@@ -230,7 +230,7 @@ For setup instructions and JSON files, see [run_and_configuration_guide.md](run_
 * `data/factory_knowledge_base.json`: The official factory manuals and safety rules.
 * `data/procedural_fault_trees.json`: The active fix paths and their success/failure counts.
 * `data/quarantine_sops.json`: New shortcuts waiting for 3 Experts to approve them.
-* `data/escrow_rewards.json`: Rewards waiting for their 8-hour hold to finish.
+* `data/escrow_rewards.json`: Provisional rewards ledger waiting for the 8-hour durability verification.
 * `data/pending_debriefs.json`: Questions waiting to be asked to operators.
 * `data/episodic_event_queue.json`: The fast, temporary event buffer.
 * `data/episodic_logs.json`: The permanent history log.

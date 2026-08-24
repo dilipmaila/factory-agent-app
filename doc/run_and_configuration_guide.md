@@ -16,7 +16,7 @@
   - [4.1 `data/factory_knowledge_base.json` - Official Manuals](#41-datafactory_knowledge_basejson---official-manuals)
   - [4.2 `data/procedural_fault_trees.json` - Fix Paths & Success Rates](#42-dataprocedural_fault_treesjson---fix-paths--success-rates)
   - [4.3 `data/quarantine_sops.json` - Unverified Shortcuts](#43-dataquarantine_sopsjson---unverified-shortcuts)
-  - [4.4 `data/escrow_rewards.json` - 8-Hour Waiting Room](#44-dataescrow_rewardsjson---8-hour-waiting-room)
+  - [4.4 `data/escrow_rewards.json` - 8-Hour Durability Verification Window](#44-dataescrow_rewardsjson---8-hour-durability-verification-window)
   - [4.5 `data/pending_debriefs.json` - Questions for Operators](#45-datapending_debriefsjson---questions-for-operators)
   - [4.6 `data/graph_state.json` - Knowledge Graph File](#46-datagraph_statejson---knowledge-graph-file)
   - [4.7 Event Logs](#47-event-logs)
@@ -112,7 +112,7 @@ uv run streamlit run app.py
   4. Test the "Change Format" and "Solved" buttons.
 
 ### 3.2 Running the Nightly Update Script
-This script normally runs at 03:00 AM. It checks the 8-hour escrow wait times, updates the knowledge graph and fault trees, and approves new shortcuts.
+This script normally runs at 03:00 AM. It checks the 8-hour durability verification windows, updates the knowledge graph and fault trees, and approves new shortcuts.
 
 **Run Command**:
 ```bash
@@ -125,7 +125,7 @@ uv run python sleep_cycle_evaluator.py
 STARTING ASYNCHRONOUS SLEEP CYCLE BATCH EVALUATION (03:00 AM CRON)
 ======================================================================
 [1/5] Ingesting shift events from data/episodic_event_queue.json...
-[2/5] Evaluating Provisional Reward Escrow & Durability Window (8h)...
+[2/5] Evaluating Provisional Reward Durability Window (8h)...
 [3/5] Mutating Knowledge Graph & Recalculating State Tiers...
 [4/5] Updating Bayesian Procedural Fault Trees...
 [5/5] Checking Quarantine SOP Consensus (3-Expert Threshold)...
@@ -224,8 +224,8 @@ All data is saved in simple JSON files in the `data/` folder. Here is what they 
 ]
 ```
 
-### 4.4 `data/escrow_rewards.json` - 8-Hour Waiting Room
-* **Purpose**: Holds rewards for 8 hours to make sure the machine doesn't break again.
+### 4.4 `data/escrow_rewards.json` - 8-Hour Durability Verification Window
+* **Purpose**: Holds provisional rewards for an 8-hour durability window to verify the fix was durable.
 * **Format**:
 ```json
 [

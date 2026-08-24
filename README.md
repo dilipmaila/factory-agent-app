@@ -26,7 +26,7 @@ A **smart AI Copilot** for factory floors (CNC Machining & Injection Molding). I
 | **Tracks skill per machine** | Decoupled Knowledge Graph — An expert on Machine A is not assumed to be an expert on Machine B. |
 | **Changes how it talks** | State-Bound UCB1 Bandit — Uses Visual, Short, or Detailed formats depending on your skill level. |
 | **Protects tired workers** | ECM Fatigue Gate — Switches to the simplest format if your shift is almost over. |
-| **Stops duct-tape fixes** | 8-Hour Escrow — Waits 8 hours to ensure a fix works before giving credit. |
+| **Stops duct-tape fixes** | 8-Hour Durability Window — Waits 8 hours to ensure a fix is permanent before giving credit. |
 | **Safely shares shortcuts** | 3-Expert Vote — Keeps new shortcuts hidden until 3 Experts approve them. |
 | **Keeps the screen fast** | Shadow Observer — Logs events in under 5ms so the UI never freezes. |
 
@@ -94,7 +94,7 @@ echo GOOGLE_API_KEY=your_key_here > .env
 # Start the Shop Floor Screen (UI)
 uv run streamlit run app.py        # Opens at http://localhost:8501
 
-# Run the nightly updates (checks escrow, updates graphs)
+# Run the nightly updates (verifies repair durability, updates graphs)
 uv run python sleep_cycle_evaluator.py
 
 # Update the search database (run this if you edit factory_knowledge_base.json)
