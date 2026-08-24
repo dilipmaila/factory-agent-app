@@ -1,4 +1,4 @@
-﻿========================================================================================
+========================================================================================
 Adaptive AI Assistant for Factory Operators: Solution Design
 ========================================================================================
 
@@ -290,14 +290,14 @@ Example (Alarm 102 on Haas CNC):
 **How the probability is calculated** (Beta-Binomial conjugate with Laplace smoothing,
 alpha = 1.0, beta = 1.0):
 
-.. math::
+.. code-block:: latex
 
    P(\text{Success}) = \frac{\text{success\_count} + \alpha}{\text{success\_count} + \text{failure\_count} + \alpha + \beta}
 
 The path with the highest P(Success) is shown as the **Primary Recommended Fix**.
 Lower-ranked paths are shown as backups.
 
----
+----------------------------------------------------------------------------------------
 
 3.2 Subsystem 2: Format Personalization -- Contextual Bandit
 --------------------------------------------------------------
@@ -312,16 +312,16 @@ This is an explore-vs-exploit algorithm.
 For each operator (u), skill tier (T), and format arm
 (i = Visual_StepByStep, Terse_Technical, or Detailed_Text):
 
-.. math::
+.. code-block:: latex
 
    \text{UCB}_i(u, T) = \bar{X}_i(u, T) + c \cdot \sqrt{\frac{\ln(N(u, T) + 1)}{N_i(u, T) + \epsilon}}
 
 What each symbol means:
 
-* :math:`\bar{X}_i(u, T) = \frac{W_i(u, T)}{N_i(u, T)}` -- **Average reward** for format i in state (u, T).
-* :math:`N(u, T)` -- **Total queries** made in state (u, T) across all formats.
-* :math:`c = 1.2` -- **Exploration bonus** weight. Higher value = tries new formats more often.
-* :math:`\epsilon = 10^{-4}` -- Tiny number to prevent dividing by zero for untried formats.
+* ``\bar{X}_i(u, T) = \frac{W_i(u, T)}{N_i(u, T)}`` -- **Average reward** for format i in state (u, T).
+* ``N(u, T)`` -- **Total queries** made in state (u, T) across all formats.
+* ``c = 1.2`` -- **Exploration bonus** weight. Higher value = tries new formats more often.
+* ``\epsilon = 10^{-4}`` -- Tiny number to prevent dividing by zero for untried formats.
 
 **90-Day Forced Exploration (Time-Decay Rule)**: If an operator has not seen an alternative
 format in the last 90 days, the system forces one exploration turn. This checks whether
@@ -373,7 +373,7 @@ Operators can override the format at any time. If they do:
    +1 escalation count is applied to the rejected format in the operator's active state.
    The Bandit quickly learns not to use that format again for that operator in that context.
 
----
+----------------------------------------------------------------------------------------
 
 3.3 Subsystem 3: Finding the Right SOP -- Hybrid Retrieval (ChromaDB + BM25 + RRF)
 -------------------------------------------------------------------------------------
@@ -392,17 +392,17 @@ handles both well.
 The two search results are merged using **Reciprocal Rank Fusion (RRF)**. This gives a
 combined score to each document:
 
-.. math::
+.. code-block:: latex
 
    \text{RRF\_Score}(d) = \sum_{m \in \{\text{Dense}, \text{Sparse}\}} \frac{1}{k_{\text{rrf}} + \text{rank}_m(d)}
 
-* :math:`k_{\text{rrf}} = 60` -- a smoothing constant (standard value).
-* :math:`\text{rank}_m(d)` -- where document d ranked in search stream m (1-based).
+* ``k_{\text{rrf}} = 60`` -- a smoothing constant (standard value).
+* ``\text{rank}_m(d)`` -- where document d ranked in search stream m (1-based).
 
 Machine filters are always active. A query on a Haas CNC machine only returns Haas
 procedures. It never mixes in Engel molder procedures.
 
----
+----------------------------------------------------------------------------------------
 
 3.4 Subsystem 4: Working Memory Synthesizer & LLM (Google Gemini)
 ------------------------------------------------------------------
@@ -446,7 +446,7 @@ The LLM (Google Gemini) only sees this prompt. This keeps it grounded and safe.
       - Only use the retrieved SOPs above. Do not invent any steps.
    ==============================================================
 
----
+----------------------------------------------------------------------------------------
 
 3.5 Subsystem 5: Shadow Observer, Feedback Loop & 8-Hour Escrow
 ----------------------------------------------------------------
@@ -508,7 +508,7 @@ This rule stops the AI from rewarding bad fixes that break again hours later
      - Saves ``ABANDONED_TIMEOUT`` event.
      - Log as failure. Increment fault tree failure count. Keep for audit history.
 
----
+----------------------------------------------------------------------------------------
 
 3.6 Subsystem 6: Micro-Debrief & Quarantine Store
 --------------------------------------------------
@@ -539,7 +539,7 @@ done in 2 minutes), the system does not guess. It asks.
 * The promoted procedure gets a permanent tag: ``min_tier_required: 'Expert'``. This
   guarantees that novice operators are never shown an unvetted shortcut.
 
----
+----------------------------------------------------------------------------------------
 
 3.7 Subsystem 7: Mock Services for Testing
 -------------------------------------------
