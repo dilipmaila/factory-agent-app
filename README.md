@@ -5,7 +5,7 @@
 [![LLM Engine](https://img.shields.io/badge/LLM-Google%20Gemini%20Flash-4285F4.svg)](https://ai.google.dev/)
 [![Package Manager](https://img.shields.io/badge/package%20manager-uv-purple.svg)](https://astral.sh/uv)
 
-A **closed-loop Adaptive Cognitive AI Copilot** for precision manufacturing shopfloors (CNC Machining & Injection Molding). It personalizes troubleshooting guidance in real-time per operator skill level, learns from SCADA-verified outcomes, and enforces industrial safety guardrails — without hallucination.
+A **smart AI Copilot** for factory floors (CNC Machining & Injection Molding). It gives real-time, step-by-step help tailored to each operator's skill level. It learns from real SCADA outcomes and enforces safety rules—without ever making things up (no hallucination).
 
 ---
 
@@ -13,59 +13,59 @@ A **closed-loop Adaptive Cognitive AI Copilot** for precision manufacturing shop
 
 | Document | Contents |
 |---|---|
-| 🏛️ [solution_design.rst](doc/solution_design.rst) | Architecture, dual-loop lifecycle, math formulations, FMEA guardrails, pilot plan |
-| 📦 [code_and_modules_guide.rst](doc/code_and_modules_guide.rst) | Class & method reference for all modules |
-| ⚙️ [run_and_configuration_guide.rst](doc/run_and_configuration_guide.rst) | Setup, run commands, JSON schema definitions, FAQ |
+| 🏛️ [solution_design.rst](doc/solution_design.rst) | How it works, the two-loop system, safety rules, and test plan |
+| 📦 [code_and_modules_guide.rst](doc/code_and_modules_guide.rst) | List of all code files and what they do |
+| ⚙️ [run_and_configuration_guide.rst](doc/run_and_configuration_guide.rst) | How to install, run commands, JSON file setups, and FAQ |
 
 ---
 
-## ✨ Key Capabilities
+## ✨ Key Features
 
-| Capability | Mechanism |
+| Feature | How It Works |
 |---|---|
-| **Machine-specific skill profiling** | Decoupled NetworkX graph — Expert on Haas ≠ Expert on Engel |
-| **Adaptive response formatting** | State-bound UCB1 bandit: Visual / Terse / Detailed per competence tier |
-| **Cognitive fatigue adaptation** | ECM Fatigue Gate forces 100% exploitation at ≥80% shift completion |
-| **Duct-tape fix prevention** | Rewards held in 8-hr escrow; SCADA recurrence inverts reward to penalty |
-| **Crowdsourced SOP safety** | Discovered shortcuts quarantined until 3 distinct Expert sign-offs |
-| **Sub-100ms event logging** | Shadow Observer writes to event queue in <5ms, zero intra-shift drift |
+| **Tracks skill per machine** | Decoupled Knowledge Graph — An expert on Machine A is not assumed to be an expert on Machine B. |
+| **Changes how it talks** | State-Bound UCB1 Bandit — Uses Visual, Short, or Detailed formats depending on your skill level. |
+| **Protects tired workers** | ECM Fatigue Gate — Switches to the simplest format if your shift is almost over. |
+| **Stops duct-tape fixes** | 8-Hour Escrow — Waits 8 hours to ensure a fix works before giving credit. |
+| **Safely shares shortcuts** | 3-Expert Vote — Keeps new shortcuts hidden until 3 Experts approve them. |
+| **Keeps the screen fast** | Shadow Observer — Logs events in under 5ms so the UI never freezes. |
 
 ---
 
-## 📁 Repository Structure
+## 📁 Files & Folders
 
 ```text
 factory-agent-app/
-├── app.py                          # Streamlit UI — Shopfloor HMI
-├── sleep_cycle_evaluator.py        # Async batch evaluator (03:00 AM cron)
-├── verify_refactor.py / section2/3 # Automated verification suites
-├── doc/                            # Architecture & operations documentation
+├── app.py                          # Streamlit UI — The Shop Floor Screen
+├── sleep_cycle_evaluator.py        # Nightly update script (runs at 03:00 AM)
+├── verify_refactor.py / section2/3 # Automated tests
+├── doc/                            # Documentation
 ├── agents/
-│   ├── bandit_router.py            # UCB1 bandit with ECM fatigue gating
-│   ├── chat_agent.py               # Gemini LLM agent (LangChain)
-│   └── shadow_observer.py          # <5ms event logger & escrow enqueuer
+│   ├── bandit_router.py            # Picks the best format based on skill & fatigue
+│   ├── chat_agent.py               # Google Gemini LLM agent
+│   └── shadow_observer.py          # Fast event logger
 ├── memory/
-│   ├── semantic_graph.py           # Decoupled knowledge graph (NetworkX)
-│   ├── procedural_memory.py        # Bayesian fault trees & quarantine
-│   ├── debrief_store.py            # Micro-debrief queue
-│   ├── episodic_store.py           # Shift event queue & audit ledger
-│   ├── working_memory.py           # Prompt assembler
-│   └── search.py                   # Hybrid ChromaDB + BM25 retriever (RRF)
-├── mock_services/                  # SCADA, CMMS, HR/LMS, ECM emulators
-├── data/                           # JSON state stores & vector indices
+│   ├── semantic_graph.py           # Tracks who knows which machine
+│   ├── procedural_memory.py        # Fix paths and success rates
+│   ├── debrief_store.py            # Asks operators how they fixed things so fast
+│   ├── episodic_store.py           # Logs all events
+│   ├── working_memory.py           # Builds the prompt for the LLM
+│   └── search.py                   # Finds the right manual (ChromaDB + BM25)
+├── mock_services/                  # Simulators for SCADA, CMMS, HR, and ECM
+├── data/                           # JSON storage and search databases
 ├── pyproject.toml
-└── .env                            # GOOGLE_API_KEY
+└── .env                            # Your GOOGLE_API_KEY goes here
 ```
 
 ---
 
 ## 🚀 Quickstart
 
-### 1. Prerequisites
+### 1. Requirements
 - Python `3.10+`
 - Google Gemini API Key
 
-### 2. Install `uv` (recommended)
+### 2. Install `uv` (Recommended)
 
 ```powershell
 # Windows
@@ -79,40 +79,40 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 ### 3. Install & Configure
 
 ```bash
-uv sync                           # Install dependencies
+uv sync                           # Install all required packages
 
-# Create .env in project root:
+# Create .env file:
 echo GOOGLE_API_KEY=your_key_here > .env
 ```
 
-> **pip fallback**: `python -m venv .venv && .venv\Scripts\activate && pip install -e .`
+> **If using standard pip**: `python -m venv .venv && .venv\Scripts\activate && pip install -e .`
 
 ---
 
-## 🖥️ Run
+## 🖥️ Run the App
 
 ```bash
-# Shopfloor HMI (main UI)
-uv run streamlit run app.py        # → http://localhost:8501
+# Start the Shop Floor Screen (UI)
+uv run streamlit run app.py        # Opens at http://localhost:8501
 
-# Overnight batch learning (escrow audit, graph mutations, Bayesian updates)
+# Run the nightly updates (checks escrow, updates graphs)
 uv run python sleep_cycle_evaluator.py
 
-# Rebuild knowledge base index (after editing factory_knowledge_base.json)
+# Update the search database (run this if you edit factory_knowledge_base.json)
 uv run python data/ingest.py
 ```
 
-### Verification Suites
+### Run Tests
 
 ```bash
-uv run python verify_omni_concepts.py   # Anti-patterns, SOS, domain fencing
-uv run python verify_refactor.py        # Bayesian trees, decoupled graph, queue
-uv run python verify_section2.py        # Escrow, quarantine, format overrides
-uv run python verify_section3.py        # ECM, fatigue gating, micro-debriefs
+uv run python verify_omni_concepts.py   # Tests safety and core concepts
+uv run python verify_refactor.py        # Tests fault trees and queues
+uv run python verify_section2.py        # Tests 8-hour wait rule and overrides
+uv run python verify_section3.py        # Tests fatigue rules and debriefs
 ```
 
 ---
 
 ## 📄 License
 
-Designed for Advanced Manufacturing AI Systems. Grounded in ISO/OSHA industrial safety principles.
+Designed for Advanced Manufacturing AI Systems. Built to follow ISO/OSHA industrial safety rules.
