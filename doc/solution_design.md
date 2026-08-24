@@ -244,7 +244,7 @@ Example (Alarm 102 on Haas CNC):
 **How the probability is calculated** (Beta-Binomial conjugate with Laplace smoothing, alpha = 1.0, beta = 1.0):
 
 $$
-   P(\text{Success}) = \frac{\text{success\_count} + \alpha}{\text{success\_count} + \text{failure\_count} + \alpha + \beta}
+   P(\text{Success}) = \frac{\text{success}_{\text{count}} + \alpha}{\text{success}_{\text{count}} + \text{failure}_{\text{count}} + \alpha + \beta}
 $$
 
 The path with the highest P(Success) is shown as the **Primary Recommended Fix**. Lower-ranked paths are shown as backups.
@@ -305,7 +305,7 @@ Shop floor queries mix everyday language (e.g., *"spindle vibrates during cuttin
 The two search results are merged using **Reciprocal Rank Fusion (RRF)**. This gives a combined score to each document:
 
 $$
-   \text{RRF\_Score}(d) = \sum_{m \in \{\text{Dense}, \text{Sparse}\}} \frac{1}{k_{\text{rrf}} + \text{rank}_m(d)}
+   \text{RRF}_{\text{Score}}(d) = \sum_{m \in \{\text{Dense}, \text{Sparse}\}} \frac{1}{k_{\text{rrf}} + \text{rank}_m(d)}
 $$
 
 * $k_{\text{rrf}} = 60$ -- a smoothing constant (standard value).
