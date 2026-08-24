@@ -102,7 +102,3 @@ uv run python data/ingest.py
 ```
 
 ---
-
-## 📄 License
-
-Designed for Advanced Manufacturing AI Systems. Built to follow ISO/OSHA industrial safety rules.
