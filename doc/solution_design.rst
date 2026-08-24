@@ -312,16 +312,16 @@ This is an explore-vs-exploit algorithm.
 For each operator (u), skill tier (T), and format arm
 (i = Visual_StepByStep, Terse_Technical, or Detailed_Text):
 
-.. math::
+.. code-block:: latex
 
    \text{UCB}_i(u, T) = \bar{X}_i(u, T) + c \cdot \sqrt{\frac{\ln(N(u, T) + 1)}{N_i(u, T) + \epsilon}}
 
 What each symbol means:
 
-* :math:`\bar{X}_i(u, T) = \frac{W_i(u, T)}{N_i(u, T)}` -- **Average reward** for format i in state (u, T).
-* :math:`N(u, T)` -- **Total queries** made in state (u, T) across all formats.
-* :math:`c = 1.2` -- **Exploration bonus** weight. Higher value = tries new formats more often.
-* :math:`\epsilon = 10^{-4}` -- Tiny number to prevent dividing by zero for untried formats.
+* ``\bar{X}_i(u, T) = \frac{W_i(u, T)}{N_i(u, T)}`` -- **Average reward** for format i in state (u, T).
+* ``N(u, T)`` -- **Total queries** made in state (u, T) across all formats.
+* ``c = 1.2`` -- **Exploration bonus** weight. Higher value = tries new formats more often.
+* ``\epsilon = 10^{-4}`` -- Tiny number to prevent dividing by zero for untried formats.
 
 **90-Day Forced Exploration (Time-Decay Rule)**: If an operator has not seen an alternative
 format in the last 90 days, the system forces one exploration turn. This checks whether
