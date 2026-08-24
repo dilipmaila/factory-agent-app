@@ -27,8 +27,10 @@
 ## 1. Overview
 
 This guide shows you how to set up the app, how to run it, and explains the JSON files used for storage.
-For the system design, see [solution_design.md](solution_design.md).
-For code details, see [code_and_modules_guide.md](code_and_modules_guide.md).
+* For the system design and architecture, see [solution_design.md](solution_design.md).
+* For technical Q&A on behavioral learning and architecture, see [architecture_and_behavioral_qa.md](architecture_and_behavioral_qa.md).
+* For step-by-step interactive demo test cases, see [demo_and_evaluation_guide.md](demo_and_evaluation_guide.md).
+* For technical module specifications, see [code_and_modules_guide.md](code_and_modules_guide.md).
 
 ---
 
@@ -105,11 +107,7 @@ uv run streamlit run app.py
 ```
 
 * **URL**: `http://localhost:8501`
-* **What you can do in the UI**:
-  1. Pick an operator (e.g., John Doe the Novice, or Sarah the Expert) and a machine.
-  2. Change the shift hour slider to test the Fatigue rules.
-  3. Type a problem into the chat (like `"Alarm 102"`).
-  4. Test the "Change Format" and "Solved" buttons.
+* **Interactive Evaluation**: For detailed interactive test cases and scenario walk-throughs covering all architectural features, see [demo_and_evaluation_guide.md](demo_and_evaluation_guide.md).
 
 ### 3.2 Running the Nightly Update Script
 This script normally runs at 03:00 AM. It checks the 8-hour durability verification windows, updates the knowledge graph and fault trees, and approves new shortcuts.

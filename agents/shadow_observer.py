@@ -95,7 +95,7 @@ class ShadowObserver:
             )
             escrow_id = escrow_rec.get("escrow_id")
 
-            # 4. Micro-Debrief Flagging (Section 3.B)
+            # 4. Micro-Debrief Flagging
             # If resolution time is significantly faster than SOP average (< 50%) or suspected shortcut provided
             actual_time = execution_time_mins if execution_time_mins is not None else 2.0
             if actual_time <= (sop_avg_time_mins * 0.5) or suspected_shortcut_payload:
@@ -125,7 +125,7 @@ class ShadowObserver:
                 debrief_id = debrief_rec.get("debrief_id")
                 message += " [Fast Resolution Flagged: Pending Micro-Debrief Created]"
 
-        # 5. Fast Synchronous Queue Append (<100ms)
+        # 5. Fast Synchronous Queue Append
         queued_event = self.memory.enqueue_feedback_event(
             operator_id=operator_id,
             machine_id=machine_id,

@@ -13,7 +13,9 @@ A **smart AI Copilot** for factory floors (CNC Machining & Injection Molding). I
 
 | Document | Contents |
 |---|---|
-| 🏛️ [solution_design.md](doc/solution_design.md) | How it works, the two-loop system, safety rules, and test plan |
+| 🏛️ [solution_design.md](doc/solution_design.md) | How it works, the two-loop system, safety rules, and mathematical foundations |
+| 💡 [architecture_and_behavioral_qa.md](doc/architecture_and_behavioral_qa.md) | Deep-dive Q&A on behavioral pattern learning, data sources, agents & safety |
+| 🧪 [demo_and_evaluation_guide.md](doc/demo_and_evaluation_guide.md) | Interactive test cases & demo walkthrough for evaluating all design claims |
 | 📦 [code_and_modules_guide.md](doc/code_and_modules_guide.md) | List of all code files and what they do |
 | ⚙️ [run_and_configuration_guide.md](doc/run_and_configuration_guide.md) | How to install, run commands, JSON file setups, and FAQ |
 

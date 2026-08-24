@@ -15,11 +15,12 @@
 - [4. Architecture Q&A Reference](#4-architecture-qa-reference)
 - [5. Safety Rules & Failure Mode Table (FMEA)](#5-safety-rules--failure-mode-table-fmea)
 - [6. Pilot Validation Plan](#6-pilot-validation-plan)
-- [7. Example Scenarios](#7-example-scenarios)
-- [8. Codebase Structure](#8-codebase-structure)
-- [9. Conclusion](#9-conclusion)
+- [7. Codebase Structure](#7-codebase-structure)
+- [8. Conclusion](#8-conclusion)
 
 > **Companion Documents**:
+> * Architectural & Behavioral Q&A: [architecture_and_behavioral_qa.md](architecture_and_behavioral_qa.md)
+> * Interactive Demo & Test Guide: [demo_and_evaluation_guide.md](demo_and_evaluation_guide.md)
 > * Module & Code Guide: [code_and_modules_guide.md](code_and_modules_guide.md)
 > * Setup & Run Guide: [run_and_configuration_guide.md](run_and_configuration_guide.md)
 
@@ -50,7 +51,7 @@ What is the problem? What does this system do to fix it?
 
 The system runs two loops at the same time.
 
-**Loop 1 -- Real-Time Loop (under 100ms)**:
+**Loop 1 -- Real-Time Loop**:
 Runs every time an operator asks a question. It reads context, picks the best format, writes the answer, and logs the event. No heavy data saves happen here.
 
 **Loop 2 -- Async Learning Loop (Sleep Cycle)**:
@@ -60,7 +61,7 @@ Runs at night (e.g., 03:00 AM). It checks rewards, updates the knowledge graph, 
 
 ```text
    ============================================================
-                   REAL-TIME LOOP (under 100ms)
+                   REAL-TIME LOOP
    ============================================================
 
    +-------------------------------------------------------+
@@ -358,7 +359,7 @@ The Working Memory Synthesizer builds the full prompt before sending it to the L
 
 #### 3.5.1 Sub-100ms Event Logger
 
-After each operator interaction, the `ShadowObserver` runs in **under 5ms** (always under 100ms). It does three things:
+After each operator interaction, the `ShadowObserver` runs. It does three things:
 1. Builds an event record: `session_id`, `operator_id`, `machine_id`, `format_used`, `cognitive_tier`, `outcome_status` (`SUCCESS`, `ESCALATED_CMMS`, `ABANDONED_TIMEOUT`, or `FORMAT_OVERRIDE`), and a timestamp.
 2. Appends the record to `data/episodic_event_queue.json`.
 3. Does **no** graph updates during the shift. This keeps the UI fast and prevents mid-shift data drift.
@@ -467,75 +468,33 @@ Quick answers to common design questions. See Section 3 for full details.
 
 ---
 
-## 7. Example Scenarios
-
-### 7.1 Scenario 1: Novice Operator -- Haas CNC, Alarm 102 (Servos Off)
-1. **Operator**: John Doe (`OP-001`), Novice Tier (Autonomy: 35.0%), Shift Hour 2 of 8.
-2. **Alarm**: Haas VF-2 fires `Alarm 102: SERVOS OFF`. SCADA shows air pressure at 64.2 PSI (nominal is > 85 PSI).
-3. **Retrieval**: Hybrid RRF finds `SOP-HAAS-001`. Fault tree ranks `HAAS_102_REGULATOR` (P=0.93) as the Primary Fix.
-4. **Bandit**: Evaluates state `(OP-001, Novice)`. Selects `Visual_StepByStep` (highest UCB score).
-5. **LLM Response**: Gemini outputs numbered steps with `[SAFETY]`, `[INSPECT]`, and `[ACTION]` tags. Tells John to adjust the rear panel regulator.
-6. **Outcome**: John adjusts the regulator to 90 PSI. Clicks *"Solved Independently"*.
-7. **Shadow Observer**:
-   * Saves `SUCCESS` event to `episodic_event_queue.json` in under 5ms.
-   * Puts +1.0 bandit reward and +5.0 autonomy into provisional holding ledger (8-hour window).
-   * SCADA confirms pressure normalized to 92 PSI.
-
-### 7.2 Scenario 2: Expert on Haas, Treated as Novice on Engel (Decoupled States)
-1. **Operator**: Sarah Jenkins (`OP-002`). Expert on Haas VF-2 (Autonomy: 95.0%). Newly assigned to Engel Injection Molder (Autonomy: 15.0%, Tier: Novice).
-2. **Alarm**: Engel Victory 330 fires `E-201: BARREL OVERHEAT`.
-3. **State-Bound Routing**:
-   * System detects the machine is an Engel Victory 330.
-   * Reads Sarah's Engel-specific tier: **Novice**.
-   * Queries state `(OP-002, Novice)` in the knowledge graph.
-   * Bandit selects `Visual_StepByStep` -- not Terse_Technical. Sarah gets full visual steps for thermocouple inspection, matching her novice status on this specific machine.
-
-### 7.3 Scenario 3: High Fatigue, Night Shift, Supervisor Offline
-1. **Operator**: Mike Chang (`OP-003`), Intermediate Tier, Shift Hour 11 of 12 (Fatigue Index: 0.92). Supervisor is offline.
-2. **Alarm**: Spindle vibration alarm on Haas VF-2.
-3. **ECM Gating**:
-   * Fatigue Index = 0.92 >= 0.80 -- **Fatigue Gate fires**. Exploration set to `c = 0.0` (100% exploit). Bandit selects `Terse_Technical`.
-   * Supervisor is offline -- **Supervisor Gate fires**. Working Memory Synthesizer adds a mandatory safety hold. Mike is told not to open any enclosure alone.
-4. **LLM Response**: Short, concise external checks only. Tells Mike to stop the spindle if vibration continues.
-
-### 7.4 Scenario 4: Fast Fix -- Micro-Debrief Loop
-1. **Event**: Sarah resolves a complex hydraulic alarm in 1.8 minutes. OEM standard time is 12 minutes.
-2. **Debrief Enqueue**: Shadow Observer detects the unusual speed. Saves a record in `pending_debriefs.json`.
-3. **Next Session**: When Sarah logs in for her next shift, the assistant asks: *"Earlier you resolved Alarm 304 in 1.8 min. Did you use the 'Manifold Bypass Bleed' shortcut? (Yes/No)"*
-4. **Outcome**: Sarah clicks *"Yes"*. The procedure is saved in `quarantine_sops.json` with Sarah's Expert validation attached.
-
-### 7.5 Scenario 5: Overnight Sleep Cycle
-1. **Trigger**: At 03:00 AM, `sleep_cycle_evaluator.py` runs.
-2. **Durability Audit**:
-   * Checks John Doe's Alarm 102 fix from Scenario 1. SCADA shows 0 recurring alarms in 8 hours. Releases **+1.0** bandit reward and **+5.0** autonomy to John's profile.
-   * Checks another operator's quick fix. SCADA shows the alarm came back after 2 hours. Flips the reward to a **-5.0** bandit penalty and **-15.0** autonomy deduction.
-3. **Knowledge Graph Update**: Updates all operator-machine autonomy scores, recalculates derived tiers, and updates UCB weights in `graph_state.json`.
-4. **Fault Tree Update**: Updates branch success and failure counts in `procedural_fault_trees.json`.
-5. **Consensus Check**: Finds a quarantined SOP with 3 Expert validations. Promotes it to the active procedural library with `min_tier_required: 'Expert'`.
-6. **Queue Flush**: Archives processed events. Clears `episodic_event_queue.json`.
-
----
-
-## 8. Codebase Structure
+## 7. Codebase Structure
 
 For a full module-by-module and class-by-class breakdown, see [code_and_modules_guide.md](code_and_modules_guide.md).
+For interactive demo test scenarios and evaluation procedures, see [demo_and_evaluation_guide.md](demo_and_evaluation_guide.md).
 For setup and run commands, see [run_and_configuration_guide.md](run_and_configuration_guide.md).
 
 ```text
 factory-agent-app/
 ├── app.py                          # Streamlit UI & Shopfloor Dashboard
 ├── sleep_cycle_evaluator.py        # Async Sleep Cycle Evaluator & Durability Engine
+├── doc/                            # Comprehensive Solution Documentation
+│   ├── solution_design.md          # Architecture & Mathematical Foundations
+│   ├── demo_and_evaluation_guide.md# Interactive Demo Test Scenarios
+│   ├── code_and_modules_guide.md   # Class & Method Technical Specifications
+│   └── run_and_configuration_guide.md # Setup & Configuration Manual
 ├── agents/
 │   ├── bandit_router.py            # UCB1 Bandit: picks format per operator state
 │   ├── chat_agent.py               # Main chat agent orchestrator
-│   ├── shadow_observer.py          # Event logger & durability manager
-│   └── working_memory.py           # Builds the full LLM prompt
+│   └── shadow_observer.py          # Event logger & durability manager
 ├── memory/
 │   ├── semantic_graph.py           # Knowledge Graph: operator-machine-format edges
 │   ├── procedural_memory.py        # Fault Trees: fix paths with success/failure counts
+│   ├── debrief_store.py            # Micro-Debrief lifecycle manager
 │   ├── episodic_store.py           # Event queue & audit log writer
+│   ├── working_memory.py           # Builds the full LLM prompt
 │   └── search.py                   # Hybrid retrieval: ChromaDB + BM25 + RRF
-├── services/
+├── mock_services/
 │   ├── scada_service.py            # Mock SCADA: sensor stream & repair check
 │   ├── ecm_service.py              # Mock ECM: fatigue index, supervisor, noise
 │   ├── cmms_service.py             # Mock CMMS: work orders & ticket lifecycle
@@ -553,7 +512,7 @@ factory-agent-app/
 
 ---
 
-## 9. Conclusion
+## 8. Conclusion
 
 This system replaces static factory manuals with a smart, self-improving AI assistant.
 
