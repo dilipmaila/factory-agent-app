@@ -38,7 +38,6 @@ A **smart AI Copilot** for factory floors (CNC Machining & Injection Molding). I
 factory-agent-app/
 ├── app.py                          # Streamlit UI — The Shop Floor Screen
 ├── sleep_cycle_evaluator.py        # Nightly update script (runs at 03:00 AM)
-├── verify_refactor.py / section2/3 # Automated tests
 ├── doc/                            # Documentation
 ├── agents/
 │   ├── bandit_router.py            # Picks the best format based on skill & fatigue
@@ -100,15 +99,6 @@ uv run python sleep_cycle_evaluator.py
 
 # Update the search database (run this if you edit factory_knowledge_base.json)
 uv run python data/ingest.py
-```
-
-### Run Tests
-
-```bash
-uv run python verify_omni_concepts.py   # Tests safety and core concepts
-uv run python verify_refactor.py        # Tests fault trees and queues
-uv run python verify_section2.py        # Tests 8-hour wait rule and overrides
-uv run python verify_section3.py        # Tests fatigue rules and debriefs
 ```
 
 ---

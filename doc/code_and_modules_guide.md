@@ -1,8 +1,5 @@
 # Code and Modules Technical Guide: Factory Operator AI Assistant
 
-**Author:** Manufacturing AI Systems Architecture Team
-**Date:** August 2026
-**Format:** Markdown (MD)
 
 ## Table of Contents
 
@@ -30,7 +27,6 @@
 - [6. Data & Indexing (`data/`)](#6-data--indexing-data)
   - [6.1 `data/ingest.py` - Search Index Builder](#61-dataingestpy---search-index-builder)
   - [6.2 JSON Files](#62-json-files)
-- [7. Automated Tests](#7-automated-tests)
 
 ---
 
@@ -239,24 +235,3 @@ For setup instructions and JSON files, see [run_and_configuration_guide.md](run_
 * `data/episodic_event_queue.json`: The fast, temporary event buffer.
 * `data/episodic_logs.json`: The permanent history log.
 * `data/graph_state.json`: The saved state of operator skills and format preferences.
-
----
-
-## 7. Automated Tests
-
-We have three test scripts to verify the system works:
-
-1. **`verify_refactor.py`**:
-   Tests the Fault Trees, the decoupled Knowledge Graph, and the fast event queue.
-2. **`verify_section2.py`**:
-   Tests the 8-Hour Escrow, the Quarantine vote system, and format overrides.
-3. **`verify_section3.py`**:
-   Tests the Fatigue rules and the Micro-Debrief questions.
-
-To run all tests:
-
-```bash
-uv run python verify_refactor.py
-uv run python verify_section2.py
-uv run python verify_section3.py
-```

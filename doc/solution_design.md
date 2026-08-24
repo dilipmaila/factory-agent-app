@@ -1,8 +1,4 @@
-# Adaptive AI Assistant for Factory Operators: Solution Design
-
-**Author:** Manufacturing AI Systems Architecture Team  
-**Date:** August 2026  
-**Format:** Markdown (MD)  
+# Adaptive AI Assistant for Factory Operators: Solution Design 
 
 ## Table of Contents
 - [1. Summary](#1-summary)
@@ -528,9 +524,6 @@ For setup and run commands, see [run_and_configuration_guide.md](run_and_configu
 factory-agent-app/
 ├── app.py                          # Streamlit UI & Shopfloor Dashboard
 ├── sleep_cycle_evaluator.py        # Async Sleep Cycle Evaluator & Escrow Engine
-├── verify_refactor.py              # Tests: Cognitive Decoupling & Queues
-├── verify_section2.py              # Tests: Escrow, Quarantine & Overrides
-├── verify_section3.py              # Tests: ECM, Fatigue & Micro-Debriefs
 ├── agents/
 │   ├── bandit_router.py            # UCB1 Bandit: picks format per operator state
 │   ├── chat_agent.py               # Main chat agent orchestrator

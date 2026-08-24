@@ -1,8 +1,5 @@
 # Setup, Execution & Configuration Guide: Factory Operator AI Assistant
 
-**Author:** Manufacturing AI Systems Architecture Team  
-**Date:** August 2026  
-**Format:** Markdown (MD)  
 
 ## Table of Contents
 - [1. Overview](#1-overview)
@@ -14,8 +11,7 @@
 - [3. Running the App](#3-running-the-app)
   - [3.1 Starting the Shop Floor Screen (UI)](#31-starting-the-shop-floor-screen-ui)
   - [3.2 Running the Nightly Update Script](#32-running-the-nightly-update-script)
-  - [3.3 Running Automated Tests](#33-running-automated-tests)
-  - [3.4 Updating the Search Database](#34-updating-the-search-database)
+  - [3.3 Updating the Search Database](#33-updating-the-search-database)
 - [4. JSON Files Guide](#4-json-files-guide)
   - [4.1 `data/factory_knowledge_base.json` - Official Manuals](#41-datafactory_knowledge_basejson---official-manuals)
   - [4.2 `data/procedural_fault_trees.json` - Fix Paths & Success Rates](#42-dataprocedural_fault_treesjson---fix-paths--success-rates)
@@ -139,17 +135,7 @@ SLEEP CYCLE BATCH EVALUATION COMPLETE.
 ======================================================================
 ```
 
-### 3.3 Running Automated Tests
-Run these tests to make sure all the core features work:
-
-```bash
-uv run python verify_omni_concepts.py
-uv run python verify_refactor.py
-uv run python verify_section2.py
-uv run python verify_section3.py
-```
-
-### 3.4 Updating the Search Database
+### 3.3 Updating the Search Database
 If you add a new manual to `data/factory_knowledge_base.json`, you must run this script to update the search index (ChromaDB):
 
 ```bash
